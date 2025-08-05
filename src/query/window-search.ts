@@ -37,8 +37,8 @@ export class WindowSearch {
     // Sort results
     if (options.sortBy === 'cultural_significance') {
       universes.sort((a, b) => {
-        const aScore = a.metadata.cultural_significance;
-        const bScore = b.metadata.cultural_significance;
+        const aScore = a.metadata?.cultural_significance ?? 0;
+        const bScore = b.metadata?.cultural_significance ?? 0;
         return options.order === 'desc' ? bScore - aScore : aScore - bScore;
       });
     }
@@ -104,7 +104,9 @@ export class WindowSearch {
     // Check if any layer/epoch overlaps with the window
     for (const layer of universe.layers) {
       for (const epoch of Object.values(layer.epochs)) {
-        if (epoch.startTime < window.endTime && epoch.endTime > window.startTime) {
+        const startTime = epoch.startTime ?? epoch.start;
+        const endTime = epoch.endTime ?? epoch.end;
+        if (startTime && endTime && startTime < window.endTime && endTime > window.startTime) {
           return true;
         }
       }
