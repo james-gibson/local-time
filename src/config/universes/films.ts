@@ -80,3 +80,6 @@ export const maryPoppinsUniverse: Universe = {
 export const filmUniverses = [
   maryPoppinsUniverse
 ];
+
+// MCP Integration for film universe generation
+export { FILM_MCP_PROMPT } from '../mcp-prompts/film-prompt.js';
