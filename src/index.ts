@@ -34,5 +34,12 @@ export class LocalTime {
 }
 
 // Export utilities for creating references
-export { ReferenceHelpers, generateReferenceId, generateTemporalId } from './utils/reference-helpers.js';
-export { ReferenceType } from './core/types.js';
+export { 
+  ReferenceHelpers, 
+  generateReferenceId, 
+  generateTemporalId,
+  createTolkienInfluenceChain,
+  createBTTFTestReferences,
+  createMultilayerReference
+} from './utils/reference-helpers.js';
+export { ReferenceType, ReferenceChain } from './core/types.js';

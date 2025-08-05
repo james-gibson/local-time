@@ -180,6 +180,14 @@ export interface ReferenceChain {
   nodes: ReferenceNode[];
   connections: ReferenceConnection[];
   metadata?: ChainMetadata;
+  layers?: ChainLayer[];
+}
+
+export interface ChainLayer {
+  layerId: string;
+  type: 'historical' | 'personal' | 'creative' | 'cultural';
+  transformationType: 'direct' | 'sublimated' | 'allegorized' | 'mythologized';
+  confidence: number;
 }
 
 export interface ReferenceNode {
