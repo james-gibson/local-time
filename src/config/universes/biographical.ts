@@ -39,7 +39,7 @@ export const tolkienBiographyUniverse: Universe = {
           epochId: "tolkien:oxford_undergrad",
           startTime: BigInt(Date.UTC(1911, 9, 1)) * 1000000n, // October 1911
           endTime: BigInt(Date.UTC(1915, 5, 1)) * 1000000n,   // May 1915
-          precision: TimePrecision.MONTH,
+          precision: TimePrecision.DAY,
           description: "Oxford undergraduate studies"
         }
       }
@@ -52,7 +52,7 @@ export const tolkienBiographyUniverse: Universe = {
           epochId: "tolkien:wwi_service",
           startTime: BigInt(Date.UTC(1916, 6, 1)) * 1000000n,
           endTime: BigInt(Date.UTC(1920, 0, 1)) * 1000000n,
-          precision: TimePrecision.MONTH,
+          precision: TimePrecision.DAY,
           description: "World War I military service"
         }
       }

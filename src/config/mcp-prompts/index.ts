@@ -171,6 +171,30 @@ export const MCP_PROMPT_TEMPLATES: Record<UniverseType, MCPPromptTemplate> = {
     capabilities: ['Procedure timeline mapping', 'Medical phase tracking', 'Privacy protection'],
     dataSources: ['Medical literature', 'Procedure protocols', 'Anonymized case studies'],
     restrictions: ['No patient identification', 'No confidential data', 'General procedures only']
+  },
+
+  [UniverseType.BIOGRAPHY]: {
+    universeType: UniverseType.BIOGRAPHY,
+    prompt: `# Biography Universe Generation - Model Context Protocol\n\nSpecialized for biographical timelines with life events, education, career, and personal milestones.`,
+    capabilities: ['Life timeline mapping', 'Educational period tracking', 'Career phase analysis', 'Personal milestone identification'],
+    dataSources: ['Biographical records', 'Academic sources', 'Historical documents', 'Personal letters'],
+    restrictions: ['Respect privacy for living individuals', 'Verify historical accuracy', 'No speculative content']
+  },
+
+  [UniverseType.LEGAL_TIMELINE]: {
+    universeType: UniverseType.LEGAL_TIMELINE,
+    prompt: `# Legal Timeline Universe Generation - Model Context Protocol\n\nSpecialized for legal timelines including legislation, court decisions, and regulatory changes.`,
+    capabilities: ['Legislation timeline tracking', 'Court decision mapping', 'Regulatory change analysis', 'Jurisdiction-aware processing'],
+    dataSources: ['Legal databases', 'Court records', 'Government archives', 'Legislative records'],
+    restrictions: ['Public records only', 'No confidential legal information', 'Verify legal accuracy']
+  },
+
+  [UniverseType.INSTITUTIONAL_PERIOD]: {
+    universeType: UniverseType.INSTITUTIONAL_PERIOD,
+    prompt: `# Institutional Period Universe Generation - Model Context Protocol\n\nSpecialized for institutional timelines including organizational periods, leadership changes, and policy implementations.`,
+    capabilities: ['Organizational timeline mapping', 'Leadership period tracking', 'Policy implementation analysis', 'Institutional change documentation'],
+    dataSources: ['Institutional records', 'Organizational archives', 'Leadership databases', 'Policy documents'],
+    restrictions: ['Public information only', 'No confidential institutional data', 'Verify organizational accuracy']
   }
 };
 
