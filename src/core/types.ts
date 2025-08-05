@@ -46,7 +46,7 @@ export interface RealityRelation {
 
 export interface RealityAnchor {
   realEventId: string;
-  relationshipType: 'depicts' | 'inspired_by' | 'reinterprets' | 'contradicts' | 'reimagines' | 'documents';
+  relationshipType: 'depicts' | 'inspired_by' | 'reinterprets' | 'contradicts' | 'reimagines' | 'documents' | 'experienced';
   confidence: number;
   evidence?: string[];
 }

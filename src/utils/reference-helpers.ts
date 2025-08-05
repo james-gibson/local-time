@@ -1,5 +1,5 @@
 import { KSUIDConverter } from './ksuid-converter.js';
-import { TimePrecision } from '../core/types.js';
+import { TimePrecision, ReferenceChain, ReferenceType, TemporalReference, TemporalAnchor } from '../core/types.js';
 
 export class ReferenceHelpers {
   /**
