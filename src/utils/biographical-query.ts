@@ -339,6 +339,91 @@ export class BiographicalQueryService {
   }
 
   /**
+   * Calculate time between two events using one as T=0
+   * Example: "Free Britney" meme to conservatorship termination
+   */
+  async calculateTimeBetweenEvents(
+    personName: string,
+    zeroEventTag: string,
+    targetEventTag: string
+  ): Promise<{
+    success: boolean;
+    timeElapsed?: {
+      days: number;
+      months: number;
+      years: number;
+      totalDays: number;
+    };
+    zeroEvent?: {
+      name: string;
+      date: Date;
+      description: string;
+    };
+    targetEvent?: {
+      name: string;
+      date: Date;
+      description: string;
+    };
+    confidence: number;
+  }> {
+    const biographies = await this.findBiographies({ personName });
+    
+    if (biographies.length === 0) {
+      return { success: false, confidence: 0 };
+    }
+
+    const biography = biographies[0];
+    
+    // Find zero event (T=0)
+    const zeroKeyframe = biography.temporalStructure?.keyframes.find(k => 
+      k.tags.includes(zeroEventTag)
+    );
+    
+    // Find target event
+    const targetKeyframe = biography.temporalStructure?.keyframes.find(k => 
+      k.tags.includes(targetEventTag)
+    );
+
+    if (!zeroKeyframe || !targetKeyframe) {
+      return { success: false, confidence: 0 };
+    }
+
+    const zeroDate = new Date(Number(zeroKeyframe.timestamp / 1000000n));
+    const targetDate = new Date(Number(targetKeyframe.timestamp / 1000000n));
+    
+    // Calculate time difference
+    const timeDiff = targetDate.getTime() - zeroDate.getTime();
+    const totalDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    
+    // Calculate years, months, days
+    const years = Math.floor(totalDays / 365.25);
+    const remainingDays = totalDays - Math.floor(years * 365.25);
+    const months = Math.floor(remainingDays / 30.44); // Average month length
+    const days = Math.floor(remainingDays - (months * 30.44));
+    
+    return {
+      success: true,
+      timeElapsed: {
+        days,
+        months,
+        years,
+        totalDays
+      },
+      zeroEvent: {
+        name: zeroKeyframe.id.replace('_', ' '),
+        date: zeroDate,
+        description: `T=0: ${zeroKeyframe.id.replace('_', ' ')}`
+      },
+      targetEvent: {
+        name: targetKeyframe.id.replace('_', ' '),
+        date: targetDate,
+        description: targetKeyframe.id.replace('_', ' ')
+      },
+      confidence: Math.min(zeroKeyframe.certainty || 1.0, targetKeyframe.certainty || 1.0)
+    };
+  }
+
+  /**
    * Generate a biographical timeline report
    */
   generateBiographicalReport(universe: Universe): string {

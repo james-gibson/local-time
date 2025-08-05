@@ -202,6 +202,19 @@ export const britneySpearsBiographyUniverse: Universe = {
       {
         id: "adulthood",
         start: BigInt(Date.UTC(1999, 11, 2)) * 1000000n, // 18th birthday
+        end: BigInt(Date.UTC(2008, 1, 1)) * 1000000n, // Before conservatorship
+        type: "life_period"
+      },
+      {
+        id: "conservatorship_period",
+        start: BigInt(Date.UTC(2008, 1, 1)) * 1000000n,
+        end: BigInt(Date.UTC(2021, 10, 12)) * 1000000n,
+        type: "legal_period",
+        status: "inactive"
+      },
+      {
+        id: "post_conservatorship",
+        start: BigInt(Date.UTC(2021, 10, 12)) * 1000000n,
         end: BigInt(Date.now()) * 1000000n,
         type: "life_period"
       }
@@ -233,6 +246,27 @@ export const britneySpearsBiographyUniverse: Universe = {
         timestamp: BigInt(Date.UTC(1998, 9, 23)) * 1000000n, // Oct 23, 1998
         significance: 0.95,
         tags: ["debut_single", "career_start", "breakthrough"],
+        certainty: 1.0
+      },
+      {
+        id: "conservatorship_begins",
+        timestamp: BigInt(Date.UTC(2008, 1, 1)) * 1000000n, // Feb 1, 2008
+        significance: 0.9,
+        tags: ["legal", "conservatorship", "personal_crisis"],
+        certainty: 1.0
+      },
+      {
+        id: "free_britney_meme_viral",
+        timestamp: BigInt(Date.UTC(2019, 3, 15)) * 1000000n, // April 15, 2019 (approximate)
+        significance: 0.85,
+        tags: ["social_media", "fan_movement", "viral_meme", "free_britney"],
+        certainty: 0.8
+      },
+      {
+        id: "conservatorship_terminated",
+        timestamp: BigInt(Date.UTC(2021, 10, 12)) * 1000000n, // Nov 12, 2021
+        significance: 1.0,
+        tags: ["legal", "freedom", "court_victory", "conservatorship_end"],
         certainty: 1.0
       }
     ],

@@ -72,3 +72,14 @@ export async function queryPersonAge(
   const queryService = new BiographicalQueryService(registry);
   return await queryService.answerAgeQuery(personName, eventTag, ageThreshold);
 }
+
+// Export convenience function for Free Britney timeline query
+export async function queryFreeBritneyTimeline(registry: any) {
+  const { BiographicalQueryService } = await import('./utils/biographical-query.js');
+  const queryService = new BiographicalQueryService(registry);
+  return await queryService.calculateTimeBetweenEvents(
+    "britney spears",
+    "free_britney",
+    "conservatorship_end"
+  );
+}
