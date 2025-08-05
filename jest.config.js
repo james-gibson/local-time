@@ -7,8 +7,14 @@ export default {
     }
   },
   testEnvironment: 'node',
-  roots: ['<rootDir>/tests'],
-  testMatch: ['**/*.test.ts'],
+  roots: ['<rootDir>/src', '<rootDir>/tests', '<rootDir>/test'],
+  testMatch: [
+    '**/__tests__/**/*.ts',
+    '**/?(*.)+(spec|test).ts'
+  ],
+  moduleNameMapping: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts'
