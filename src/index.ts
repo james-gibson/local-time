@@ -32,3 +32,7 @@ export class LocalTime {
     return this.windowSearch;
   }
 }
+
+// Export utilities for creating references
+export { ReferenceHelpers, generateReferenceId, generateTemporalId } from './utils/reference-helpers.js';
+export { ReferenceType } from './core/types.js';
