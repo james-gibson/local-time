@@ -140,6 +140,115 @@ export const tolkienBiographyUniverse: Universe = {
   }
 };
 
+export const britneySpearsBiographyUniverse: Universe = {
+  universeId: "biography:britney_spears:1981-present",
+  type: UniverseType.BIOGRAPHY,
+  identifiers: {
+    primary: "biography:britney_spears:1981-present",
+    aliases: ["britney_spears", "princess_of_pop"]
+  },
+  realityRelation: {
+    type: 'documentary',
+    fictionalizationDegree: 0.0,
+    realityAnchors: []
+  },
+  attribution: {
+    public_domain: false,
+    sources: ["Music industry records", "Award databases", "Public biographical sources"],
+    citations_required: true
+  },
+  layers: [
+    {
+      layerId: "life_timeline",
+      type: 'primary',
+      epochs: {
+        full_life: {
+          epochId: "britney:life",
+          startTime: BigInt(Date.UTC(1981, 11, 2)) * 1000000n, // Birth: Dec 2, 1981
+          endTime: BigInt(Date.now()) * 1000000n, // Still alive
+          precision: TimePrecision.DAY,
+          description: "Britney Spears' complete lifespan"
+        }
+      }
+    },
+    {
+      layerId: "career",
+      type: 'primary',
+      epochs: {
+        music_career: {
+          epochId: "britney:music_career",
+          startTime: BigInt(Date.UTC(1998, 0, 1)) * 1000000n, // Career start ~1998
+          endTime: BigInt(Date.now()) * 1000000n,
+          precision: TimePrecision.DAY,
+          description: "Britney Spears' music career"
+        }
+      }
+    }
+  ],
+  temporalStructure: {
+    segments: [
+      {
+        id: "childhood",
+        start: BigInt(Date.UTC(1981, 11, 2)) * 1000000n,
+        end: BigInt(Date.UTC(1999, 11, 2)) * 1000000n, // 18th birthday
+        type: "life_period"
+      },
+      {
+        id: "early_career",
+        start: BigInt(Date.UTC(1998, 0, 1)) * 1000000n,
+        end: BigInt(Date.UTC(2002, 0, 1)) * 1000000n,
+        type: "career"
+      },
+      {
+        id: "adulthood",
+        start: BigInt(Date.UTC(1999, 11, 2)) * 1000000n, // 18th birthday
+        end: BigInt(Date.now()) * 1000000n,
+        type: "life_period"
+      }
+    ],
+    keyframes: [
+      {
+        id: "birth",
+        timestamp: BigInt(Date.UTC(1981, 11, 2)) * 1000000n,
+        significance: 1.0,
+        tags: ["birth", "biographical", "life_event"],
+        certainty: 1.0
+      },
+      {
+        id: "eighteenth_birthday",
+        timestamp: BigInt(Date.UTC(1999, 11, 2)) * 1000000n,
+        significance: 0.8,
+        tags: ["birthday", "legal_age", "milestone"],
+        certainty: 1.0
+      },
+      {
+        id: "first_music_award",
+        timestamp: BigInt(Date.UTC(1999, 8, 9)) * 1000000n, // MTV VMA Sept 9, 1999
+        significance: 0.9,
+        tags: ["award", "music", "career_milestone", "mtv_vma"],
+        certainty: 1.0
+      },
+      {
+        id: "baby_one_more_time_release",
+        timestamp: BigInt(Date.UTC(1998, 9, 23)) * 1000000n, // Oct 23, 1998
+        significance: 0.95,
+        tags: ["debut_single", "career_start", "breakthrough"],
+        certainty: 1.0
+      }
+    ],
+    windows: {
+      strategy: 'phase_based'
+    }
+  },
+  metadata: {
+    canonicalName: "Britney Spears Biography",
+    creators: ["Britney Spears"],
+    released: new Date("1981-12-02"),
+    cultural_significance: 0.9
+  }
+};
+
 export const biographicalUniverses = [
-  tolkienBiographyUniverse
+  tolkienBiographyUniverse,
+  britneySpearsBiographyUniverse
 ];
