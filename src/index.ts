@@ -68,6 +68,7 @@ export async function queryPersonAge(
   ageThreshold: number,
   registry: any
 ) {
+  const { BiographicalQueryService } = await import('./utils/biographical-query.js');
   const queryService = new BiographicalQueryService(registry);
   return await queryService.answerAgeQuery(personName, eventTag, ageThreshold);
 }
