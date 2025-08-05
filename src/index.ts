@@ -46,3 +46,10 @@ export { ReferenceType, ReferenceChain } from './core/types.js';
 
 // Export attribution and copyright utilities
 export { AttributionEngine, AttributionRequirement } from './utils/attribution-engine.js';
+
+// Export reality gradient utilities
+export { 
+  RealityGradientAnalyzer, 
+  RealityGradient, 
+  RealityCategory 
+} from './utils/reality-gradient.js';

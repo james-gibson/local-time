@@ -231,29 +231,29 @@ export enum UniverseType {
 
 export enum ReferenceType {
   // Direct references
-  DEPICTS = 'depicts',
-  DOCUMENTS = 'documents',
-  RECREATES = 'recreates',
+  DEPICTS = 'depicts',                    // Claims to show real events
+  DOCUMENTS = 'documents',                // Documentary evidence
+  RECREATES = 'recreates',                // Theatrical recreation
   QUOTES = 'quotes',
   
   // Influenced references
-  INSPIRED_BY = 'inspired_by',
-  SUBLIMATED = 'sublimated',
-  ALLEGORIZES = 'allegorizes',
+  INSPIRED_BY = 'inspired_by',            // Loosely based on
+  SUBLIMATED = 'sublimated',              // Transformed through psyche
+  ALLEGORIZES = 'allegorizes',            // Symbolic representation
   
   // Meta references
-  CONTRADICTS = 'contradicts',
-  REINTERPRETS = 'reinterprets',
-  PARODIES = 'parodies',
-  HOMAGE = 'homage',
+  CONTRADICTS = 'contradicts',            // Challenges official version
+  REINTERPRETS = 'reinterprets',          // New perspective
+  PARODIES = 'parodies',                  // Comedic take
+  HOMAGE = 'homage',                      // Respectful reference
   VISUAL_HOMAGE = 'visual_homage',
   SCENE_HOMAGE = 'scene_homage',
   DIALOGUE_REFERENCE = 'dialogue_reference',
   
   // Reality-blending
-  METAFICTION = 'metafiction',
-  ALTERNATE_HISTORY = 'alternate_history',
-  MYTHOLOGIZES = 'mythologizes',
+  METAFICTION = 'metafiction',            // Fiction about fiction
+  ALTERNATE_HISTORY = 'alternate_history', // What if scenarios
+  MYTHOLOGIZES = 'mythologizes',          // Turns real into myth
   
   // Temporal paradoxes
   TEMPORAL_PARADOX = 'temporal_paradox',
