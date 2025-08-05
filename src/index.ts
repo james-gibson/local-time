@@ -60,3 +60,14 @@ export {
   BiographicalQuery,
   LegalQuery
 } from './utils/biographical-query.js';
+
+// Export convenience function for age-based queries
+export async function queryPersonAge(
+  personName: string,
+  eventTag: string,
+  ageThreshold: number,
+  registry: any
+) {
+  const queryService = new BiographicalQueryService(registry);
+  return await queryService.answerAgeQuery(personName, eventTag, ageThreshold);
+}

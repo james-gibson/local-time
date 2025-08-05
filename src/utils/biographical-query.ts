@@ -222,6 +222,123 @@ export class BiographicalQueryService {
   }
 
   /**
+   * Answer age-based queries about biographical events
+   */
+  async answerAgeQuery(
+    personName: string,
+    eventTag: string,
+    ageThreshold: number
+  ): Promise<{
+    answer: boolean;
+    details: {
+      personAge: number;
+      eventDate: Date;
+      birthdayDate: Date;
+      ageAtEvent: number;
+      eventDescription: string;
+    } | null;
+    confidence: number;
+  }> {
+    // Find the person's biography
+    const biographies = await this.findBiographies({ personName });
+    
+    if (biographies.length === 0) {
+      return {
+        answer: false,
+        details: null,
+        confidence: 0
+      };
+    }
+
+    const biography = biographies[0];
+    
+    // Find birth event
+    const birthKeyframe = biography.temporalStructure?.keyframes.find(k => 
+      k.tags.includes('birth')
+    );
+    
+    // Find the specific event
+    const eventKeyframe = biography.temporalStructure?.keyframes.find(k => 
+      k.tags.includes(eventTag)
+    );
+
+    if (!birthKeyframe || !eventKeyframe) {
+      return {
+        answer: false,
+        details: null,
+        confidence: 0
+      };
+    }
+
+    const birthDate = new Date(Number(birthKeyframe.timestamp / 1000000n));
+    const eventDate = new Date(Number(eventKeyframe.timestamp / 1000000n));
+    
+    // Calculate age at event
+    const ageAtEvent = this.calculateAge(birthDate, eventDate);
+    
+    return {
+      answer: ageAtEvent >= ageThreshold,
+      details: {
+        personAge: this.calculateAge(birthDate, new Date()),
+        eventDate,
+        birthdayDate: birthDate,
+        ageAtEvent,
+        eventDescription: eventKeyframe.id.replace('_', ' ')
+      },
+      confidence: Math.min(birthKeyframe.certainty || 1.0, eventKeyframe.certainty || 1.0)
+    };
+  }
+
+  /**
+   * Find specific award or achievement events
+   */
+  async findAwardEvents(personName: string): Promise<Array<{
+    eventName: string;
+    date: Date;
+    ageAtEvent: number;
+    tags: string[];
+    significance: number;
+  }>> {
+    const biographies = await this.findBiographies({ personName });
+    
+    if (biographies.length === 0) {
+      return [];
+    }
+
+    const biography = biographies[0];
+    const birthKeyframe = biography.temporalStructure?.keyframes.find(k => 
+      k.tags.includes('birth')
+    );
+
+    if (!birthKeyframe) {
+      return [];
+    }
+
+    const birthDate = new Date(Number(birthKeyframe.timestamp / 1000000n));
+    
+    // Find all award-related events
+    const awardEvents = biography.temporalStructure?.keyframes.filter(k => 
+      k.tags.some(tag => ['award', 'achievement', 'milestone'].includes(tag))
+    ) || [];
+
+    return awardEvents.map(event => {
+      const eventDate = new Date(Number(event.timestamp / 1000000n));
+      return {
+        eventName: event.id.replace('_', ' '),
+        date: eventDate,
+        ageAtEvent: this.calculateAge(birthDate, eventDate),
+        tags: event.tags,
+        significance: event.significance
+      };
+    }).sort((a, b) => a.date.getTime() - b.date.getTime());
+  }
+
+  private calculateAge(birthDate: Date, eventDate: Date): number {
+    const ageInMs = eventDate.getTime() - birthDate.getTime();
+    return Math.floor(ageInMs / (365.25 * 24 * 60 * 60 * 1000));
+  }
+
+  /**
    * Generate a biographical timeline report
    */
   generateBiographicalReport(universe: Universe): string {
