@@ -1,0 +1,259 @@
+import { Universe, UniverseType, TimePrecision } from '../core/types.js';
+import { UniverseRegistry } from '../config/universe-registry.js';
+
+export interface BiographicalQuery {
+  personName?: string;
+  birthYear?: number;
+  deathYear?: number;
+  educationPeriod?: boolean;
+  militaryService?: boolean;
+  publicService?: boolean;
+  profession?: string;
+  lifeStage?: 'childhood' | 'education' | 'career' | 'retirement';
+}
+
+export interface LegalQuery {
+  jurisdiction?: string;
+  lawType?: 'constitutional' | 'statutory' | 'case_law' | 'regulation';
+  status?: 'active' | 'inactive' | 'overturned' | 'amended';
+  enactedAfter?: Date;
+  enactedBefore?: Date;
+  subject?: string;
+}
+
+export class BiographicalQueryService {
+  constructor(private registry: UniverseRegistry) {}
+
+  /**
+   * Find biographical universes matching criteria
+   */
+  async findBiographies(query: BiographicalQuery): Promise<Universe[]> {
+    let universes = this.registry.getAllUniverses()
+      .filter(u => u.type === UniverseType.BIOGRAPHY);
+
+    if (query.personName) {
+      universes = universes.filter(u => 
+        u.metadata?.canonicalName.toLowerCase().includes(query.personName!.toLowerCase()) ||
+        u.identifiers.aliases?.some(alias => 
+          alias.toLowerCase().includes(query.personName!.toLowerCase())
+        )
+      );
+    }
+
+    if (query.birthYear) {
+      universes = universes.filter(u => {
+        const birthKeyframe = u.temporalStructure?.keyframes.find(k => k.tags.includes('birth'));
+        if (birthKeyframe) {
+          const birthDate = new Date(Number(birthKeyframe.timestamp / 1000000n));
+          return birthDate.getFullYear() === query.birthYear;
+        }
+        return false;
+      });
+    }
+
+    if (query.deathYear) {
+      universes = universes.filter(u => {
+        const deathKeyframe = u.temporalStructure?.keyframes.find(k => k.tags.includes('death'));
+        if (deathKeyframe) {
+          const deathDate = new Date(Number(deathKeyframe.timestamp / 1000000n));
+          return deathDate.getFullYear() === query.deathYear;
+        }
+        return false;
+      });
+    }
+
+    if (query.educationPeriod) {
+      universes = universes.filter(u => 
+        u.temporalStructure?.segments.some(s => s.type === 'education')
+      );
+    }
+
+    if (query.militaryService) {
+      universes = universes.filter(u => 
+        u.temporalStructure?.segments.some(s => s.type === 'public_service') &&
+        u.temporalStructure?.keyframes.some(k => k.tags.includes('military'))
+      );
+    }
+
+    return universes;
+  }
+
+  /**
+   * Find legal timelines matching criteria
+   */
+  async findLegalTimelines(query: LegalQuery): Promise<Universe[]> {
+    let universes = this.registry.getAllUniverses()
+      .filter(u => u.type === UniverseType.LEGAL_TIMELINE);
+
+    if (query.jurisdiction) {
+      universes = universes.filter(u => 
+        u.temporalStructure?.segments.some(s => 
+          s.jurisdiction?.toLowerCase().includes(query.jurisdiction!.toLowerCase())
+        )
+      );
+    }
+
+    if (query.status) {
+      universes = universes.filter(u => 
+        u.temporalStructure?.segments.some(s => s.status === query.status)
+      );
+    }
+
+    if (query.enactedAfter) {
+      const afterTimestamp = BigInt(query.enactedAfter.getTime()) * 1000000n;
+      universes = universes.filter(u => {
+        const enactmentKeyframe = u.temporalStructure?.keyframes.find(k => 
+          k.tags.includes('enactment') || k.tags.includes('decision_rendered')
+        );
+        return enactmentKeyframe && enactmentKeyframe.timestamp >= afterTimestamp;
+      });
+    }
+
+    if (query.enactedBefore) {
+      const beforeTimestamp = BigInt(query.enactedBefore.getTime()) * 1000000n;
+      universes = universes.filter(u => {
+        const enactmentKeyframe = u.temporalStructure?.keyframes.find(k => 
+          k.tags.includes('enactment') || k.tags.includes('decision_rendered')
+        );
+        return enactmentKeyframe && enactmentKeyframe.timestamp <= beforeTimestamp;
+      });
+    }
+
+    return universes;
+  }
+
+  /**
+   * Find people who were alive during a specific time period
+   */
+  async findPeopleAliveDuring(startDate: Date, endDate: Date): Promise<Array<{
+    universe: Universe;
+    lifeStage: string;
+    age: number;
+  }>> {
+    const startTimestamp = BigInt(startDate.getTime()) * 1000000n;
+    const endTimestamp = BigInt(endDate.getTime()) * 1000000n;
+
+    const biographies = this.registry.getAllUniverses()
+      .filter(u => u.type === UniverseType.BIOGRAPHY);
+
+    const results = [];
+
+    for (const bio of biographies) {
+      const birthKeyframe = bio.temporalStructure?.keyframes.find(k => k.tags.includes('birth'));
+      const deathKeyframe = bio.temporalStructure?.keyframes.find(k => k.tags.includes('death'));
+
+      if (birthKeyframe) {
+        const birthTime = birthKeyframe.timestamp;
+        const deathTime = deathKeyframe?.timestamp || BigInt(Date.now()) * 1000000n;
+
+        // Check if person was alive during the period
+        if (birthTime <= endTimestamp && deathTime >= startTimestamp) {
+          // Calculate age at start of period
+          const ageAtStart = Number((startTimestamp - birthTime) / (BigInt(365.25 * 24 * 60 * 60 * 1000) * 1000000n));
+          
+          // Determine life stage
+          const lifeStage = this.determineLifeStage(bio, startTimestamp);
+          
+          results.push({
+            universe: bio,
+            lifeStage,
+            age: Math.max(0, ageAtStart)
+          });
+        }
+      }
+    }
+
+    return results.sort((a, b) => a.age - b.age);
+  }
+
+  /**
+   * Find laws that were active during a specific time period
+   */
+  async findActiveLawsDuring(startDate: Date, endDate: Date, jurisdiction?: string): Promise<Array<{
+    universe: Universe;
+    status: string;
+    activeSegments: string[];
+  }>> {
+    const startTimestamp = BigInt(startDate.getTime()) * 1000000n;
+    const endTimestamp = BigInt(endDate.getTime()) * 1000000n;
+
+    let legalTimelines = this.registry.getAllUniverses()
+      .filter(u => u.type === UniverseType.LEGAL_TIMELINE);
+
+    if (jurisdiction) {
+      legalTimelines = legalTimelines.filter(u => 
+        u.temporalStructure?.segments.some(s => 
+          s.jurisdiction?.toLowerCase().includes(jurisdiction.toLowerCase())
+        )
+      );
+    }
+
+    const results = [];
+
+    for (const legal of legalTimelines) {
+      const activeSegments = legal.temporalStructure?.segments.filter(s => 
+        s.start <= endTimestamp && s.end >= startTimestamp
+      ) || [];
+
+      if (activeSegments.length > 0) {
+        const currentStatus = activeSegments[activeSegments.length - 1].status || 'unknown';
+        
+        results.push({
+          universe: legal,
+          status: currentStatus,
+          activeSegments: activeSegments.map(s => s.id)
+        });
+      }
+    }
+
+    return results;
+  }
+
+  private determineLifeStage(biography: Universe, timestamp: bigint): string {
+    const segments = biography.temporalStructure?.segments || [];
+    
+    for (const segment of segments) {
+      if (segment.start <= timestamp && segment.end >= timestamp) {
+        return segment.type;
+      }
+    }
+    
+    return 'unknown';
+  }
+
+  /**
+   * Generate a biographical timeline report
+   */
+  generateBiographicalReport(universe: Universe): string {
+    if (universe.type !== UniverseType.BIOGRAPHY) {
+      return 'Not a biographical universe';
+    }
+
+    let report = `# Biographical Timeline: ${universe.metadata?.canonicalName}\n\n`;
+
+    const keyframes = universe.temporalStructure?.keyframes || [];
+    const segments = universe.temporalStructure?.segments || [];
+
+    // Life events
+    report += `## Key Life Events\n`;
+    keyframes
+      .sort((a, b) => Number(a.timestamp - b.timestamp))
+      .forEach(event => {
+        const date = new Date(Number(event.timestamp / 1000000n));
+        const certainty = event.certainty ? ` (${(event.certainty * 100).toFixed(0)}% certain)` : '';
+        report += `- **${date.toDateString()}**: ${event.id.replace('_', ' ')}${certainty}\n`;
+      });
+
+    // Life periods
+    report += `\n## Life Periods\n`;
+    segments
+      .sort((a, b) => Number(a.start - b.start))
+      .forEach(period => {
+        const startDate = new Date(Number(period.start / 1000000n));
+        const endDate = new Date(Number(period.end / 1000000n));
+        report += `- **${period.type.replace('_', ' ')}**: ${startDate.getFullYear()} - ${endDate.getFullYear()}\n`;
+      });
+
+    return report;
+  }
+}

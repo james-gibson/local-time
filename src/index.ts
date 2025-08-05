@@ -53,3 +53,10 @@ export {
   RealityGradient, 
   RealityCategory 
 } from './utils/reality-gradient.js';
+
+// Export biographical and legal query utilities
+export { 
+  BiographicalQueryService,
+  BiographicalQuery,
+  LegalQuery
+} from './utils/biographical-query.js';

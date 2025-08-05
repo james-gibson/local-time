@@ -101,7 +101,11 @@ export interface TemporalSegment {
   id: string;
   start: bigint;
   end: bigint;
-  type: 'sequence' | 'act' | 'scene' | 'phase' | 'countdown' | 'mission_phase';
+  type: 'sequence' | 'act' | 'scene' | 'phase' | 'countdown' | 'mission_phase' | 
+        'life_period' | 'education' | 'career' | 'public_service' | 'legal_period' | 
+        'legislation_active' | 'court_jurisdiction';
+  status?: 'active' | 'inactive' | 'suspended' | 'overturned' | 'amended';
+  jurisdiction?: string;
 }
 
 export interface TemporalKeyframe {
@@ -109,6 +113,11 @@ export interface TemporalKeyframe {
   timestamp: bigint;
   significance: number;
   tags: string[];
+  certainty?: number; // 0.0-1.0 for uncertain dates
+  dateRange?: {
+    earliest: bigint;
+    latest: bigint;
+  };
 }
 
 export interface WindowingStrategy {
@@ -226,7 +235,10 @@ export enum UniverseType {
   PERSONAL_EXPERIENCE = 'personal_experience',
   SIMULATION = 'simulation',
   MISSION = 'mission',
-  MEDICAL_PROCEDURE = 'medical_procedure'
+  MEDICAL_PROCEDURE = 'medical_procedure',
+  BIOGRAPHY = 'biography',
+  LEGAL_TIMELINE = 'legal_timeline',
+  INSTITUTIONAL_PERIOD = 'institutional_period'
 }
 
 export enum ReferenceType {

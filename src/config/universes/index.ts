@@ -2,6 +2,8 @@ import { Universe, UniverseType, TimePrecision } from '../../core/types.js';
 import { filmUniverses } from './films.js';
 import { missionUniverses } from './missions.js';
 import { universeNetworks } from './networks.js';
+import { biographicalUniverses } from './biographical.js';
+import { legalUniverses } from './legal.js';
 
 // Add historical universes for BTTF test cases
 export const chuckBerryUniverse: Universe = {
@@ -316,6 +318,8 @@ export const middleEarthUniverse: Universe = {
 export const allUniverses = [
   ...filmUniverses,
   ...missionUniverses,
+  ...biographicalUniverses,
+  ...legalUniverses,
   chuckBerryUniverse,
   calvinKleinHistory,
   tolkienWWIExperience,
@@ -326,4 +330,4 @@ export const allNetworks = [
   ...universeNetworks
 ];
 
-export { filmUniverses, missionUniverses, universeNetworks };
+export { filmUniverses, missionUniverses, universeNetworks, biographicalUniverses, legalUniverses };
