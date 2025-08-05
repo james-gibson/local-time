@@ -43,3 +43,6 @@ export {
   createMultilayerReference
 } from './utils/reference-helpers.js';
 export { ReferenceType, ReferenceChain } from './core/types.js';
+
+// Export attribution and copyright utilities
+export { AttributionEngine, AttributionRequirement } from './utils/attribution-engine.js';
