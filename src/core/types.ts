@@ -13,18 +13,27 @@ export interface Universe {
   attribution: Attribution;
   layers: TemporalLayer[];
   temporalWindows?: TemporalWindow[];
-  temporalStructure: TemporalStructure;
-  metadata: UniverseMetadata;
+  temporalStructure?: TemporalStructure;
+  metadata?: UniverseMetadata;
 }
 
 export interface UniverseIdentifiers {
-  primary: string;
+  primary: string | UniverseIdentifier;
   aliases?: string[];
+  alternates?: UniverseIdentifier[];
   imdb?: string;
   isbn?: string;
   doi?: string;
   patent?: string;
 }
+
+export type UniverseIdentifier = 
+  | { type: 'isbn'; value: string }
+  | { type: 'doi'; value: string }
+  | { type: 'patent'; value: string; jurisdiction?: string }
+  | { type: 'film'; value: string; year: number }
+  | { type: 'historical_event'; value: string; consensus?: number }
+  | { type: 'personal_experience'; value: string; privacy?: 'public' | 'protected' };
 
 export interface RealityRelation {
   type: 'documentary' | 'historical_fiction' | 'inspired_by' | 'pure_fiction' | 'metafiction' | 'recreation' | 'interpretation';
@@ -73,11 +82,13 @@ export interface TemporalLayer {
 }
 
 export interface TemporalEpoch {
-  epochId: string;
-  startTime: bigint;
-  endTime: bigint;
+  epochId?: string;
+  startTime?: bigint;
+  endTime?: bigint;
+  start?: bigint;  // Alternative field name
+  end?: bigint;    // Alternative field name
   precision: TimePrecision;
-  description: string;
+  description?: string;
 }
 
 export interface TemporalStructure {
