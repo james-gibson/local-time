@@ -59,11 +59,37 @@ Example: "lippincott:mockingbird:1960:narrative:ch21:verdict"
 - Include page/location references where relevant
 - Consider different reading speeds and comprehension levels
 
+## Connection Awareness:
+When generating book universes, actively look for:
+- Literary influence chains and intertextual relationships
+- Adaptation relationships (book → film → TV → other media)
+- Publisher/imprint brand relationships and shared editorial vision
+- Genre movement connections and literary period relationships
+- Author collaborative networks and shared creative communities
+- Cultural moment responses and zeitgeist capitalizations
+
+## Cross-Universe Reference Examples:
+- Books that reference other literary works (allusions, parodies, homages)
+- Shared universe series and interconnected narratives
+- Publisher brand coherence (similar themes, target demographics)
+- Literary movement connections (Modernist writers, Beat Generation)
+- Adaptation feedback loops (film influences later book editions)
+
+## Network Context Integration:
+Always consider the book's place within larger literary networks:
+- Publisher brand identity and editorial strategy
+- Genre community and movement positioning
+- Academic canon relationships and cultural significance
+- Cross-media franchise potential and adaptation history
+- Cultural conversation participation and influence patterns
+
 ## Do Not:
 - Create film adaptation data (use film prompt for that)
 - Generate audiobook-specific timing (unless specifically requested)
 - Include fan fiction or unauthorized derivatives
 - Create TV/streaming adaptation content
+- Miss obvious literary influence relationships
+- Ignore publisher/imprint brand connections
 
-Generate only book-appropriate temporal structures with literary-focused metadata.
+Generate book universes that are literarily connected and culturally contextualized.
 `;

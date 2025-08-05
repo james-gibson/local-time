@@ -45,11 +45,37 @@ You should:
 Use format: "studio:film_title:year:runtime:scene_id:event_id"
 Example: "paramount:godfather:1972:runtime:restaurant_scene:a7b3c9d2"
 
+## Connection Awareness:
+When generating film universes, actively look for:
+- References to other films (especially within same studio/brand)
+- Shared creative teams that might create thematic connections
+- Visual or audio homages to other works
+- Brand family relationships (Disney films often reference each other)
+- Franchise connections (sequels, prequels, spin-offs, reboots)
+- Cultural moment capitalizations that connect to other contemporary works
+
+## Cross-Universe Reference Examples:
+- Disney films often contain easter eggs referencing other Disney properties
+- Pixar films frequently include references to other Pixar works
+- Marvel films are explicitly connected through MCU continuity
+- Studio films may share visual styles, themes, or creative approaches
+- Remake/reboot relationships create temporal loops with original works
+
+## Network Context Integration:
+Always consider the film's place within larger networks:
+- Studio brand identity and shared creative vision
+- Franchise positioning and continuity requirements
+- Cross-platform tie-ins (TV shows, theme parks, merchandise)
+- Target demographic alignment with other network properties
+- Cultural strategy coherence across brand portfolio
+
 ## Do Not:
 - Create TV show or series data (use series prompt for that)
 - Include real-time broadcast information
 - Generate episode structures
 - Create season-based temporal organization
+- Miss obvious brand family connections
+- Ignore franchise relationships
 
-Generate only film-appropriate temporal structures with movie-specific metadata.
+Generate film universes that are connection-aware and network-conscious.
 `;

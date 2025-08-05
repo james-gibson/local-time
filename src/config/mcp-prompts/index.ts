@@ -4,6 +4,8 @@ import { MISSION_MCP_PROMPT } from './mission-prompt.js';
 import { HISTORICAL_EVENT_MCP_PROMPT } from './historical-prompt.js';
 import { BOOK_MCP_PROMPT } from './book-prompt.js';
 import { PERSONAL_EXPERIENCE_MCP_PROMPT } from './personal-prompt.js';
+import { CONNECTION_MCP_PROMPT } from './connection-prompt.js';
+import { NETWORK_MCP_PROMPT } from './network-prompt.js';
 
 export interface MCPPromptTemplate {
   universeType: UniverseType;
@@ -176,6 +178,69 @@ export function getMCPPrompt(universeType: UniverseType): MCPPromptTemplate {
   return MCP_PROMPT_TEMPLATES[universeType];
 }
 
+// Special prompt templates for cross-universe analysis
+export const SPECIAL_MCP_PROMPTS = {
+  CONNECTION_DISCOVERY: {
+    prompt: CONNECTION_MCP_PROMPT,
+    capabilities: [
+      'Cross-universe reference identification',
+      'Brand relationship mapping',
+      'Cultural influence chain analysis',
+      'Temporal paradox detection',
+      'Network coherence analysis'
+    ],
+    dataSources: [
+      'Cross-reference databases',
+      'Brand content catalogs',
+      'Cultural analysis sources',
+      'Fan community databases',
+      'Academic intertextuality studies'
+    ],
+    restrictions: [
+      'No fictional connections',
+      'Evidence-based relationships only',
+      'Respect copyright boundaries',
+      'No speculative connections'
+    ]
+  },
+  
+  NETWORK_ANALYSIS: {
+    prompt: NETWORK_MCP_PROMPT,
+    capabilities: [
+      'Brand universe collection',
+      'Temporal era mapping',
+      'Creative team relationship analysis',
+      'Cross-platform strategy identification',
+      'Franchise expansion pattern recognition'
+    ],
+    dataSources: [
+      'Studio/publisher catalogs',
+      'Business strategy documents',
+      'Creative team databases',
+      'Cultural movement studies',
+      'Industry analysis reports'
+    ],
+    restrictions: [
+      'No speculative networks',
+      'Respect ownership boundaries',
+      'Evidence-based relationships only',
+      'No fictional brand connections'
+    ]
+  }
+};
+
 export function getAllMCPPrompts(): MCPPromptTemplate[] {
   return Object.values(MCP_PROMPT_TEMPLATES);
+}
+
+export function getSpecialMCPPrompts() {
+  return SPECIAL_MCP_PROMPTS;
+}
+
+export function getConnectionPrompt(): string {
+  return CONNECTION_MCP_PROMPT;
+}
+
+export function getNetworkPrompt(): string {
+  return NETWORK_MCP_PROMPT;
 }
