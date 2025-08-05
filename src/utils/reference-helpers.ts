@@ -67,6 +67,75 @@ export class ReferenceHelpers {
   }
 }
 
+/**
+ * Create Back to the Future test case references
+ */
+export function createBTTFTestReferences() {
+  const references = [];
+  
+  // Johnny B. Goode paradox reference
+  references.push({
+    referenceId: generateReferenceId(),
+    type: 'temporal_paradox',
+    description: 'Marty performs Johnny B. Goode in 1955, before Chuck Berry writes it',
+    anchors: [
+      {
+        domainId: 'film:bttf:1985:narrative_1955',
+        eventId: generateTemporalId('film:bttf:1985:narrative_1955', 87, 0),
+        context: {
+          scene_description: 'Marty performs Johnny B. Goode at enchantment dance',
+          significance: 'Creates temporal paradox - song performed before written'
+        }
+      },
+      {
+        domainId: 'history:chuck_berry:career',
+        eventId: 'johnny_b_goode_composed_1958',
+        context: {
+          scene_description: 'Chuck Berry composes Johnny B. Goode',
+          significance: 'Original composition of the song'
+        }
+      }
+    ],
+    metadata: {
+      cultural_context: ['temporal_paradox', 'music_history', 'time_travel'],
+      confidence: 1.0,
+      direction: 'backward'
+    }
+  });
+  
+  // Calvin Klein reference
+  references.push({
+    referenceId: generateReferenceId(),
+    type: 'anachronism',
+    description: 'Calvin Klein underwear seen in 1955, before brand existed',
+    anchors: [
+      {
+        domainId: 'film:bttf:1985:narrative_1985',
+        eventId: generateTemporalId('film:bttf:1985:narrative_1985', 10, 0),
+        context: {
+          scene_description: 'Marty wears Calvin Klein underwear',
+          significance: '1980s fashion item'
+        }
+      },
+      {
+        domainId: 'film:bttf:1985:narrative_1955',
+        eventId: generateTemporalId('film:bttf:1985:narrative_1955', 45, 0),
+        context: {
+          scene_description: 'Lorraine sees Calvin Klein on underwear',
+          significance: 'Brand name creates identity confusion'
+        }
+      }
+    ],
+    metadata: {
+      cultural_context: ['anachronism', 'fashion', 'product_placement'],
+      confidence: 1.0,
+      direction: 'backward'
+    }
+  });
+  
+  return references;
+}
+
 // Export convenience functions for backward compatibility
 export const generateReferenceId = ReferenceHelpers.generateReferenceId;
 export const generateTemporalId = ReferenceHelpers.generateTemporalId;

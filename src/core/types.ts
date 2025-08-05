@@ -239,6 +239,8 @@ export enum ReferenceType {
   PARODIES = 'parodies',
   HOMAGE = 'homage',
   VISUAL_HOMAGE = 'visual_homage',
+  SCENE_HOMAGE = 'scene_homage',
+  DIALOGUE_REFERENCE = 'dialogue_reference',
   
   // Reality-blending
   METAFICTION = 'metafiction',
@@ -249,6 +251,11 @@ export enum ReferenceType {
   TEMPORAL_PARADOX = 'temporal_paradox',
   CAUSAL_LOOP = 'causal_loop',
   ANACHRONISM = 'anachronism',
+  OBJECT_TRANSPORT = 'object_transport',
+  IDENTITY_CONFUSION = 'identity_confusion',
+  PREDICTIVE_REFERENCE = 'predictive_reference',
+  TEMPORAL_IRONY = 'temporal_irony',
+  META_CASTING = 'meta_casting',
   
   // Zero-reference specific
   FULFILLS_PROMISE = 'fulfills_promise',
