@@ -1,5 +1,5 @@
-import { Universe, TemporalWindow, WindowAlignment, UniverseType, TimePrecision } from '../core/types.js';
-import { UniverseRegistry } from '../config/universe-registry.js';
+import { Universe, TemporalWindow, WindowAlignment, UniverseType, TimePrecision } from '../core/types';
+import { UniverseRegistry } from '../config/universe-registry';
 
 export interface WindowSearchOptions {
   universeTypes?: UniverseType[];
