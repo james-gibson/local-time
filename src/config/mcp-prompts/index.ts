@@ -7,15 +7,30 @@ import { PERSONAL_EXPERIENCE_MCP_PROMPT } from './personal-prompt.js';
 import { CONNECTION_MCP_PROMPT } from './connection-prompt.js';
 import { NETWORK_MCP_PROMPT } from './network-prompt.js';
 
+// Re-export MCP core functionality
+export { UniverseMCPServer, createUniverseMCPServer } from '../mcp/server.js';
+export { UniverseMCPClient, createUniverseMCPClient, type MCPTransport } from '../mcp/client.js';
+export type { 
+  MCPServer, 
+  MCPCapabilities, 
+  MCPTool, 
+  MCPResource, 
+  MCPPrompt,
+  UniverseMCPTool,
+  UniverseMCPResource,
+  UniverseMCPContext
+} from '../mcp/types.js';
+
 export interface MCPPromptTemplate {
   universeType: UniverseType;
   prompt: string;
   capabilities: string[];
   dataSources: string[];
   restrictions: string[];
+  default?: boolean;
 }
 
-export const MCP_PROMPT_TEMPLATES: Record<UniverseType, MCPPromptTemplate> = {
+export const MCP_PROMPT_TEMPLATES = {
   [UniverseType.FILM]: {
     universeType: UniverseType.FILM,
     prompt: FILM_MCP_PROMPT,
@@ -171,35 +186,15 @@ export const MCP_PROMPT_TEMPLATES: Record<UniverseType, MCPPromptTemplate> = {
     capabilities: ['Procedure timeline mapping', 'Medical phase tracking', 'Privacy protection'],
     dataSources: ['Medical literature', 'Procedure protocols', 'Anonymized case studies'],
     restrictions: ['No patient identification', 'No confidential data', 'General procedures only']
-  },
-
-  [UniverseType.BIOGRAPHY]: {
-    universeType: UniverseType.BIOGRAPHY,
-    prompt: `# Biography Universe Generation - Model Context Protocol\n\nSpecialized for biographical timelines with life events, education, career, and personal milestones.`,
-    capabilities: ['Life timeline mapping', 'Educational period tracking', 'Career phase analysis', 'Personal milestone identification'],
-    dataSources: ['Biographical records', 'Academic sources', 'Historical documents', 'Personal letters'],
-    restrictions: ['Respect privacy for living individuals', 'Verify historical accuracy', 'No speculative content']
-  },
-
-  [UniverseType.LEGAL_TIMELINE]: {
-    universeType: UniverseType.LEGAL_TIMELINE,
-    prompt: `# Legal Timeline Universe Generation - Model Context Protocol\n\nSpecialized for legal timelines including legislation, court decisions, and regulatory changes.`,
-    capabilities: ['Legislation timeline tracking', 'Court decision mapping', 'Regulatory change analysis', 'Jurisdiction-aware processing'],
-    dataSources: ['Legal databases', 'Court records', 'Government archives', 'Legislative records'],
-    restrictions: ['Public records only', 'No confidential legal information', 'Verify legal accuracy']
-  },
-
-  [UniverseType.INSTITUTIONAL_PERIOD]: {
-    universeType: UniverseType.INSTITUTIONAL_PERIOD,
-    prompt: `# Institutional Period Universe Generation - Model Context Protocol\n\nSpecialized for institutional timelines including organizational periods, leadership changes, and policy implementations.`,
-    capabilities: ['Organizational timeline mapping', 'Leadership period tracking', 'Policy implementation analysis', 'Institutional change documentation'],
-    dataSources: ['Institutional records', 'Organizational archives', 'Leadership databases', 'Policy documents'],
-    restrictions: ['Public information only', 'No confidential institutional data', 'Verify organizational accuracy']
   }
 };
 
 export function getMCPPrompt(universeType: UniverseType): MCPPromptTemplate {
-  return MCP_PROMPT_TEMPLATES[universeType];
+  const result = (MCP_PROMPT_TEMPLATES as any)[universeType] as MCPPromptTemplate;
+
+  if (!result) { throw new Error(`Could not locate \${universeType}: ${universeType}`); }
+
+  return result;
 }
 
 // Special prompt templates for cross-universe analysis
@@ -249,6 +244,151 @@ export const SPECIAL_MCP_PROMPTS = {
       'Respect ownership boundaries',
       'Evidence-based relationships only',
       'No fictional brand connections'
+    ]
+  },
+
+  TYPESCRIPT_CLASS_GENERATOR: {
+    prompt: `# TypeScript Universe Class Generator - Model Context Protocol
+
+You are a specialized TypeScript class generator for the Local Time Universe System. Your role is to generate complete, type-safe TypeScript universe definitions following the established patterns and documentation.
+
+## Core Responsibilities
+
+1. **Universe Structure Generation**: Create complete Universe objects with proper typing
+2. **Pattern Compliance**: Follow the documented patterns from the Universe Creation Guide
+3. **Type Safety**: Ensure all generated code uses proper branded types and interfaces
+4. **Documentation Integration**: Include comprehensive JSDoc comments and examples
+
+## Input Processing
+
+You can accept:
+- **Universe ID**: A properly formatted universe identifier (e.g., "disney:mary_poppins:1964")
+- **Natural Language Description**: A description of the universe to create
+- **Partial Universe Data**: Existing universe data to complete or enhance
+
+## Generation Patterns
+
+### UniverseBuilder Pattern (Recommended)
+Generate fluent UniverseBuilder chains following these patterns:
+
+\`\`\`typescript
+const universe = new UniverseBuilder()
+  .film('studio', 'title', year)
+  .withRuntime(minutes)
+  .withRealityRelation('pure_fiction', 1.0)
+  .withCopyright(['Copyright Holder'], year, 'active')
+  .withCreators({ director: ['Name'], writer: ['Name'] })
+  .withCulturalSignificance(0.0-1.0)
+  .addRuntimeKeyframe(min, sec, 'id', significance, ['tags'])
+  .build();
+\`\`\`
+
+### Manual Universe Pattern (Advanced)
+For complex cases, generate complete Universe objects with:
+- Proper branded UniverseId types
+- Complete temporal structure with epochs, keyframes, segments
+- Attribution and reality relation information
+- Metadata with cultural significance
+
+## Type System Integration
+
+Always use:
+- \`createFilmUniverseId()\`, \`createHistoricalUniverseId()\`, etc. for IDs
+- \`TimePrecision\` enum for temporal precision
+- \`UniverseType\` enum for universe classification
+- \`ReferenceType\` enum for cross-universe references
+
+## Temporal Structure Guidelines
+
+### Films
+- Use runtime epochs with millisecond precision
+- Add keyframes for significant moments (significance 0.8-1.0)
+- Include act structure as segments
+- Use scene-based windowing strategy
+
+### Historical Events
+- Use date-based epochs with appropriate precision
+- Add keyframes for critical moments with confidence levels
+- Include uncertainty where appropriate
+- Use time-based windowing strategy
+
+### Missions
+- Use zero-reference epochs with countdown timelines
+- Include mission phases as segments
+- Add critical events as keyframes
+- Use countdown-based windowing strategy
+
+## Code Quality Standards
+
+1. **Type Safety**: All code must compile without TypeScript errors
+2. **Documentation**: Include JSDoc comments for all major structures
+3. **Validation**: Include proper error handling and validation
+4. **Consistency**: Follow established naming conventions and patterns
+5. **Completeness**: Generate complete, working universe definitions
+
+## Output Format
+
+Always provide:
+1. **Import Statements**: All necessary imports from the Local Time system
+2. **Universe Definition**: Complete universe object or builder chain
+3. **Export Statement**: Proper export for use in other modules
+4. **Usage Example**: Brief example of how to use the generated universe
+5. **Validation**: Any validation or testing code if appropriate
+
+## Example Output Structure
+
+\`\`\`typescript
+import { UniverseBuilder } from './core/universe-builder';
+import { TimePrecision } from './core/types';
+
+/**
+ * [Universe Name] - [Brief Description]
+ * 
+ * [Detailed description of the universe, its significance, and temporal structure]
+ */
+export const [universeName]Universe = new UniverseBuilder()
+  // Builder chain here
+  .build();
+
+// Usage example
+// const registry = new UniverseRegistry(configLoader);
+// registry.registerUniverse([universeName]Universe.universeId, [universeName]Universe);
+\`\`\`
+
+## Restrictions and Guidelines
+
+- **No Fictional Data**: Only generate universes for real, documented content
+- **Respect Copyright**: Include proper attribution and copyright information
+- **Privacy Protection**: Never include personal or confidential information
+- **Accuracy**: Verify temporal data and cultural significance ratings
+- **Documentation Compliance**: Follow all patterns from the Universe Creation Guide
+
+Generate complete, production-ready TypeScript code that integrates seamlessly with the Local Time Universe System.`,
+    capabilities: [
+      'TypeScript universe class generation',
+      'UniverseBuilder pattern implementation',
+      'Branded type system integration',
+      'Temporal structure creation',
+      'Documentation and JSDoc generation',
+      'Type-safe universe definition',
+      'Pattern compliance validation',
+      'Import statement generation'
+    ],
+    dataSources: [
+      'Universe Creation Guide documentation',
+      'TypeScript type definitions',
+      'Existing universe examples',
+      'UniverseBuilder API documentation',
+      'Temporal conversion utilities',
+      'Universe ID pattern specifications'
+    ],
+    restrictions: [
+      'No fictional or speculative universes',
+      'Must follow documented patterns exactly',
+      'Type safety is mandatory',
+      'No personal or confidential information',
+      'Proper attribution required',
+      'Documentation compliance required'
     ]
   }
 };
