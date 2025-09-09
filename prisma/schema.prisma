@@ -1,0 +1,283 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Core Universe model
+model Universe {
+  id                   String   @id // universeId as primary key
+  type                 String // UniverseType enum as string
+  canonicalName        String?
+  culturalSignificance Float?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // JSON fields stored as TEXT in SQLite
+  identifiers     String // UniverseIdentifiers as JSON string
+  realityRelation String // RealityRelation as JSON string
+  attribution     String // Attribution as JSON string
+  metadata        String? // UniverseMetadata as JSON string
+
+  // Relations
+  layers             TemporalLayer[]
+  windows            TemporalWindow[]
+  structure          TemporalStructure?
+  references         TemporalReference[]         @relation("SourceUniverse")
+  referencedBy       TemporalReference[]         @relation("TargetUniverse")
+  networkMemberships UniverseNetworkMembership[]
+
+  @@map("universes")
+}
+
+// Temporal Layer model
+model TemporalLayer {
+  id         String @id @default(cuid())
+  layerId    String
+  type       String // 'primary' | 'meta' | 'recreation' | 'subjective'
+  universeId String
+
+  // JSON fields as TEXT
+  contains              String? // string[] as JSON string
+  realityCorrespondence String? // reality_correspondence object as JSON string
+  subuniverses          String? // string[] as JSON string
+
+  // Relations
+  universe Universe        @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  epochs   TemporalEpoch[]
+
+  @@unique([universeId, layerId])
+  @@map("temporal_layers")
+}
+
+// Temporal Epoch model
+model TemporalEpoch {
+  id          String  @id @default(cuid())
+  epochId     String?
+  startTime   String? // BigInt as string
+  endTime     String? // BigInt as string
+  precision   Int // TimePrecision as integer
+  description String?
+  layerId     String
+
+  // Zero-reference specific fields
+  zeroPoint      String? // BigInt as string
+  zeroEvent      String?
+  beforePrefix   String?
+  afterPrefix    String?
+  relativeFormat String? // 'HMS' | 'seconds' | 'minutes' | 'hours' | 'days'
+
+  // Relations
+  layer TemporalLayer @relation(fields: [layerId], references: [id], onDelete: Cascade)
+
+  @@unique([layerId, epochId])
+  @@map("temporal_epochs")
+}
+
+// Temporal Window model
+model TemporalWindow {
+  id         String  @id @default(cuid())
+  windowId   String
+  startTime  String // BigInt as string
+  endTime    String // BigInt as string
+  precision  Int // TimePrecision as integer
+  type       String? // 'fixed' | 'narrative_segment' | 'dynamic'
+  universeId String
+
+  // JSON fields as TEXT
+  aliases  String // WindowAlias[] as JSON string
+  metadata String? // Record<string, unknown> as JSON string
+
+  // Relations
+  universe Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+
+  @@unique([universeId, windowId])
+  @@map("temporal_windows")
+}
+
+// Temporal Structure model (one per universe)
+model TemporalStructure {
+  id         String @id @default(cuid())
+  universeId String @unique
+
+  // JSON field as TEXT
+  windows String // WindowingStrategy as JSON string
+
+  // Relations
+  universe  Universe           @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  segments  TemporalSegment[]
+  keyframes TemporalKeyframe[]
+
+  @@map("temporal_structures")
+}
+
+// Temporal Segment model
+model TemporalSegment {
+  id           String  @id @default(cuid())
+  segmentId    String // The 'id' field from the interface
+  start        String // BigInt as string
+  end          String // BigInt as string
+  type         String // segment type enum as string
+  status       String? // 'active' | 'inactive' | 'suspended' | 'overturned' | 'amended'
+  jurisdiction String?
+  structureId  String
+
+  // Relations
+  structure TemporalStructure @relation(fields: [structureId], references: [id], onDelete: Cascade)
+
+  @@unique([structureId, segmentId])
+  @@map("temporal_segments")
+}
+
+// Temporal Keyframe model
+model TemporalKeyframe {
+  id           String @id @default(cuid())
+  keyframeId   String // The 'id' field from the interface
+  timestamp    String // BigInt as string
+  significance Float // 0.0-1.0
+  certainty    Float? // 0.0-1.0
+  structureId  String
+
+  // JSON fields as TEXT
+  tags      String // string[] as JSON string
+  dateRange String? // { earliest: bigint, latest: bigint } as JSON string
+
+  // Relations
+  structure TemporalStructure @relation(fields: [structureId], references: [id], onDelete: Cascade)
+
+  @@unique([structureId, keyframeId])
+  @@map("temporal_keyframes")
+}
+
+// Temporal Reference model for cross-universe connections
+model TemporalReference {
+  id               String @id @default(cuid())
+  referenceId      String @unique
+  type             String // ReferenceType enum as string
+  description      String
+  strength         Float? // 0.0-1.0
+  sourceUniverseId String
+  targetUniverseId String
+
+  // JSON fields as TEXT
+  anchors  String // TemporalAnchor[] as JSON string
+  metadata String // ReferenceMetadata as JSON string
+
+  // Relations
+  sourceUniverse Universe                   @relation("SourceUniverse", fields: [sourceUniverseId], references: [id], onDelete: Cascade)
+  targetUniverse Universe                   @relation("TargetUniverse", fields: [targetUniverseId], references: [id], onDelete: Cascade)
+  chains         ReferenceChainConnection[]
+
+  @@map("temporal_references")
+}
+
+// Reference Chain model for complex influence patterns
+model ReferenceChain {
+  id      String @id @default(cuid())
+  chainId String @unique
+
+  // JSON fields as TEXT
+  nodes    String // ReferenceNode[] as JSON string
+  metadata String? // ChainMetadata as JSON string
+  layers   String? // ChainLayer[] as JSON string
+
+  // Relations
+  connections ReferenceChainConnection[]
+
+  @@map("reference_chains")
+}
+
+// Junction table for reference chains and their connections
+model ReferenceChainConnection {
+  id          String @id @default(cuid())
+  chainId     String
+  referenceId String
+
+  // JSON field as TEXT
+  connectionData String // ReferenceConnection data as JSON string
+
+  // Relations
+  chain     ReferenceChain    @relation(fields: [chainId], references: [id], onDelete: Cascade)
+  reference TemporalReference @relation(fields: [referenceId], references: [id], onDelete: Cascade)
+
+  @@unique([chainId, referenceId])
+  @@map("reference_chain_connections")
+}
+
+// Universe Network model
+model UniverseNetwork {
+  id        String @id @default(cuid())
+  networkId String @unique
+
+  // JSON fields as TEXT
+  sharedEpochs String? // { corporate?: TemporalEpoch, cultural?: TemporalEpoch } as JSON string
+  eras         String // NetworkEra[] as JSON string
+
+  // Relations
+  memberships UniverseNetworkMembership[]
+
+  @@map("universe_networks")
+}
+
+// Junction table for universe network memberships
+model UniverseNetworkMembership {
+  id         String @id @default(cuid())
+  universeId String
+  networkId  String
+
+  // Relations
+  universe Universe        @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  network  UniverseNetwork @relation(fields: [networkId], references: [id], onDelete: Cascade)
+
+  @@unique([universeId, networkId])
+  @@map("universe_network_memberships")
+}
+
+// Query optimization indexes
+model QueryIndex {
+  id         String @id @default(cuid())
+  indexType  String // 'temporal_window', 'cultural_significance', 'reality_relation'
+  indexKey   String
+  universeId String
+  value      String // Serialized value for the index
+
+  @@unique([indexType, indexKey, universeId])
+  @@index([indexType, indexKey])
+  @@map("query_indexes")
+}
+
+// Materialized view for common queries
+model UniverseSearchView {
+  id                     String  @id @default(cuid())
+  universeId             String  @unique
+  canonicalName          String
+  type                   String
+  culturalSignificance   Float?
+  realityType            String // From realityRelation.type
+  fictionalizationDegree Float // From realityRelation.fictionalizationDegree
+  hasPublicDomain        Boolean // From attribution.public_domain
+  createdYear            Int? // Extracted from metadata or identifiers
+
+  // Searchable text fields
+  searchText String // Combined searchable content
+  tags       String // Comma-separated tags from keyframes
+
+  // Temporal bounds for efficient range queries
+  earliestTime String? // BigInt as string - earliest timestamp in universe
+  latestTime   String? // BigInt as string - latest timestamp in universe
+
+  @@index([type])
+  @@index([culturalSignificance])
+  @@index([realityType])
+  @@index([fictionalizationDegree])
+  @@index([createdYear])
+  @@index([earliestTime])
+  @@index([latestTime])
+  @@map("universe_search_view")
+}
