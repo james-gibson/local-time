@@ -1,5 +1,5 @@
-import { Universe, UniverseType, TimePrecision } from '../core/types.js';
-import { UniverseRegistry } from '../config/universe-registry.js';
+import { Universe, UniverseType, TimePrecision } from '../core/types';
+import { UniverseRegistry } from '../config/universe-registry';
 
 export interface BiographicalQuery {
   personName?: string;
@@ -33,7 +33,7 @@ export class BiographicalQueryService {
 
     if (query.personName) {
       universes = universes.filter(u => 
-        u.metadata?.canonicalName.toLowerCase().includes(query.personName!.toLowerCase()) ||
+        u.metadata?.canonicalName!.toLowerCase().includes(query.personName!.toLowerCase()) ||
         u.identifiers.aliases?.some(alias => 
           alias.toLowerCase().includes(query.personName!.toLowerCase())
         )

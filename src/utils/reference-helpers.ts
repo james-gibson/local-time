@@ -1,5 +1,6 @@
-import { KSUIDConverter } from './ksuid-converter.js';
-import { TimePrecision, ReferenceChain, ReferenceType, TemporalReference, TemporalAnchor } from '../core/types.js';
+import { KSUIDConverter } from './ksuid-converter';
+import { TimePrecision, ReferenceChain, ReferenceType, TemporalReference, TemporalAnchor } from '../core/types';
+import {createUniverseId} from '../core/universe-ids';
 
 export class ReferenceHelpers {
   /**
@@ -75,26 +76,26 @@ export function createTolkienInfluenceChain(): ReferenceChain {
     chainId: "influence:wwi_tolkien_middleearth",
     nodes: [
       {
-        universeId: "history:wwi:battle_of_somme:1916",
+        universeId: createUniverseId("history:wwi:battle_of_somme:1916"),
         type: 'historical_event',
         elements: ["Mechanized warfare", "Trench warfare", "Gas attacks", "Mass death", "Industrial destruction"]
       },
       {
-        universeId: "personal:tolkien:wwi_experience:1916",
+        universeId: createUniverseId("personal:tolkien:wwi_experience:1916"),
         type: 'personal_experience',
         elements: ["PTSD", "Loss of friends", "Trench fever", "Survivor guilt", "War trauma"],
         privacy: 'historical_figure'
       },
       {
-        universeId: "literature:tolkien:lotr:1954",
+        universeId: createUniverseId("literature:tolkien:lotr:1954"),
         type: 'creative_work',
         elements: ["Dead Marshes", "Industrial destruction", "Loss of innocence", "Environmental destruction", "Mechanized evil"]
       }
     ],
     connections: [
       {
-        from: "history:wwi:battle_of_somme:1916",
-        to: "personal:tolkien:wwi_experience:1916",
+        from: createUniverseId("history:wwi:battle_of_somme:1916"),
+        to: createUniverseId("personal:tolkien:wwi_experience:1916"),
         type: ReferenceType.EXPERIENCED,
         documented: true,
         influence_type: 'traumatic',

@@ -1,4 +1,4 @@
-import { Universe, ReferenceType, RealityRelation } from '../core/types.js';
+import { Universe, ReferenceType, RealityRelation } from '../core/types';
 
 export interface RealityGradient {
   level: number;           // 0.0 = pure reality, 1.0 = pure fiction

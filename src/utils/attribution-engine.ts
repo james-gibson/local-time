@@ -1,4 +1,4 @@
-import { Universe, ReferenceType } from '../core/types.js';
+import { Universe, ReferenceType } from '../core/types';
 
 export interface AttributionRequirement {
   citation_required: boolean;
@@ -6,7 +6,7 @@ export interface AttributionRequirement {
   fees_required: boolean;
   restrictions: string[];
   fair_use_likely: boolean;
-  copyright_status: 'active' | 'expired' | 'public_domain' | 'unknown';
+  copyright_status: 'active' | 'expired' | 'public_domain' | 'unknown' | "invalid";
   risk_level: 'low' | 'medium' | 'high';
   recommendations: string[];
 }
@@ -117,7 +117,7 @@ export class AttributionEngine {
     return requirement;
   }
 
-  private determineCopyrightStatus(universe: Universe): 'active' | 'expired' | 'public_domain' | 'unknown' {
+  private determineCopyrightStatus(universe: Universe): "active" | "expired" | "public_domain" | "invalid"  | "unknown" {
     // Explicit public domain
     if (universe.attribution.public_domain) {
       return 'public_domain';
@@ -135,7 +135,7 @@ export class AttributionEngine {
     }
 
     // Age-based assessment (rough heuristic)
-    const copyrightYear = universe.attribution.copyright?.year;
+    const copyrightYear = universe.attribution.copyright!.year;
     if (copyrightYear) {
       const currentYear = new Date().getFullYear();
       const age = currentYear - copyrightYear;
