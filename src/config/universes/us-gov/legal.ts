@@ -1,10 +1,11 @@
 import { Universe, UniverseType, TimePrecision } from '../../../core/types';
 
 export const copyrightActUniverse: Universe = {
-  universeId: "legal:us:copyright_act:1976",
+  universeId: "history:copyright_act:1976",
   type: UniverseType.LEGAL_TIMELINE,
+  epochs: undefined,
   identifiers: {
-    primary: "legal:us:copyright_act:1976",
+    primary: "legal:copyright_act:1976",
     aliases: ["copyright_act_1976", "us_copyright_law"]
   },
   realityRelation: {
@@ -94,10 +95,11 @@ export const copyrightActUniverse: Universe = {
 };
 
 export const roeVWadeUniverse: Universe = {
-  universeId: "legal:us:roe_v_wade:1973-2022",
+  universeId: "history:roe_v_wade:1973-2022",
+  epochs: undefined,
   type: UniverseType.LEGAL_TIMELINE,
   identifiers: {
-    primary: "legal:us:roe_v_wade:1973-2022",
+    primary: "legal:roe_v_wade:1973-2022",
     aliases: ["roe_v_wade", "abortion_rights_precedent"]
   },
   realityRelation: {

@@ -1,14 +1,19 @@
-import { Universe, UniverseType, TimePrecision } from '../../core/types.js';
-import { filmUniverses } from './films.js';
-import { missionUniverses } from './missions.js';
-import { universeNetworks } from './networks.js';
-import { biographicalUniverses } from './biographical.js';
-import { legalUniverses } from './legal.js';
+import { Universe, UniverseType, TimePrecision } from '../../core/types';
+import { filmUniverses } from './films';
+import { missionUniverses } from './apollo-eleven/missions';
+import { universeNetworks } from './disney/networks';
+import { biographicalUniverses } from './people/biographical';
+import { legalUniverses } from './us-gov/legal';
+import { pokemonUniverses } from './games/pokemon';
+import { starWarsUniverses } from './films/star-wars';
+import { historicalUniverses } from './historical/jfk';
+import { allCybersecurityUniverses } from './cybersecurity';
 
 // Add historical universes for BTTF test cases
 export const chuckBerryUniverse: Universe = {
   universeId: "history:chuck_berry:career",
   type: UniverseType.HISTORICAL_EVENT,
+  epochs: {},
   identifiers: {
     primary: "history:chuck_berry:career",
     aliases: ["chuck_berry", "johnny_b_goode_composer"]
@@ -68,10 +73,11 @@ export const chuckBerryUniverse: Universe = {
 };
 
 export const calvinKleinHistory: Universe = {
-  universeId: "history:fashion:calvin_klein:founded",
+  universeId: "fashion:calvin_klein:founded",
   type: UniverseType.HISTORICAL_EVENT,
+  epochs: undefined,
   identifiers: {
-    primary: "history:fashion:calvin_klein:founded",
+    primary: "fashion:calvin_klein:founded",
     aliases: ["calvin_klein", "ck_brand"]
   },
   realityRelation: {
@@ -132,6 +138,7 @@ export const calvinKleinHistory: Universe = {
 export const tolkienWWIExperience: Universe = {
   universeId: "personal:tolkien:wwi_experience:1916",
   type: UniverseType.PERSONAL_EXPERIENCE,
+  epochs: {},
   identifiers: {
     primary: "personal:tolkien:wwi_experience:1916",
     aliases: ["tolkien_war", "jrr_tolkien_wwi"]
@@ -212,6 +219,7 @@ export const tolkienWWIExperience: Universe = {
 export const middleEarthUniverse: Universe = {
   universeId: "literature:tolkien:lotr:1954",
   type: UniverseType.BOOK,
+  epochs: {},
   identifiers: {
     primary: { type: 'isbn', value: '978-0544003415' },
     aliases: ["lord_of_the_rings", "lotr", "middle_earth"]
@@ -320,6 +328,10 @@ export const allUniverses = [
   ...missionUniverses,
   ...biographicalUniverses,
   ...legalUniverses,
+  ...pokemonUniverses,
+  ...starWarsUniverses,
+  ...historicalUniverses,
+  ...allCybersecurityUniverses,
   chuckBerryUniverse,
   calvinKleinHistory,
   tolkienWWIExperience,
@@ -330,4 +342,14 @@ export const allNetworks = [
   ...universeNetworks
 ];
 
-export { filmUniverses, missionUniverses, universeNetworks, biographicalUniverses, legalUniverses };
+export { 
+  filmUniverses, 
+  missionUniverses, 
+  universeNetworks, 
+  biographicalUniverses, 
+  legalUniverses,
+  pokemonUniverses,
+  starWarsUniverses,
+  historicalUniverses,
+  allCybersecurityUniverses
+};

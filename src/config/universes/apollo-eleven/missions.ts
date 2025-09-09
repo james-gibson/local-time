@@ -3,6 +3,7 @@ import { Universe, UniverseType, TimePrecision } from '../../../core/types';
 export const apollo11Universe: Universe = {
   universeId: "nasa:apollo11:1969",
   type: UniverseType.MISSION,
+  epochs: {},
   identifiers: {
     primary: "nasa:apollo11:1969",
     aliases: ["apollo11", "moon_landing"]
@@ -23,7 +24,7 @@ export const apollo11Universe: Universe = {
       type: 'primary',
       epochs: {
         launch: {
-          epochId: "apollo11:launch",
+          epochId: "launch",
           startTime: BigInt(Date.UTC(1969, 6, 16, 13, 32, 0)) * 1000000n,
           endTime: BigInt(Date.UTC(1969, 6, 16, 13, 32, 0)) * 1000000n,
           precision: TimePrecision.SECOND,

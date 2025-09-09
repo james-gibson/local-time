@@ -1,8 +1,10 @@
-import { Universe, UniverseType, TimePrecision } from '../../core/types.js';
+import { Universe, UniverseType, TimePrecision } from '../../core/types';
+import {createUniverseId} from '../../core/universe-ids';
 
 export const maryPoppinsUniverse: Universe = {
   universeId: "disney:mary_poppins:1964",
   type: UniverseType.FILM,
+  epochs: undefined,
   identifiers: {
     primary: "disney:mary_poppins:1964",
     aliases: ["mary_poppins", "mp1964"],
@@ -78,8 +80,10 @@ export const maryPoppinsUniverse: Universe = {
 };
 
 export const savingPrivateRyanUniverse: Universe = {
-  universeId: "film:saving_private_ryan:1998",
+  temporalStructure: undefined,
+  universeId: createUniverseId("film:saving_private_ryan:1998"),
   type: UniverseType.FILM,
+  epochs: undefined,
   identifiers: {
     primary: { type: 'film', value: 'tt0120815', year: 1998 },
     alternates: [
@@ -168,8 +172,9 @@ export const savingPrivateRyanUniverse: Universe = {
 };
 
 export const backToTheFutureUniverse: Universe = {
-  universeId: "film:bttf:1985",
+  universeId: createUniverseId("film:bttf:1985"),
   type: UniverseType.FILM,
+  epochs: undefined,
   identifiers: {
     primary: { type: 'film', value: 'tt0088763', year: 1985 },
     aliases: ["back_to_the_future", "bttf"]
@@ -273,4 +278,4 @@ export const filmUniverses = [
 ];
 
 // MCP Integration for film universe generation
-export { FILM_MCP_PROMPT } from '../mcp-prompts/film-prompt.js';
+export { FILM_MCP_PROMPT } from '../mcp-prompts/film-prompt';

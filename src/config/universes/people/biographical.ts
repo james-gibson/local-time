@@ -3,6 +3,7 @@ import { Universe, UniverseType, TimePrecision } from '../../../core/types';
 export const tolkienBiographyUniverse: Universe = {
   universeId: "biography:jrr_tolkien:1892-1973",
   type: UniverseType.BIOGRAPHY,
+  epochs: undefined,
   identifiers: {
     primary: "biography:jrr_tolkien:1892-1973",
     aliases: ["tolkien_life", "jrr_tolkien_biography"]
@@ -143,6 +144,7 @@ export const tolkienBiographyUniverse: Universe = {
 export const britneySpearsBiographyUniverse: Universe = {
   universeId: "biography:britney_spears:1981-present",
   type: UniverseType.BIOGRAPHY,
+  epochs: undefined,
   identifiers: {
     primary: "biography:britney_spears:1981-present",
     aliases: ["britney_spears", "princess_of_pop"]
