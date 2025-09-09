@@ -1,4 +1,4 @@
-import { Universe, UniverseType, TimePrecision } from '../../core/types.js';
+import { Universe, UniverseType, TimePrecision } from '../../../core/types';
 
 export const copyrightActUniverse: Universe = {
   universeId: "legal:us:copyright_act:1976",

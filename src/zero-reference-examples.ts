@@ -1,5 +1,5 @@
-import { Universe, ZeroReferenceEpoch, TimePrecision, TemporalSegment } from './temporal-system';
-import { ZeroReferenceAddressing } from './zero-reference-addressing';
+import { Universe, ZeroReferenceEpoch, TimePrecision, TemporalSegment } from '../temporal-system';
+import { ZeroReferenceAddressing } from '../zero-reference-addressing';
 
 // Apollo 11 Mission Universe with T-minus/T-plus timeline
 export const apollo11Universe: Universe = {

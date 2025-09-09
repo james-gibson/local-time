@@ -1,4 +1,4 @@
-import { UniverseNetwork } from '../../core/types.js';
+import { UniverseNetwork } from '../../../core/types';
 
 export const disneyNetwork: UniverseNetwork = {
   networkId: "disney",

@@ -1,4 +1,4 @@
-import { Universe, UniverseType, TimePrecision } from '../../core/types.js';
+import { Universe, UniverseType, TimePrecision } from '../../../core/types';
 
 export const tolkienBiographyUniverse: Universe = {
   universeId: "biography:jrr_tolkien:1892-1973",

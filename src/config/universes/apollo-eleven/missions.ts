@@ -1,4 +1,4 @@
-import { Universe, UniverseType, TimePrecision } from '../../core/types.js';
+import { Universe, UniverseType, TimePrecision } from '../../../core/types';
 
 export const apollo11Universe: Universe = {
   universeId: "nasa:apollo11:1969",

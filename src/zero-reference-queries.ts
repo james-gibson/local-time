@@ -1,4 +1,4 @@
-import { Universe, ZeroReferenceEpoch } from './temporal-system';
+import { Universe, ZeroReferenceEpoch } from '../temporal-system';
 import { ZeroReferenceAddressing, RelativeTimeComponents } from './zero-reference-addressing';
 
 export interface ZeroReferenceQuery {
