@@ -1,4 +1,4 @@
-import { Universe, UniverseNetwork } from '../core/types.js';
+import { Universe, UniverseNetwork } from '../core/types';
 
 export interface UniverseConfig {
   version: string;
@@ -13,8 +13,8 @@ export class ConfigLoader {
     const fileConfigs = await this.loadFileConfigurations();
     configs.push(...fileConfigs);
     
-    const packageConfigs = await this.loadPackageConfigurations();
-    configs.push(...packageConfigs);
+    // const packageConfigs = await this.loadPackageConfigurations();
+    // configs.push(...packageConfigs);
     
     return configs;
   }
