@@ -1,3 +1,4 @@
+>Disclaimer: This project is me learning how to paint with a llm. If it's helpful let me know!
 # Local Time System - README
 
 ## Overview
