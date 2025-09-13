@@ -1,13 +1,18 @@
 import { KSUIDConverter } from './ksuid-converter';
 import { TimePrecision, ReferenceChain, ReferenceType, TemporalReference, TemporalAnchor } from '../core/types';
-import {createUniverseId} from '../core/universe-ids';
+import { createUniverseId } from '../core/universe-ids';
 
 export class ReferenceHelpers {
   /**
    * Generate a unique reference ID using KSUID
    */
   static generateReferenceId(): string {
-    return KSUIDConverter.generate();
+    try {
+      return KSUIDConverter.generate();
+    } catch {
+      // Fallback if KSUID is not available
+      return `ref_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
   }
 
   /**
@@ -30,7 +35,12 @@ export class ReferenceHelpers {
     
     // Create a temporal event ID with timestamp and random component
     const timestamp = totalNanoseconds.toString(16).padStart(16, '0');
-    const randomId = KSUIDConverter.generate().slice(-8);
+    let randomId: string;
+    try {
+      randomId = KSUIDConverter.generate().slice(-8);
+    } catch {
+      randomId = Math.random().toString(36).substr(2, 8);
+    }
     
     return `${timestamp}_${randomId}`;
   }

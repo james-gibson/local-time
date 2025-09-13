@@ -33,6 +33,14 @@ export class TemporalConversion {
   }
 
   /**
+   * Convert a Date object to nanoseconds since Unix epoch
+   */
+  static dateObjectToNanoseconds(date: Date): bigint {
+    const milliseconds = BigInt(date.getTime());
+    return milliseconds * 1000000n; // Convert to nanoseconds
+  }
+
+  /**
    * Convert nanoseconds since Unix epoch to a Date object
    * @param nanoseconds - Nanoseconds since Unix epoch
    * @returns JavaScript Date object
@@ -359,7 +367,6 @@ export class TemporalConversion {
 
 // Export convenience functions for common operations
 export const {
-  dateToNanoseconds,
   nanosecondsToDate,
   createEpoch,
   createDayEpoch,
@@ -377,3 +384,32 @@ export const {
   hoursToNanoseconds,
   minutesToNanoseconds
 } = TemporalConversion;
+
+// Export dateToNanoseconds with overloads for different signatures
+export function dateToNanoseconds(date: Date): bigint;
+export function dateToNanoseconds(year: number, month: number, day: number): bigint;
+export function dateToNanoseconds(year: number, month: number, day: number, hour: number, minute: number, second: number): bigint;
+export function dateToNanoseconds(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number): bigint;
+export function dateToNanoseconds(
+  dateOrYear: Date | number,
+  month?: number,
+  day?: number,
+  hour?: number,
+  minute?: number,
+  second?: number,
+  millisecond?: number
+): bigint {
+  if (dateOrYear instanceof Date) {
+    return TemporalConversion.dateObjectToNanoseconds(dateOrYear);
+  } else {
+    return TemporalConversion.dateToNanoseconds(
+      dateOrYear,
+      month!,
+      day!,
+      hour || 0,
+      minute || 0,
+      second || 0,
+      millisecond || 0
+    );
+  }
+}

@@ -1,4 +1,4 @@
-const KSUID = require('ksuid');
+import  KSUID  from 'ksuid'
 
 export class KSUIDConverter {
   static generate(): string {
