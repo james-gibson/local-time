@@ -1,9 +1,12 @@
-import { Universe, UniverseType, TimePrecision } from '../../../core/types';
+import {Universe, UniverseType, TimePrecision, TemporalEpoch} from '../../../core/types';
+import * as utils from '../../../utils';
 
 export const copyrightActUniverse: Universe = {
   universeId: "history:copyright_act:1976",
   type: UniverseType.LEGAL_TIMELINE,
-  epochs: undefined,
+  epochs: {
+    "enacted": utils.createYearEpoch(1978, TimePrecision.DAY,"us_copyright_law")
+  },
   identifiers: {
     primary: "legal:copyright_act:1976",
     aliases: ["copyright_act_1976", "us_copyright_law"]
@@ -96,7 +99,9 @@ export const copyrightActUniverse: Universe = {
 
 export const roeVWadeUniverse: Universe = {
   universeId: "history:roe_v_wade:1973-2022",
-  epochs: undefined,
+  epochs: {
+    "implemented": utils.createYearEpoch(1978, TimePrecision.DAY,"roe:precedent")
+  },
   type: UniverseType.LEGAL_TIMELINE,
   identifiers: {
     primary: "legal:roe_v_wade:1973-2022",

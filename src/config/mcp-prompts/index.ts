@@ -1,4 +1,5 @@
 import { UniverseType } from '../../core/types.js';
+import { CORE_MCP_DIRECTIVE } from './core-directive.js';
 import { FILM_MCP_PROMPT } from './film-prompt.js';
 import { MISSION_MCP_PROMPT } from './mission-prompt.js';
 import { HISTORICAL_EVENT_MCP_PROMPT } from './historical-prompt.js';
@@ -33,7 +34,7 @@ export interface MCPPromptTemplate {
 export const MCP_PROMPT_TEMPLATES = {
   [UniverseType.FILM]: {
     universeType: UniverseType.FILM,
-    prompt: FILM_MCP_PROMPT,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + FILM_MCP_PROMPT,
     capabilities: [
       'Film runtime analysis',
       'Narrative structure mapping',
@@ -58,7 +59,7 @@ export const MCP_PROMPT_TEMPLATES = {
 
   [UniverseType.MISSION]: {
     universeType: UniverseType.MISSION,
-    prompt: MISSION_MCP_PROMPT,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + MISSION_MCP_PROMPT,
     capabilities: [
       'Zero-reference timeline creation',
       'Mission phase mapping',
@@ -83,7 +84,7 @@ export const MCP_PROMPT_TEMPLATES = {
 
   [UniverseType.HISTORICAL_EVENT]: {
     universeType: UniverseType.HISTORICAL_EVENT,
-    prompt: HISTORICAL_EVENT_MCP_PROMPT,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + HISTORICAL_EVENT_MCP_PROMPT,
     capabilities: [
       'Historical timeline verification',
       'Multi-source consensus building',
@@ -108,7 +109,7 @@ export const MCP_PROMPT_TEMPLATES = {
 
   [UniverseType.BOOK]: {
     universeType: UniverseType.BOOK,
-    prompt: BOOK_MCP_PROMPT,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + BOOK_MCP_PROMPT,
     capabilities: [
       'Narrative structure analysis',
       'Reading time estimation',
@@ -133,7 +134,7 @@ export const MCP_PROMPT_TEMPLATES = {
 
   [UniverseType.PERSONAL_EXPERIENCE]: {
     universeType: UniverseType.PERSONAL_EXPERIENCE,
-    prompt: PERSONAL_EXPERIENCE_MCP_PROMPT,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + PERSONAL_EXPERIENCE_MCP_PROMPT,
     capabilities: [
       'Privacy-aware structure creation',
       'Subjective time handling',
@@ -158,7 +159,7 @@ export const MCP_PROMPT_TEMPLATES = {
 
   [UniverseType.SERIES]: {
     universeType: UniverseType.SERIES,
-    prompt: `# TV Series Universe Generation - Model Context Protocol\n\nSpecialized for television series with episode structures, season arcs, and broadcast timelines.`,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + `# TV Series Universe Generation - Model Context Protocol\n\nApply CORE_MCP_DIRECTIVE, then follow these series-specific instructions:\n\nSpecialized for television series with episode structures, season arcs, and broadcast timelines.`,
     capabilities: ['Episode mapping', 'Season structure', 'Broadcast timeline', 'Series continuity'],
     dataSources: ['TV databases', 'Broadcast records', 'Streaming platforms'],
     restrictions: ['No single films', 'No books', 'Series content only']
@@ -166,7 +167,7 @@ export const MCP_PROMPT_TEMPLATES = {
 
   [UniverseType.PATENT]: {
     universeType: UniverseType.PATENT,
-    prompt: `# Patent Universe Generation - Model Context Protocol\n\nSpecialized for patent applications, filing timelines, and intellectual property development.`,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + `# Patent Universe Generation - Model Context Protocol\n\nApply CORE_MCP_DIRECTIVE, then follow these patent-specific instructions:\n\nSpecialized for patent applications, filing timelines, and intellectual property development.`,
     capabilities: ['Patent timeline mapping', 'Filing process tracking', 'IP development phases'],
     dataSources: ['Patent offices', 'USPTO database', 'International patent databases'],
     restrictions: ['No trade secrets', 'Public patent data only', 'No pending applications']
@@ -174,7 +175,7 @@ export const MCP_PROMPT_TEMPLATES = {
 
   [UniverseType.SIMULATION]: {
     universeType: UniverseType.SIMULATION,
-    prompt: `# Simulation Universe Generation - Model Context Protocol\n\nSpecialized for simulations, models, and virtual environments with their own temporal logic.`,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + `# Simulation Universe Generation - Model Context Protocol\n\nApply CORE_MCP_DIRECTIVE, then follow these simulation-specific instructions:\n\nSpecialized for simulations, models, and virtual environments with their own temporal logic.`,
     capabilities: ['Simulation timeline mapping', 'Virtual event tracking', 'Model state changes'],
     dataSources: ['Simulation logs', 'Model documentation', 'Virtual environment data'],
     restrictions: ['No real-world events', 'Simulation data only', 'Virtual timelines only']
@@ -182,7 +183,7 @@ export const MCP_PROMPT_TEMPLATES = {
 
   [UniverseType.MEDICAL_PROCEDURE]: {
     universeType: UniverseType.MEDICAL_PROCEDURE,
-    prompt: `# Medical Procedure Universe Generation - Model Context Protocol\n\nSpecialized for medical procedures with precise timing, phases, and patient privacy protection.`,
+    prompt: CORE_MCP_DIRECTIVE + '\n\n' + `# Medical Procedure Universe Generation - Model Context Protocol\n\nApply CORE_MCP_DIRECTIVE, then follow these medical procedure-specific instructions:\n\nSpecialized for medical procedures with precise timing, phases, and patient privacy protection.`,
     capabilities: ['Procedure timeline mapping', 'Medical phase tracking', 'Privacy protection'],
     dataSources: ['Medical literature', 'Procedure protocols', 'Anonymized case studies'],
     restrictions: ['No patient identification', 'No confidential data', 'General procedures only']
@@ -408,3 +409,7 @@ export function getConnectionPrompt(): string {
 export function getNetworkPrompt(): string {
   return NETWORK_MCP_PROMPT;
 }
+
+export { 
+  CORE_MCP_DIRECTIVE
+};

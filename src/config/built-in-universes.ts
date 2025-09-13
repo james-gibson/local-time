@@ -1,4 +1,4 @@
-import { allUniverses, allNetworks } from './universes/index.js';
+import { allUniverses, allNetworks } from './universes';
 
 export default {
   universes: allUniverses,

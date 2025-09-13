@@ -1,10 +1,13 @@
 import { Universe, UniverseType, TimePrecision } from '../../../core/types';
 import { dateToNanoseconds, createKeyframe, createSegment } from '../../../utils/temporal-conversion';
+import * as utils from '../../../utils';
 
 export const heartbleedCVEUniverse: Universe = {
   universeId: "cybersecurity:heartbleed:cve-2014-0160",
   type: UniverseType.HISTORICAL_EVENT,
-  epochs: undefined,
+  epochs: {
+    "discovered": utils.createYearEpoch(2014, TimePrecision.YEAR,"heartbleed:lifecycle")
+  },
   identifiers: {
     primary: "cybersecurity:heartbleed:cve-2014-0160",
     aliases: ["heartbleed", "cve-2014-0160", "openssl_heartbleed"]

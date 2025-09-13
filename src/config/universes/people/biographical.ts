@@ -1,9 +1,12 @@
 import { Universe, UniverseType, TimePrecision } from '../../../core/types';
+import * as utils from '../../../utils';
 
 export const tolkienBiographyUniverse: Universe = {
   universeId: "biography:jrr_tolkien:1892-1973",
   type: UniverseType.BIOGRAPHY,
-  epochs: undefined,
+  epochs: {
+      "born": utils.createYearEpoch(1892, TimePrecision.DAY,"jrr_tolkien:born"),
+    },
   identifiers: {
     primary: "biography:jrr_tolkien:1892-1973",
     aliases: ["tolkien_life", "jrr_tolkien_biography"]
@@ -11,7 +14,14 @@ export const tolkienBiographyUniverse: Universe = {
   realityRelation: {
     type: 'documentary',
     fictionalizationDegree: 0.0,
-    realityAnchors: []
+    realityAnchors: [
+      {
+        realEventId: "history:world:*",
+        relationshipType:"experienced",
+        confidence: 1,
+        evidence:undefined
+      }
+    ]
   },
   attribution: {
     public_domain: true,

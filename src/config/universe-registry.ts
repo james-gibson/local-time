@@ -15,6 +15,8 @@ export class UniverseRegistry {
   }
   
   registerUniverse(id: string, universe: Universe): void {
+    if (!id && !!universe['universeId']) { id = universe['universeId']; }
+    if (!id) { return;}
     // Validate and convert to branded UniverseId
     if (!isValidUniverseId(id)) {
       throw new Error(`Invalid universe ID format: ${id}. Must follow pattern like 'category:identifier:year'`);
@@ -41,18 +43,18 @@ export class UniverseRegistry {
           "relativeFormat": "TIMESTAMP"
         } as unknown as TemporalEpoch,
 
-        // "gregorian": {
-        //   "epochId": "utc:gregorian",
-        //   "startTime": "-62135596800000000000",
-        //   "endTime": "253402300799000000000",
-        //   "precision": "DAY",
-        //   "description": "Gregorian calendar system (January 1, 0001 to December 31, 9999)",
-        //   "zeroPoint": "-62135596800000000000",
-        //   "zeroEvent": "Anno Domini start",
-        //   "beforePrefix": "BCE ",
-        //   "afterPrefix": "CE ",
-        //   "relativeFormat": "CALENDAR"
-        // } as unknown as TemporalEpoch,
+        "gregorian": {
+          "epochId": "utc:gregorian",
+          "startTime": "-62135596800000000000",
+          "endTime": "253402300799000000000",
+          "precision": "DAY",
+          "description": "Gregorian calendar system (January 1, 0001 to December 31, 9999)",
+          "zeroPoint": "-62135596800000000000",
+          "zeroEvent": "Anno Domini start",
+          "beforePrefix": "BCE ",
+          "afterPrefix": "CE ",
+          "relativeFormat": "CALENDAR"
+        } as unknown as TemporalEpoch,
         // "modern": {
         //   "epochId": "utc:atomic_time",
         //   "startTime": "-315619200000000000",
@@ -152,7 +154,7 @@ export class UniverseRegistry {
       const id = (network as any)['universeId'] ?? '';
       const alreadyExists = await this.getUniverse(id);
       !alreadyExists && this.registerUniverse(id, network as unknown as Universe);
-      // console.error('this probably is wrong or not fully accurate: ', {alreadyExists, id, network,n:this.networks});
+      console.error('this probably is wrong or not fully accurate: ', {alreadyExists, id, network,n:this.networks});
     }
 
 
@@ -174,7 +176,7 @@ export class UniverseRegistry {
         this.registerNetwork(network);
       }
       for (const universe of builtIn.default.universes) {
-        this.registerUniverse(universe.universeId,universe);
+        this.registerUniverse(universe['universeId'], universe as unknown as Universe);
       }
 
     } catch (error) {
