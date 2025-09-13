@@ -1,4 +1,4 @@
-import {RelativeTimeComponents, TemporalEpoch, ZeroReferenceEpoch} from '../core/types';
+import { RelativeTimeComponents, TemporalEpoch, ZeroReferenceEpoch } from '../core/types';
 
 export class ZeroReferenceAddressing {
   static generateRelativeAddress(
@@ -113,6 +113,7 @@ export class ZeroReferenceAddressing {
     // console.dir({match})
     return {
       prefix,
+      days: 0,
       hours: parseInt(hours, 10),
       minutes: parseInt(minutes, 10),
       seconds: parseInt(seconds, 10),

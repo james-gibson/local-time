@@ -462,6 +462,7 @@ export interface TemporalSegment {
         'legislation_active' | 'court_jurisdiction';
   status?: 'active' | 'inactive' | 'suspended' | 'overturned' | 'amended';
   jurisdiction?: string;
+  description?: string;
 }
 
 export interface TemporalKeyframe {
@@ -583,6 +584,7 @@ export interface ChainMetadata {
 }
 
 export enum UniverseType {
+  TECHNOLOGY = 'TECHNOLOGY',
   FILM = 'film',
   SERIES = 'series',
   BOOK = 'book',
@@ -594,7 +596,9 @@ export enum UniverseType {
   MEDICAL_PROCEDURE = 'medical_procedure',
   BIOGRAPHY = 'biography',
   LEGAL_TIMELINE = 'legal_timeline',
-  INSTITUTIONAL_PERIOD = 'institutional_period'
+  INSTITUTIONAL_PERIOD = 'institutional_period',
+  TECHNICAL_SPECIFICATION = 'technical_specification',
+  TECHNICAL_LOG = 'technical_log'
 }
 
 export enum ReferenceType {
@@ -648,6 +652,63 @@ export interface RelativeTimeComponents {
   minutes: number;
   seconds: number;
   milliseconds?: number;
+}
+
+// Additional type aliases for compatibility
+export type Keyframe = TemporalKeyframe;
+export type Segment = TemporalSegment;
+export type RealityRelationType = RealityRelation['type'];
+
+// Usage restriction enum
+export enum UsageRestriction {
+  INTERNAL_ANALYSIS_ONLY = 'internal_analysis_only',
+  NO_COMMERCIAL_USE = 'no_commercial_use',
+  ANONYMIZATION_REQUIRED = 'anonymization_required'
+}
+
+// Copyright status enum
+export enum CopyrightStatus {
+  ACTIVE = 'active',
+  EXPIRED = 'expired',
+  PUBLIC_DOMAIN = 'public_domain',
+  INVALID = 'invalid',
+  PRIVATE = 'private'
+}
+
+// Function to create technical universe IDs
+export function createTechnicalUniverseId(category: string, identifier: string, version?: string): UniverseId {
+  const versionSuffix = version ? `:${version}` : '';
+  const id = `${category}:${identifier}${versionSuffix}:${new Date().getFullYear()}`;
+  return id as UniverseId;
+}
+
+// Re-export createHistoricalUniverseId from universe-ids for compatibility
+export { createHistoricalUniverseId,createTechnologyUniverseId } from './universe-ids';
+
+
+// Relationship types for connections
+export enum RelationshipType {
+  TEMPORAL_OVERLAP = 'temporal_overlap',
+  CAUSAL_RELATIONSHIP = 'causal_relationship',
+  THEMATIC_CONNECTION = 'thematic_connection',
+  EXTENDS = 'extends',
+  SUPPLEMENTS = 'supplements'
+}
+
+// Temporal overlap enum
+export enum TemporalOverlap {
+  OVERLAPS = 'overlaps',
+  CONTAINS = 'contains',
+  PRECEDES = 'precedes',
+  FOLLOWS = 'follows'
+}
+
+
+// Connection relationship interface
+export interface ConnectionRelationship {
+  type: RelationshipType;
+  strength: number;
+  description: string;
 }
 
 export interface UniverseNetwork {
@@ -706,6 +767,22 @@ export enum TimePrecision {
   MINUTE = 60_000_000_000,
   HOUR = 3_600_000_000_000,
   DAY = 86_400_000_000_000,
+  MONTH = 2_629_746_000_000_000,
   YEAR = 31_536_000_000_000_000,
   MILLION_YEARS = 31_536_000_000_000_000_000_000
 }
+
+// Reality relation type enum for easier usage
+export enum RealityRelationTypeEnum {
+  DOCUMENTARY = 'documentary',
+  HISTORICAL_FICTION = 'historical_fiction',
+  INSPIRED_BY = 'inspired_by',
+  PURE_FICTION = 'pure_fiction',
+  METAFICTION = 'metafiction',
+  RECREATION = 'recreation',
+  INTERPRETATION = 'interpretation',
+  DOCUMENTS = 'documents'
+}
+
+// Export as both enum and type for compatibility
+export const RealityRelationType = RealityRelationTypeEnum;

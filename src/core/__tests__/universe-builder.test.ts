@@ -121,8 +121,8 @@ describe('UniverseBuilder', () => {
         .withDateRange(1892, 1, 3, 1973, 9, 2, TimePrecision.DAY)
         .withRealityRelation('documentary', 0.0)
         .withPublicDomain(['Biographical Records'])
-        .addDateSegment(1892, 1, 3, 0, 1911, 1, 1, 0, 'childhood', 'life_period')
-        .addDateSegment(1911, 1, 1, 0, 1925, 1, 1, 0, 'education', 'education')
+        .addDateSegment('1892-01-03', '1911-01-01', 'childhood', 'life_period')
+        .addDateSegment('1911-01-01', '1925-01-01', 'education', 'education')
         .build();
 
       expect(universe.universeId).toBe('biography:test_person:1892-1973');

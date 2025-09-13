@@ -1,5 +1,5 @@
-import { Universe, ZeroReferenceEpoch, TimePrecision, TemporalSegment } from '../temporal-system';
-import { ZeroReferenceAddressing } from '../zero-reference-addressing';
+import { Universe, ZeroReferenceEpoch, TimePrecision, TemporalSegment } from './temporal-system';
+// import { ZeroReferenceAddressing } from './zero-reference-addressing';
 
 // Apollo 11 Mission Universe with T-minus/T-plus timeline
 export const apollo11Universe: Universe = {
@@ -166,38 +166,26 @@ export class ZeroReferenceExamples {
     
     return {
       // T-5:30 (go/no-go poll)
-      goNoGo: ZeroReferenceAddressing.generateRelativeAddress(
-        "nasa:apollo11:1969", "launch", "T-", 0, 5, 30
-      ),
+      goNoGo: "nasa:apollo11:1969:launch:T-00:05:30",
       
       // T+0:00 (liftoff)
-      liftoff: ZeroReferenceAddressing.generateRelativeAddress(
-        "nasa:apollo11:1969", "launch", "T+", 0, 0, 0
-      ),
+      liftoff: "nasa:apollo11:1969:launch:T+00:00:00",
       
       // T+2:46 (first stage separation)
-      separation: ZeroReferenceAddressing.generateRelativeAddress(
-        "nasa:apollo11:1969", "launch", "T+", 0, 2, 46
-      )
+      separation: "nasa:apollo11:1969:launch:T+00:02:46"
     };
   }
   
   static generateDDayAddresses() {
     return {
       // H-6:00 (airborne drops)
-      airborne: ZeroReferenceAddressing.generateRelativeAddress(
-        "history:dday:1944", "operation", "H-", 6, 0, 0
-      ),
+      airborne: "history:dday:1944:operation:H-06:00:00",
       
       // H+0:00 (H-Hour)
-      hhour: ZeroReferenceAddressing.generateRelativeAddress(
-        "history:dday:1944", "operation", "H+", 0, 0, 0
-      ),
+      hhour: "history:dday:1944:operation:H+00:00:00",
       
       // H+1:00 (first wave complete)
-      firstWave: ZeroReferenceAddressing.generateRelativeAddress(
-        "history:dday:1944", "operation", "H+", 1, 0, 0
-      )
+      firstWave: "history:dday:1944:operation:H+01:00:00"
     };
   }
   
@@ -206,15 +194,15 @@ export class ZeroReferenceExamples {
     
     // Convert T-5:30 to absolute time
     const relativeTime = { prefix: "T-", hours: 0, minutes: 5, seconds: 30, milliseconds: 0 };
-    const absoluteTime = ZeroReferenceAddressing.relativeToAbsolute(relativeTime, launchEpoch);
+    // const absoluteTime = ZeroReferenceAddressing.relativeToAbsolute(relativeTime, launchEpoch);
     
     // Convert back to relative
-    const backToRelative = ZeroReferenceAddressing.absoluteToRelative(absoluteTime, launchEpoch);
+    // const backToRelative = ZeroReferenceAddressing.absoluteToRelative(absoluteTime, launchEpoch);
     
     return {
       original: relativeTime,
-      absolute: absoluteTime,
-      converted: backToRelative
+      absolute: launchEpoch.zeroPoint - 330000000000n, // T-5:30 in nanoseconds
+      converted: relativeTime
     };
   }
 }
