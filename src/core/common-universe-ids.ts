@@ -49,6 +49,9 @@ export class CommonUniverseIds {
   static readonly PIXAR_STUDIO = createHistoricalUniverseId('pixar', 1986);
   static readonly MARVEL_COMICS = createHistoricalUniverseId('marvel', 1939);
   static readonly MARVEL_STUDIOS = createHistoricalUniverseId('marvel_studios', 2008);
+  // Franchise umbrella universes (founding-film years).
+  static readonly TOY_STORY_FRANCHISE = createHistoricalUniverseId('toy_story_franchise', 1995);
+  static readonly CARS_FRANCHISE = createHistoricalUniverseId('cars_franchise', 2006);
   
   // Technology Industry
   static readonly SILICON_VALLEY = createHistoricalUniverseId('silicon_valley', 1956);

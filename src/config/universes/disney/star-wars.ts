@@ -49,52 +49,9 @@ export const spaceballsUniverse = new UniverseBuilder()
     .addRuntimeKeyframe(58, 45, 'combing_the_desert', 0.8, ['parody', 'pun', 'visual_gag'])
     .build();
 
-/**
- * Toy Story (1995) - A Landmark in Animation with Sci-Fi Homages
- *
- * The first feature-length computer-animated film, Toy Story follows the adventures of
- * toys that come to life. The character Buzz Lightyear and his backstory are steeped in
- * science fiction tropes, with several direct homages to Star Wars.
- *
- * Cultural Significance: 0.98 - A revolutionary film that changed the animation industry
- * forever and launched Pixar into a household name. Its storytelling and technical
- * achievements created a new paradigm for family entertainment. Its references to Star
- * Wars helped ground its sci-fi elements in a familiar, beloved context.
- *
- * Reality Relation: pure_fiction with 1.0 fictionalization
- *
- * Research Sources:
- * - IMDb, "Toy Story (1995)"
- * - Pixar Wiki, "Star Wars References in Pixar Productions"
- * - Reddit, r/StarWars, "Recap of all of Toy Story’s Star Wars references"
- *
- * Hierarchical Context: PIXAR_STUDIO -> DISNEY_CORPORATE -> HOLLYWOOD_SYSTEM
- * Natural Connections Discovered:
- * - Parent Context: CommonUniverseIds.PIXAR_STUDIO (contains this film)
- * - Temporal Reference: Pays homage to CommonUniverseIds.STAR_WARS_A_NEW_HOPE
- */
-export const toyStoryUniverse = new UniverseBuilder()
-    .film('pixar', 'Toy Story', 1995)
-    .withId(createFilmUniverseId('pixar', 'toy_story', 1995))
-    .withRuntime(81)
-    .withReleaseDate('1995-11-22')
-    .withCreators({
-        director: ['John Lasseter'],
-        writer: ['Joss Whedon', 'Andrew Stanton', 'Joel Cohen', 'Alec Sokolow'],
-    })
-    .withCulturalSignificance(0.98, 'Groundbreaking computer-animated film that redefined the genre and became a cultural phenomenon.')
-    .withRealityRelation('pure_fiction', 1.0)
-    .withCopyright(['Walt Disney Pictures', 'Pixar Animation Studios'], 1995, 'active')
-    .addConnection({
-        targetUniverseId: "film:star_wars_a_new_hope:*",
-        type: 'references',
-        confidence: 0.9,
-        description: 'The film contains several homages to A New Hope, particularly in its sci-fi dialogue and themes.',
-        evidence: ['Buzz Lightyear\'s dialogue', 'Tie-fighter sound effects', 'Thematic parallels'],
-    })
-    .addRuntimeKeyframe(23, 5, 'tie_fighter_sound', 0.8, ['audio_reference', 'star_wars_reference', 'sound_design'])
-    .addRuntimeKeyframe(57, 18, 'strange_new_planet', 0.85, ['dialogue_reference', 'star_wars_reference', 'buzz_lightyear'])
-    .build();
+// NOTE: the Toy Story (1995) universe now lives in the canonical Pixar filmography
+// (../pixar/films.ts), which also carries its Star Wars-homage references and
+// runtime keyframes.
 
 /**
  * Ready Player One (2018) - A Celebration of 80s and 90s Pop Culture
