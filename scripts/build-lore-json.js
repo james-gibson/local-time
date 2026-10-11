@@ -82,12 +82,40 @@ function isoToMs(iso) {
   return Date.UTC(+y, +mo - 1, +d, +h, +mi, +s);
 }
 
-/** Parse the nominal (literal HMS) offset of an epoch-relative address. */
+/**
+ * Parse the nominal offset out of an epoch-relative address.
+ *
+ * Mirrors `Temporal42i.parseNominalOffset` so the derived view agrees with the
+ * library instead of inventing its own dialect — a divergence here silently
+ * zeroes the very offsets the lift exists to compare:
+ *   - `…:T+HH:MM:SS` (and an optional `.mmm`) — a precise label.
+ *   - `…:T+<n>day(s)ish` / `…:T+<n>d` — a fuzzy label; the trailing `ish` marks
+ *     the offset as approximate.
+ * Returns `null` when the address carries no parseable offset — never a guessed
+ * zero, so callers can tell "no offset" from "offset of zero".
+ */
+function parseNominalOffset(address) {
+  const a = String(address ?? '');
+  const hms = a.match(/([+-])(\d{2,}):(\d{2}):(\d{2})(?:\.(\d{3}))?\s*$/);
+  if (hms) {
+    const sign = hms[1] === '-' ? -1 : 1;
+    const ms = (+hms[2] * 3600 + +hms[3] * 60 + +hms[4]) * 1000 + +(hms[5] ?? 0);
+    return { ms: sign * ms, approximate: false };
+  }
+  const days = a.match(/([+-])(\d+(?:\.\d+)?)\s*(?:d|day|days)(ish)?\s*$/i);
+  if (days) {
+    const sign = days[1] === '-' ? -1 : 1;
+    return {
+      ms: sign * Math.round(Number(days[2]) * 86_400_000),
+      approximate: Boolean(days[3]),
+    };
+  }
+  return null;
+}
+
+/** Nominal offset of an epoch-relative address in milliseconds, or null. */
 function nominalMs(address) {
-  const m = String(address ?? '').match(/([+-])(\d{2}):(\d{2}):(\d{2})\s*$/);
-  if (!m) return null;
-  const sign = m[1] === '-' ? -1 : 1;
-  return sign * (+m[2] * 3600 + +m[3] * 60 + +m[4]) * 1000;
+  return parseNominalOffset(address)?.ms ?? null;
 }
 
 /**
