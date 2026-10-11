@@ -24,6 +24,7 @@ import {calvinKleinHistory} from './calvinKleinHistory';
 import {middleEarthUniverse} from './middleEarthUniverse';
 import {tolkienWWIExperience} from './tolkienWWIExperience';
 import {filmUniverses} from "./films"
+import {usHistoryUniverses} from "./us-history"
 export const allUniverses = [
     ...filmUniverses,
   ...missionUniverses,
@@ -47,6 +48,7 @@ export const allUniverses = [
   damImpactTimelineUniverse,
   presidentialElectionUniverses,
   usCopyrightLawChangesUniverse,
+  ...usHistoryUniverses,
 ];
 
 export const allNetworks = [
@@ -61,5 +63,6 @@ export {
   legalUniverses,
   pokemonUniverses,
   historicalUniverses,
-  allCybersecurityUniverses
+  allCybersecurityUniverses,
+  usHistoryUniverses
 };
