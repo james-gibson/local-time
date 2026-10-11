@@ -100,9 +100,17 @@ export class UniverseRegistry {
         // console.dir(layer)
         for (const e in layer.epochs) {
           const epoch = layer.epochs[e];
-          const id = epoch.epochId ?? '';
-          if (!id) { return;}
-          universe.epochs[id] = epoch;
+          // The layer key is the epoch's id. Some universes omit `epochId` on
+          // the epoch object itself; fall back to the layer key rather than
+          // silently dropping the whole universe (james-gibson/local-time#19).
+          const epochId = epoch.epochId ?? e;
+          if (!epoch.epochId) {
+            console.warn(
+              `UniverseRegistry: epoch "${e}" of universe "${id}" is missing an epochId; using its layer key.`
+            );
+            epoch.epochId = epochId;
+          }
+          universe.epochs[epochId] = epoch;
         }
 
       }
