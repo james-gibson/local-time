@@ -41,6 +41,16 @@ const SEGMENT_TYPES = new Set([
   'life_period', 'education', 'career', 'public_service', 'legal_period',
   'legislation_active', 'court_jurisdiction',
 ]);
+const TIME_PRECISIONS = new Set([
+  'MILLION_YEARS', 'CENTURY', 'DECADE', 'YEAR', 'MONTH', 'DAY',
+  'HOUR', 'MINUTE', 'SECOND', 'MILLISECOND', 'NANOSECOND',
+]);
+
+/** Map a KB precision (any case) to a `TimePrecision.<X>` expression. */
+function precisionEnum(p) {
+  const key = String(p ?? 'SECOND').toUpperCase().replace(/[\s-]+/g, '_');
+  return `TimePrecision.${TIME_PRECISIONS.has(key) ? key : 'SECOND'}`;
+}
 
 // --- helpers ---------------------------------------------------------------
 
@@ -78,7 +88,9 @@ function realityRelationType(degree) {
 function emitKeyframes(keyframes) {
   const out = [];
   for (const kf of keyframes) {
-    const ts = ns(kf.timestamp);
+    // A presumed keyframe may carry a date-range instead of a point timestamp.
+    const dr = kf['date-range'];
+    const ts = ns(kf.timestamp) ?? (dr && ns(dr.earliest)) ?? null;
     if (!ts) continue;
     out.push('      {');
     out.push(`        id: ${q(kf.id ?? 'keyframe')},`);
@@ -90,6 +102,17 @@ function emitKeyframes(keyframes) {
       out.push('        tags: [],');
     }
     out.push(`        certainty: ${num(kf.certainty, 1)},`);
+    if (dr && ns(dr.earliest) && ns(dr.latest)) {
+      out.push(`        dateRange: { earliest: ${ns(dr.earliest)}, latest: ${ns(dr.latest)} },`);
+    }
+    // Presumption + tension are additive KB extensions carried through the
+    // `as unknown as Universe` cast (types.ts has no field for them yet).
+    if (kf.presumed) out.push('        presumed: true,');
+    if (kf['false-start']) out.push('        falseStart: true,');
+    if (kf.provenance) out.push(`        provenance: ${q(kf.provenance)},`);
+    if (kf['42i'] && Number.isFinite(Number(kf['42i'].tension))) {
+      out.push(`        tension: ${num(kf['42i'].tension, 0)},`);
+    }
     if (kf.description) out.push(`        description: ${q(kf.description)},`);
     out.push('      },');
   }
@@ -186,6 +209,35 @@ function emitUniverse(json) {
   }
   if (layerEpochs.length === 0) layerEpochs.push('      main: { epochId: \'main\', precision: TimePrecision.DAY },');
 
+  // The epoch's zero-point, when established or presumed. An `unestablished`
+  // zero is deliberately omitted: null is explicit (skill §1a) and we do not
+  // fabricate a zeroth where none is recorded.
+  const zeroEpochLines = [];
+  const zns = zr.zeroPoint ? ns(zr.zeroPoint) : null;
+  if (zns && zr.zeroStatus !== 'unestablished') {
+    zeroEpochLines.push('      zero_reference: {');
+    zeroEpochLines.push("        epochId: 'zero_reference',");
+    zeroEpochLines.push(`        startTime: ${zns},`);
+    zeroEpochLines.push(`        precision: ${precisionEnum(zr.precision)},`);
+    zeroEpochLines.push(`        zeroPoint: ${zns},`);
+    zeroEpochLines.push(`        zeroEvent: ${q(zr.zeroEvent ?? json.title ?? 'zero-point')},`);
+    zeroEpochLines.push(`        beforePrefix: ${q(zr.beforePrefix ?? 'T-')},`);
+    zeroEpochLines.push(`        afterPrefix: ${q(zr.afterPrefix ?? 'T+')},`);
+    zeroEpochLines.push(`        relativeFormat: ${q(zr.relativeFormat ?? 'HMS')},`);
+    zeroEpochLines.push(`        zeroStatus: ${q(zr.zeroStatus ?? 'presumed')},`);
+    if (Array.isArray(zr.falseStarts) && zr.falseStarts.length) {
+      zeroEpochLines.push('        falseStarts: [');
+      for (const fs of zr.falseStarts) {
+        const at = (fs && ns(fs.at)) || '0n';
+        zeroEpochLines.push(
+          `          { at: ${at}, address: ${q(fs?.address ?? '')}, outcome: ${q(fs?.outcome ?? 'aborted')}${fs?.note ? `, note: ${q(fs.note)}` : ''} },`
+        );
+      }
+      zeroEpochLines.push('        ],');
+    }
+    zeroEpochLines.push('      },');
+  }
+
   const windowStrategy = WINDOW_STRATEGIES.has(zr.windows?.strategy)
     ? zr.windows.strategy
     : 'phase_based';
@@ -229,7 +281,7 @@ function emitUniverse(json) {
   lines.push('      layerId: \'primary\',');
   lines.push('      type: \'primary\',');
   lines.push('      epochs: {');
-  lines.push(...layerEpochs);
+  lines.push(...zeroEpochLines, ...layerEpochs);
   lines.push('      },');
   lines.push('    },');
   lines.push('  ],');
@@ -247,6 +299,10 @@ function emitUniverse(json) {
   if (json.description) lines.push(`    description: ${q(json.description)},`);
   if (json.culturalSignificance !== null && json.culturalSignificance !== undefined) {
     lines.push(`    cultural_significance: ${num(json.culturalSignificance, 0)},`);
+  }
+  if (zr.zeroStatus) lines.push(`    zeroStatus: ${q(zr.zeroStatus)},`);
+  if (zr.condition?.dilatation !== null && zr.condition?.dilatation !== undefined) {
+    lines.push(`    timelineDilatation: ${num(zr.condition.dilatation, 0)},`);
   }
   const released =
     zr.zeroPoint ??

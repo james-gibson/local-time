@@ -9,6 +9,13 @@
  *
  * The output JSON is a normalised, lossless view of the zero-reference
  * frontmatter contract (see the `zero-reference` skill) plus the document body.
+ *
+ * It also carries two *derived* additions (recomputable, never authoritative):
+ *   - the epoch zero-point + `zeroStatus`, synthesised from a declared
+ *     zero-time or a `zero-point`-tagged keyframe (`null` = unestablished);
+ *   - the 42i lift — each keyframe's complex coordinate (real elapsed time,
+ *     imaginary label-drift) plus its tension, so timelines of different
+ *     precision regimes can be compared.
  */
 
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
@@ -46,11 +53,145 @@ function splitFrontmatter(content) {
   return { frontmatter, body: match[2] ?? '' };
 }
 
+// --- zero-point derivation & the 42i lift ----------------------------------
+//
+// Addresses are NOMINAL strings — skill Rule 2: "addresses are strings, not
+// math". To compare timelines from different precision regimes (a NASA
+// countdown, where `T+05:30` really is 5.5 minutes, vs. a corporate history,
+// where `T+09:00:00` really is twelve years) we lift every keyframe into a
+// complex plane:
+//
+//   real axis  (re) = anchored elapsed time (timestamp - zeroPoint)
+//   imag axis  (im) = drift between the printed label and reality (nominal - re)
+//
+// A literal timeline (labels map 1:1 onto time) sits on the real axis, im ≈ 0.
+// A purely nominal one rotates into the imaginary plane as |im| → |re|. The
+// per-keyframe `tension` (0..1) and the epoch `dilatation` (real-ms per
+// nominal-"hour") are what let us compare "apples to volkswagons" without
+// pretending the units agree.
+
+const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+/** Parse an ISO 8601 date/datetime to epoch milliseconds, or null. */
+function isoToMs(iso) {
+  const m = String(iso ?? '').match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/
+  );
+  if (!m) return null;
+  const [, y, mo, d, h = '0', mi = '0', s = '0'] = m;
+  return Date.UTC(+y, +mo - 1, +d, +h, +mi, +s);
+}
+
+/** Parse the nominal (literal HMS) offset of an epoch-relative address. */
+function nominalMs(address) {
+  const m = String(address ?? '').match(/([+-])(\d{2}):(\d{2}):(\d{2})\s*$/);
+  if (!m) return null;
+  const sign = m[1] === '-' ? -1 : 1;
+  return sign * (+m[2] * 3600 + +m[3] * 60 + +m[4]) * 1000;
+}
+
+/**
+ * Derive the epoch's zero-point and its *status*.
+ *
+ *   established   — zero-time declared with a source
+ *   presumed      — zero inferred from a keyframe (usable, but flagged)
+ *   unestablished — no zeroth at all
+ *
+ * `null` is a statement, not a gap: in 42i space the origin is a real position,
+ * and an event may genuinely have no established zeroth. We therefore never
+ * silently fabricate one — an undeclared, underivable zero stays `null` with
+ * status `unestablished`.
+ */
+function deriveZero(zr, fm, keyframes) {
+  const anchor = isObject(fm['zero-point']) ? fm['zero-point'] : {};
+  const inlineTime = zr['zero-time'] ?? anchor['zero-time'] ?? fm['zero-time'] ?? null;
+  const tagged = keyframes.find((k) => (k.tags ?? []).includes('zero-point'));
+  const atZero = keyframes.find((k) => nominalMs(k.address) === 0);
+
+  let zeroPoint = inlineTime;
+  let source = inlineTime ? 'declared' : null;
+  if (!zeroPoint && tagged?.timestamp) {
+    zeroPoint = tagged.timestamp;
+    source = 'keyframe:zero-point';
+  }
+  if (!zeroPoint && atZero?.timestamp) {
+    zeroPoint = atZero.timestamp;
+    source = 'keyframe:T+00:00:00';
+  }
+
+  const declared = zr['zero-status'] ?? anchor['zero-status'] ?? null;
+  const zeroStatus =
+    declared ?? (source === 'declared' ? 'established' : zeroPoint ? 'presumed' : 'unestablished');
+
+  return {
+    zeroPoint,
+    zeroStatus,
+    zeroSource: source,
+    precision: zr.precision ?? anchor.precision ?? null,
+    zeroEvent: zr['zero-event'] ?? anchor['zero-event'] ?? tagged?.description ?? null,
+    beforePrefix: zr['before-prefix'] ?? anchor['before-prefix'] ?? 'T-',
+    afterPrefix: zr['after-prefix'] ?? anchor['after-prefix'] ?? 'T+',
+    relativeFormat: zr['relative-format'] ?? anchor['relative-format'] ?? 'HMS',
+    falseStarts: zr['false-starts'] ?? anchor['false-starts'] ?? [],
+  };
+}
+
+const round = (n, p) => Math.round(n * 10 ** p) / 10 ** p;
+
+/** Lift keyframes into the 42i complex plane and score their tension. */
+function liftTo42i(keyframes, zeroPointIso) {
+  const z0 = isoToMs(zeroPointIso);
+  if (z0 === null) return { lift: null, condition: null };
+
+  let nomMin = Infinity;
+  let nomMax = -Infinity;
+  let reMin = Infinity;
+  let reMax = -Infinity;
+  const lift = new Map();
+
+  for (const kf of keyframes) {
+    const real = isoToMs(kf.timestamp);
+    const nom = nominalMs(kf.address);
+    if (real === null || nom === null) continue;
+    const re = real - z0;   // real axis: anchored elapsed time
+    const im = nom - re;    // imaginary axis: label drift from reality
+    const tension = Math.abs(im) / Math.max(Math.abs(re), Math.abs(im), 1);
+    lift.set(kf, { re, im, tension: round(tension, 4) });
+    nomMin = Math.min(nomMin, nom);
+    nomMax = Math.max(nomMax, nom);
+    reMin = Math.min(reMin, re);
+    reMax = Math.max(reMax, re);
+  }
+
+  const nominalSpan = nomMax - nomMin;
+  const realSpan = reMax - reMin;
+  return {
+    lift,
+    condition: {
+      nominalSpanMs: Number.isFinite(nominalSpan) ? nominalSpan : null,
+      realSpanMs: Number.isFinite(realSpan) ? realSpan : null,
+      // real milliseconds per nominal "hour" — ≈1 for a literal timeline.
+      dilatation: Number.isFinite(nominalSpan) && nominalSpan > 0
+        ? round(realSpan / nominalSpan, 3)
+        : null,
+    },
+  };
+}
+
 function normalise(mdPath, content) {
   const { frontmatter: fm, body } = splitFrontmatter(content);
 
   // The zero-reference block holds the temporal structure.
   const zr = fm['zero-reference'] || {};
+  const keyframes = zr.keyframes ?? [];
+  const zero = deriveZero(zr, fm, keyframes);
+  const { lift, condition } = liftTo42i(keyframes, zero.zeroPoint);
+
+  // Attach the 42i coordinate to each keyframe (a derived view, never authority).
+  const keyframesOut = keyframes.map((kf) => {
+    const l = lift?.get(kf);
+    return l ? { ...kf, '42i': l } : kf;
+  });
 
   return {
     // --- provenance ---
@@ -81,13 +222,23 @@ function normalise(mdPath, content) {
 
     // --- temporal structure ---
     zeroReference: {
-      zeroPoint: zr['zero-point'] ?? fm['zero-point'] ?? null,
+      zeroPoint: zero.zeroPoint,
+      zeroStatus: zero.zeroStatus,
+      zeroSource: zero.zeroSource,
+      precision: zero.precision,
+      zeroEvent: zero.zeroEvent,
+      beforePrefix: zero.beforePrefix,
+      afterPrefix: zero.afterPrefix,
+      relativeFormat: zero.relativeFormat,
+      falseStarts: zero.falseStarts,
       epochId: zr['epoch-id'] ?? null,
       addresses: zr.addresses ?? [],
-      keyframes: zr.keyframes ?? [],
+      keyframes: keyframesOut,
       segments: zr.segments ?? [],
       windows: zr.windows ?? { strategy: 'phase_based' },
       layers: zr.layers ?? [],
+      // 42i epoch condition: how literal the timeline's labels are.
+      condition,
     },
 
     // --- narrative body ---
