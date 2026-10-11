@@ -17,13 +17,14 @@ import {
   electricTelegraphUniverse,
   september11AttacksUniverse,
   penicillinDiscoveryUniverse, tulsaMassacreMediaCoverageUniverse, tulsaRaceMassacre1921Universe, transistorInventionUniverse, worldWideWebUniverse
-, theBeatlesHistoricalUniverse, gamestopUniverses} from './historical';
+, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses} from './historical';
 import {allCybersecurityUniverses} from './cybersecurity';
 import {chuckBerryUniverse} from './chuckBerryUniverse';
 import {calvinKleinHistory} from './calvinKleinHistory';
 import {middleEarthUniverse} from './middleEarthUniverse';
 import {tolkienWWIExperience} from './tolkienWWIExperience';
 import {filmUniverses} from "./films"
+import {idiocracyUniverse} from "./films/20th"
 import {usHistoryUniverses} from "./us-history"
 import {pixarFilmUniverses} from "./pixar"
 import {versionControlUniverses} from "./version-control"
@@ -55,6 +56,8 @@ export const allUniverses = [
   ...usHistoryUniverses,
   ...versionControlUniverses,
   ...gamestopUniverses,
+  idiocracyUniverse,
+  ...costcoUniverses,
 ];
 
 export const allNetworks = [
@@ -74,5 +77,7 @@ export {
   pixarFilmUniverses,
   versionControlUniverses,
   gamestopUniverses,
+  costcoUniverses,
+  idiocracyUniverse,
   robinWilliamsFilmography
 };
