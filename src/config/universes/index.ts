@@ -1,7 +1,7 @@
 
 import {missionUniverses} from './apollo-eleven/missions';
 import {universeNetworks, readyPlayerOneUniverse, toyStory2RecoveryMissionUniverse, spaceballsUniverse,disneyNetwork, disneyPixarAcquisition2006Universe} from './disney';
-import {biographicalUniverses} from './people';
+import {biographicalUniverses, robinWilliamsFilmography} from './people';
 import {
   zirpUsEconomyUniverse,
   damImpactTimelineUniverse,
@@ -32,6 +32,7 @@ export const allUniverses = [
   ...pixarFilmUniverses,
   ...missionUniverses,
   ...biographicalUniverses,
+  ...robinWilliamsFilmography,
   ...legalUniverses,
   ...pokemonUniverses,
   ...historicalUniverses,
@@ -70,5 +71,6 @@ export {
   allCybersecurityUniverses,
   usHistoryUniverses,
   pixarFilmUniverses,
-  versionControlUniverses
+  versionControlUniverses,
+  robinWilliamsFilmography
 };
