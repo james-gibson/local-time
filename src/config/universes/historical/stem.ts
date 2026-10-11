@@ -378,8 +378,7 @@ export const transistorInventionUniverse: Universe = {
  * Hierarchical Context: CERN -> WORLD_HISTORY
  */
 export const worldWideWebUniverse: Universe = {
-    universeId:"technology:world_wide_web:timeline", // createTechnologyUniverseId('internet', 'world_wide_web',
-    // '1989'),
+    universeId:"technology:world_wide_web:1989", // createTechnologyUniverseId('internet', 'world_wide_web', '1989')
     type: UniverseType.TECHNOLOGY,
     identifiers: {
         primary: 'tech:internet:www:1989',
