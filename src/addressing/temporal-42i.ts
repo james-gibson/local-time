@@ -122,6 +122,7 @@ export class Temporal42i {
       realMs: null,
       re: null,
       im: nominalNs,
+      magnitude: Math.abs(nominalMs),
       tension: nominalMs === 0 ? 0 : 1,
       approximate: nominal ? nominal.approximate : false,
     });
@@ -142,6 +143,7 @@ export class Temporal42i {
         realMs: nominalMs,
         re: nominalNs,
         im: 0n,
+        magnitude: Math.abs(nominalMs),
         tension: 0,
         approximate: nominal ? nominal.approximate : false,
       };
@@ -160,6 +162,7 @@ export class Temporal42i {
       realMs,
       re: realNs,
       im: imNs,
+      magnitude: Math.hypot(realMs, imMs),
       tension: Math.abs(imMs) / Math.max(Math.abs(realMs), Math.abs(imMs), 1),
       approximate: nominal ? nominal.approximate : false,
     };
@@ -340,6 +343,12 @@ export interface Phasor42i extends Point42i {
   re: bigint | null;
   /** Imaginary axis: the part of the label that is not anchored, in nanoseconds. */
   im: bigint;
+  /**
+   * Modulus `|Z| = hypot(re, im)` in milliseconds — the isotopical distance from
+   * the origin. Minimal exactly at ground truth (`im = 0`), which is the invariant
+   * isotope's `Position.Magnitude = sqrt(42² + imaginary²)` encodes.
+   */
+  magnitude: number;
   /** 0 = the label is literal time; →1 = the label carries no literal time. */
   tension: number;
 }
