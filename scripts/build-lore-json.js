@@ -130,8 +130,30 @@ function nominalMs(address) {
  * silently fabricate one — an undeclared, underivable zero stays `null` with
  * status `unestablished`.
  */
-function deriveZero(zr, fm, keyframes) {
+function deriveZero(zr, fm, keyframes, zeroIndex) {
   const anchor = isObject(fm['zero-point']) ? fm['zero-point'] : {};
+  const ownId = fm['universe-id'] ?? null;
+  const refId = zr['universe-id'] ?? null;
+
+  // A `zero-reference` naming ANOTHER universe inherits that universe's zeroth:
+  // the amendments do not ratify an origin of their own, they extend the
+  // Constitution's. Resolved from the pass-1 index; the inherited status is the
+  // target's, because it *is* the same zeroth.
+  if (refId && refId !== ownId && zeroIndex?.has(refId)) {
+    const target = zeroIndex.get(refId);
+    return {
+      zeroPoint: target.zeroPoint,
+      zeroStatus: target.zeroStatus,
+      zeroSource: `reference:${refId}`,
+      precision: zr.precision ?? target.precision,
+      zeroEvent: zr['zero-event'] ?? target.zeroEvent,
+      beforePrefix: zr['before-prefix'] ?? anchor['before-prefix'] ?? target.beforePrefix,
+      afterPrefix: zr['after-prefix'] ?? anchor['after-prefix'] ?? target.afterPrefix,
+      relativeFormat: zr['relative-format'] ?? anchor['relative-format'] ?? target.relativeFormat,
+      falseStarts: zr['false-starts'] ?? [],
+    };
+  }
+
   const inlineTime = zr['zero-time'] ?? anchor['zero-time'] ?? fm['zero-time'] ?? null;
   const tagged = keyframes.find((k) => (k.tags ?? []).includes('zero-point'));
   const atZero = keyframes.find((k) => nominalMs(k.address) === 0);
@@ -206,13 +228,13 @@ function liftTo42i(keyframes, zeroPointIso) {
   };
 }
 
-function normalise(mdPath, content) {
+function normalise(mdPath, content, zeroIndex) {
   const { frontmatter: fm, body } = splitFrontmatter(content);
 
   // The zero-reference block holds the temporal structure.
   const zr = fm['zero-reference'] || {};
   const keyframes = zr.keyframes ?? [];
-  const zero = deriveZero(zr, fm, keyframes);
+  const zero = deriveZero(zr, fm, keyframes, zeroIndex);
   const { lift, condition } = liftTo42i(keyframes, zero.zeroPoint);
 
   // Attach the 42i coordinate to each keyframe (a derived view, never authority).
@@ -280,10 +302,27 @@ const loreDir = resolveLoreDir(contentArg);
 const files = readdirSync(loreDir).filter((f) => f.endsWith('.md') && !f.startsWith('.'));
 console.log(`Building JSON from ${files.length} lore docs in ${loreDir}`);
 
+// Pass 1 — index every doc's own zeroth, so a doc that *references* another
+// universe's zeroth can resolve it instead of restating it.
+const contents = new Map();
+const zeroIndex = new Map();
 for (const file of files) {
   const mdPath = join(loreDir, file);
   const content = readFileSync(mdPath, 'utf-8');
-  const json = normalise(mdPath, content);
+  contents.set(file, content);
+  const { frontmatter: fm } = splitFrontmatter(content);
+  const id = fm['universe-id'];
+  const zr = fm['zero-reference'] || {};
+  // A doc that borrows another universe's zeroth contributes none of its own.
+  if (!id || (zr['universe-id'] && zr['universe-id'] !== id)) continue;
+  const zero = deriveZero(zr, fm, zr.keyframes ?? []);
+  if (zero.zeroPoint) zeroIndex.set(id, zero);
+}
+
+// Pass 2 — emit.
+for (const file of files) {
+  const mdPath = join(loreDir, file);
+  const json = normalise(mdPath, contents.get(file), zeroIndex);
   const jsonPath = mdPath.replace(/\.md$/, '.json');
   writeFileSync(jsonPath, JSON.stringify(json, null, 2) + '\n');
   console.log(`  ${file} -> ${basename(jsonPath)}  (${json.universeId ?? 'no universe-id'})`);
