@@ -46,8 +46,8 @@ export const allUniverses = [
   middleEarthUniverse,
   zirpUsEconomyUniverse,
   damImpactTimelineUniverse,
-  presidentialElectionUniverses,
   usCopyrightLawChangesUniverse,
+  ...presidentialElectionUniverses,
   ...usHistoryUniverses,
 ];
 
