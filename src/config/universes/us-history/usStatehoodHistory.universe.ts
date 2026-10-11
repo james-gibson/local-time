@@ -1,5 +1,5 @@
 import { Universe, UniverseType } from '../../../core/types';
-import { US_HISTORY, US_GOVERNMENT } from './parents';
+import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import { usConstitutionUniverse } from './usFoundingDocuments.universe';
 
 /**
@@ -111,7 +111,7 @@ const createStateUniverse = (data: StateData): Universe => {
       cultural_significance: 0.8,
     },
     connections: {
-      natural: { parentUniverses: [US_HISTORY, US_GOVERNMENT] },
+      natural: { parentUniverses: [CommonUniverseIds.US_HISTORY, CommonUniverseIds.US_GOVERNMENT] },
       references: [
         {
           type: 'BASED_ON',

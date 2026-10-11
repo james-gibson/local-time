@@ -461,6 +461,11 @@ export class UniverseBuilder {
         this.universe.layers.push(layer);
       }
       
+      // Stamp the epochId onto the epoch object itself. Callers of this 3-arg
+      // form (e.g. `withRuntime` / `withDateRange` / `withDateEpoch`) pass an
+      // epoch literal without `epochId`; without this the registry would drop
+      // the whole universe (james-gibson/local-time#19).
+      if (!epoch.epochId) epoch.epochId = epochId;
       layer.epochs[epochId] = epoch;
       return this;
     }
