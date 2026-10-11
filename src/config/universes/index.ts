@@ -26,6 +26,7 @@ import {tolkienWWIExperience} from './tolkienWWIExperience';
 import {filmUniverses} from "./films"
 import {usHistoryUniverses} from "./us-history"
 import {pixarFilmUniverses} from "./pixar"
+import {versionControlUniverses} from "./version-control"
 export const allUniverses = [
     ...filmUniverses,
   ...pixarFilmUniverses,
@@ -51,6 +52,7 @@ export const allUniverses = [
   usCopyrightLawChangesUniverse,
   ...presidentialElectionUniverses,
   ...usHistoryUniverses,
+  ...versionControlUniverses,
 ];
 
 export const allNetworks = [
@@ -67,5 +69,6 @@ export {
   historicalUniverses,
   allCybersecurityUniverses,
   usHistoryUniverses,
-  pixarFilmUniverses
+  pixarFilmUniverses,
+  versionControlUniverses
 };
