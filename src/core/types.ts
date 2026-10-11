@@ -645,7 +645,18 @@ export enum ReferenceType {
   // anchored to the real-era keyframe it grows out of) and for frames nested
   // inside another universe's regime. See james-gibson/local-time#41.
   IN_A_PRIOR_KEYFRAME = 'in_a_prior_keyframe',
-  
+
+  // Corporate lineage (james-gibson/local-time#44). A distributor's identity
+  // changes over time — it is renamed, acquired, absorbed into another studio,
+  // merged with one, or shut down. That change is a keyframe in the studio's
+  // universe, never an edit to the record of a film it distributed, because a
+  // film's distributor is a fact as of its release.
+  DISTRIBUTED_BY = 'distributed_by',    // film -> studio, as of the film's release
+  RENAMED_TO = 'renamed_to',            // studio -> successor name of the same legal entity
+  ACQUIRED_BY = 'acquired_by',          // studio -> the parent that bought it
+  ABSORBED_BY = 'absorbed_by',          // studio -> the studio or label that took it over
+  MERGED_INTO = 'merged_into',          // studio -> the product of a merger
+
   // Experience types
   EXPERIENCED = 'experienced',
   INFLUENCED = 'influenced'

@@ -1,4 +1,5 @@
 import { Universe, UniverseType, CommonUniverseIds, TimePrecision } from '../../../../core';
+import { distributedByRef } from '../../studios';
 import { dateToNanoseconds } from '../../../../utils/temporal-conversion';
 
 /**
@@ -245,6 +246,13 @@ export const idiocracyUniverse: Universe = {
         description:
           'Costco is satirically inflated into the state itself — its courts, its law school and its public services.',
       },
+      // 20th Century Fox distributed this film in 2006. Fox was acquired by
+      // Disney in 2019 and renamed 20th Century Studios in 2020 — both are
+      // keyframes in the Fox universe's record, neither changes 2006.
+      distributedByRef(
+        '20th_century_fox',
+        'Distributed theatrically by Twentieth Century-Fox.',
+      ),
     ],
   },
 } as unknown as Universe;
