@@ -1,6 +1,10 @@
 import { Universe, UniverseType, ReferenceType } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
-import { createFilmStudioUniverseId, FilmStudioUniverseId } from '../../../core/universe-ids';
+import {
+  createFilmStudioUniverseId,
+  FilmStudioSpan,
+  FilmStudioUniverseId,
+} from '../../../core/universe-ids';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
@@ -74,7 +78,7 @@ export interface FilmStudioSpec {
   lineage?: readonly StudioLineageSpec[];
 }
 
-const yearsOf = (spec: FilmStudioSpec): string =>
+const yearsOf = (spec: FilmStudioSpec): FilmStudioSpan =>
   spec.endedYear === null
     ? `${spec.foundingYear}-present`
     : `${spec.foundingYear}-${spec.endedYear}`;
@@ -1404,7 +1408,7 @@ export const FILM_STUDIO_SPECS: readonly FilmStudioSpec[] = [
 const SPEC_BY_SLUG = new Map(FILM_STUDIO_SPECS.map((spec) => [spec.slug, spec]));
 
 /** Resolve a studio slug to its universe ID. Throws for an unregistered slug. */
-const studioIdFor = (slug: string): FilmStudioUniverseId => {
+export const studioIdFor = (slug: string): FilmStudioUniverseId => {
   const spec = SPEC_BY_SLUG.get(slug);
   if (!spec) {
     throw new Error(

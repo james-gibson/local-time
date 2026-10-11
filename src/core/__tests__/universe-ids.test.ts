@@ -1,6 +1,10 @@
 import {
   UniverseId,
   FilmUniverseId,
+  FilmStudioUniverseId,
+  FilmStudioSpan,
+  FilmStudioSlugOf,
+  FilmStudioSpanOf,
   HistoricalUniverseId,
   MissionUniverseId,
   BiographyUniverseId,
@@ -9,6 +13,7 @@ import {
   isFilmUniverseId,
   isFilmStudioUniverseId,
   createFilmStudioUniverseId,
+  parseFilmStudioUniverseId,
   isHistoricalUniverseId,
   isMissionUniverseId,
   isBiographyUniverseId,
@@ -318,10 +323,37 @@ describe('Universe ID Type System', () => {
       expect(isFilmStudioUniverseId('film_studio:a24:2012-present')).toBe(true);
       expect(isFilmStudioUniverseId('film_studio:mgm:*')).toBe(true);
       expect(isFilmStudioUniverseId('film_studio:mgm:nonsense')).toBe(false);
+
       // The span is lower-cased but never slugged — its hyphen must survive.
       expect(createFilmStudioUniverseId('20th Century Fox', 1935)).toBe(
         'film_studio:20th_century_fox:1935',
       );
+      expect(createFilmStudioUniverseId('united_artists', '1919-1981')).toBe(
+        'film_studio:united_artists:1919-1981',
+      );
+
+      // A span outside the vocabulary is a compile-time error, not a runtime one.
+      // @ts-expect-error - 'nonsense' is not a FilmStudioSpan
+      expect(() => createFilmStudioUniverseId('mgm', 'nonsense')).toThrow();
+
+      // A string that claims to be a span still has to clear the regex.
+      expect(() =>
+        createFilmStudioUniverseId('mgm', 'nonsense' as FilmStudioSpan),
+      ).toThrow();
+    });
+
+    test('a film-studio ID parses back into typed segments, with no string surgery', () => {
+      const id = createFilmStudioUniverseId('united_artists', '1919-1981');
+      const { slug, span } = parseFilmStudioUniverseId(id);
+
+      expect(slug).toBe('united_artists');
+      expect(span).toBe('1919-1981');
+
+      // The types carry the grammar, so extraction is total and assignable.
+      const slugOf: FilmStudioSlugOf<typeof id> = slug;
+      const spanOf: FilmStudioSpanOf<typeof id> = span;
+      expect(slugOf).toBe('united_artists');
+      expect(spanOf).toBe('1919-1981');
     });
   });
 });

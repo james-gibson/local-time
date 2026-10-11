@@ -1,5 +1,10 @@
-import { FilmStudioUniverseId, UniverseId, GENERIC_FILM_STUDIO_TOKEN } from '../../../core';
-import { FILM_STUDIO_SPECS, filmStudioUniverses } from './studios';
+import {
+  FilmStudioUniverseId,
+  UniverseId,
+  GENERIC_FILM_STUDIO_TOKEN,
+  parseFilmStudioUniverseId,
+} from '../../../core';
+import { FILM_STUDIO_SPECS, filmStudioUniverses, studioIdFor } from './studios';
 
 /**
  * The film-studio registry: the config-layer half of the split in
@@ -26,16 +31,16 @@ const registry = new Map<string, FilmStudioRegistryEntry>();
 const bySlug = new Map<string, FilmStudioRegistryEntry>();
 
 for (const spec of FILM_STUDIO_SPECS) {
-  const id = `film_studio:${spec.slug}:${
-    spec.endedYear === null
-      ? `${spec.foundingYear}-present`
-      : `${spec.foundingYear}-${spec.endedYear}`
-  }`;
+  // The one place the ID grammar is assembled, and then immediately parsed back
+  // through the typed accessor so no call site re-derives it with `split`/`replace`.
+  const id = studioIdFor(spec.slug);
+  const { span } = parseFilmStudioUniverseId(id);
+
   const entry: FilmStudioRegistryEntry = {
-    universeId: id as FilmStudioUniverseId,
+    universeId: id,
     slug: spec.slug,
     displayName: spec.displayName,
-    years: id.replace(`film_studio:${spec.slug}:`, ''),
+    years: span,
   };
 
   bySlug.set(spec.slug, entry);

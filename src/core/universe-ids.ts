@@ -45,15 +45,44 @@ export type BiographyUniverseId = UniverseId & { readonly __biographyBrand: true
 export type GameUniverseId = UniverseId & { readonly __gameBrand: true };
 export type CyberSecurityUniverseId = UniverseId & { readonly __cyberSecurityBrand: true };
 export type TechnicalUniverseId = UniverseId & { readonly __technicalBrand: true };
+
 /**
- * A film distributor as an institution in its own right.
+ * The operating span of a film-studio universe.
  *
- * A studio is a legal entity with a founding, renames, mergers, an
- * acquisition, an absorption, and a shutdown — so a film's distributor is a
- * function of *when* it distributed, not a permanent fact about the film. See
- * james-gibson/local-time#44.
+ * A studio is an institution like any other, so it borrows the HISTORICAL
+ * vocabulary: `founded`, a founding year, `YYYY-YYYY` for a studio that stopped
+ * operating, `YYYY-present` for one that has not, or `*` for an unbounded one.
+ * See james-gibson/local-time#44.
  */
-export type FilmStudioUniverseId = UniverseId & { readonly __filmStudioBrand: true };
+export type FilmStudioSpan =
+  | 'founded'
+  | '*'
+  | `${number}`
+  | `${number}-${number}`
+  | `${number}-present`;
+
+/**
+ * A film distributor as an institution in its own right: `film_studio:<slug>:<span>`.
+ *
+ * The grammar is encoded *in the type*, so the format is a compile-time fact
+ * rather than a runtime regex comment. The runtime guard is deliberately stricter
+ * than the type — it also enforces the character classes and rejects the studio
+ * segments other namespaces reserve — which is what makes the narrowing sound.
+ *
+ * A studio is a legal entity with a founding, renames, acquisitions, absorptions
+ * and a shutdown, so a film's distributor is a fact *as of its release*, never a
+ * permanent fact about the film. See james-gibson/local-time#44.
+ */
+export type FilmStudioUniverseId = UniverseId &
+  `film_studio:${string}:${FilmStudioSpan}`;
+
+/** The `<slug>` segment of a `film_studio:` ID, extracted from its type. */
+export type FilmStudioSlugOf<T extends string> =
+  T extends `film_studio:${infer S}:${string}` ? S : never;
+
+/** The `<span>` segment of a `film_studio:` ID, extracted from its type. */
+export type FilmStudioSpanOf<T extends string> =
+  T extends `film_studio:${string}:${infer P}` ? P : never;
 
 // Union type for all specific universe ID types
 export type TypedUniverseId = 
@@ -288,20 +317,40 @@ export function createFilmUniverseId(studio: string, title: string, year: number
 /**
  * A film-studio universe ID: `film_studio:<slug>:<span>`.
  *
- * `<span>` follows the HISTORICAL vocabulary, because a studio is an institution
- * like any other: `founded`, a founding year, `YYYY-YYYY`, `YYYY-present`, or
- * `*`. The span is lower-cased but never slugged — `1918-present` must survive
- * its hyphen.
+ * `<span>` is a `FilmStudioSpan`, so a malformed span is a **compile-time**
+ * error rather than a runtime throw. The span is lower-cased but never slugged —
+ * `1918-present` must survive its hyphen.
  */
 export function createFilmStudioUniverseId(
   slug: string,
-  span: string | number,
+  span: FilmStudioSpan | number,
 ): FilmStudioUniverseId {
   const id = `film_studio:${toIdFragment(slug)}:${String(span).trim().toLowerCase()}`;
   if (!isFilmStudioUniverseId(id)) {
     throw new Error(`Invalid film studio universe ID format: ${id}`);
   }
   return id as FilmStudioUniverseId;
+}
+
+/**
+ * Parse a `film_studio:` ID back into its segments — typed, so no caller has to
+ * re-derive the grammar with `split`/`replace`.
+ *
+ * This only accepts an already-narrowed ID, which is what makes it safe: the
+ * caller must have passed `isFilmStudioUniverseId` first, so the string surgery
+ * lives here once instead of at every call site. See james-gibson/local-time#44.
+ */
+export function parseFilmStudioUniverseId(
+  id: FilmStudioUniverseId,
+): { slug: string; span: FilmStudioSpan } {
+  const [, slug, span] = id.split(':');
+  if (slug === undefined || span === undefined) {
+    throw new Error(`Not a film-studio universe ID: ${id}`);
+  }
+  // Sound: `FilmStudioUniverseId` encodes `film_studio:<slug>:<span>` in its
+  // type, so the third segment is already a `FilmStudioSpan`. `split` widens to
+  // `string`, hence the assertion — this is the one place the cast is justified.
+  return { slug, span: span as FilmStudioSpan };
 }
 export function createCyberSecurityUniverseId(name: string, cve: string): CyberSecurityUniverseId {
   const id = `cybersecurity:${name}:${cve}`;

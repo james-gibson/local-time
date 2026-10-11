@@ -3,6 +3,7 @@ import {
   isFilmStudioUniverseId,
   createFilmUniverseId,
   createFilmStudioUniverseId,
+  FilmStudioSpan,
   GENERIC_FILM_STUDIO_TOKEN,
   UNIVERSE_ID_PATTERNS,
 } from '../../../core/universe-ids';
@@ -76,7 +77,15 @@ describe('Film studio universes (local-time#44)', () => {
         'film_studio:20th_century_fox:1935',
       );
       expect(createFilmStudioUniverseId('mgm', 'founded')).toBe('film_studio:mgm:founded');
-      expect(() => createFilmStudioUniverseId('mgm', 'nonsense')).toThrow();
+      expect(createFilmStudioUniverseId('united_artists', '1919-1981')).toBe(
+        'film_studio:united_artists:1919-1981',
+      );
+
+      // A span outside the vocabulary is a compile-time error, so a caller has to
+      // lie about the type to reach the runtime guard. That guard still holds.
+      expect(() =>
+        createFilmStudioUniverseId('mgm', 'nonsense' as FilmStudioSpan),
+      ).toThrow();
     });
 
     test('the FILM pattern is shape-only — only reserved prefixes are core job', () => {
