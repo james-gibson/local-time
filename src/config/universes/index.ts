@@ -1,6 +1,6 @@
 
 import {missionUniverses} from './apollo-eleven/missions';
-import {universeNetworks, readyPlayerOneUniverse, toyStory2RecoveryMissionUniverse, toyStoryUniverse, spaceballsUniverse,disneyNetwork, disneyPixarAcquisition2006Universe} from './disney';
+import {universeNetworks, readyPlayerOneUniverse, toyStory2RecoveryMissionUniverse, spaceballsUniverse,disneyNetwork, disneyPixarAcquisition2006Universe} from './disney';
 import {biographicalUniverses} from './people';
 import {
   zirpUsEconomyUniverse,
@@ -25,8 +25,10 @@ import {middleEarthUniverse} from './middleEarthUniverse';
 import {tolkienWWIExperience} from './tolkienWWIExperience';
 import {filmUniverses} from "./films"
 import {usHistoryUniverses} from "./us-history"
+import {pixarFilmUniverses} from "./pixar"
 export const allUniverses = [
     ...filmUniverses,
+  ...pixarFilmUniverses,
   ...missionUniverses,
   ...biographicalUniverses,
   ...legalUniverses,
@@ -36,7 +38,7 @@ export const allUniverses = [
   usMilitaryOperationsUniverse,
   usNativeAmericanPolicyUniverse,
   electricTelegraphUniverse,
-  readyPlayerOneUniverse, toyStory2RecoveryMissionUniverse, toyStoryUniverse, spaceballsUniverse,
+  readyPlayerOneUniverse, toyStory2RecoveryMissionUniverse, spaceballsUniverse,
   september11AttacksUniverse,
   penicillinDiscoveryUniverse, tulsaMassacreMediaCoverageUniverse, tulsaRaceMassacre1921Universe, transistorInventionUniverse, worldWideWebUniverse
   , theBeatlesHistoricalUniverse,
@@ -46,8 +48,8 @@ export const allUniverses = [
   middleEarthUniverse,
   zirpUsEconomyUniverse,
   damImpactTimelineUniverse,
-  presidentialElectionUniverses,
   usCopyrightLawChangesUniverse,
+  ...presidentialElectionUniverses,
   ...usHistoryUniverses,
 ];
 
@@ -64,5 +66,6 @@ export {
   pokemonUniverses,
   historicalUniverses,
   allCybersecurityUniverses,
-  usHistoryUniverses
+  usHistoryUniverses,
+  pixarFilmUniverses
 };

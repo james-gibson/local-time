@@ -42,29 +42,34 @@ export class CommonUniverseIds {
   // === INDUSTRY/DOMAIN HIERARCHIES ===
   
   // Entertainment Industry
-  // static readonly HOLLYWOOD_SYSTEM = createHistoricalUniverseId('hollywood', 'studio_system');
-  // static readonly DISNEY_CORPORATE = createHistoricalUniverseId('disney', 'corporate_timeline');
-  // static readonly PIXAR_STUDIO = createHistoricalUniverseId('pixar', 'studio_operations');
-  // static readonly MARVEL_COMICS = createHistoricalUniverseId('marvel', 'publishing_timeline');
-  // static readonly MARVEL_STUDIOS = createHistoricalUniverseId('marvel_studios', 'mcu_development');
+  // `createHistoricalUniverseId` requires a year-ish second argument, so these use
+  // each entity's founding year rather than a descriptive slug.
+  static readonly HOLLYWOOD_SYSTEM = createHistoricalUniverseId('hollywood', 1913);
+  static readonly DISNEY_CORPORATE = createHistoricalUniverseId('disney', 1923);
+  static readonly PIXAR_STUDIO = createHistoricalUniverseId('pixar', 1986);
+  static readonly MARVEL_COMICS = createHistoricalUniverseId('marvel', 1939);
+  static readonly MARVEL_STUDIOS = createHistoricalUniverseId('marvel_studios', 2008);
+  // Franchise umbrella universes (founding-film years).
+  static readonly TOY_STORY_FRANCHISE = createHistoricalUniverseId('toy_story_franchise', 1995);
+  static readonly CARS_FRANCHISE = createHistoricalUniverseId('cars_franchise', 2006);
   
   // Technology Industry
-  // static readonly SILICON_VALLEY = createHistoricalUniverseId('silicon_valley', 'tech_ecosystem');
+  static readonly SILICON_VALLEY = createHistoricalUniverseId('silicon_valley', 1956);
   static readonly INTERNET_DEVELOPMENT = createCyberSecurityUniverseId('internet', 'infrastructure_evolution');
   static readonly CYBERSECURITY_TIMELINE = createCyberSecurityUniverseId('global', 'security_evolution');
   
   // Space Industry
   static readonly NASA_OPERATIONS = createMissionUniverseId('nasa', 'comprehensive_missions', 1958);
   static readonly APOLLO_PROGRAM = createMissionUniverseId('nasa', 'apollo_program', 1961);
-  // static readonly SPACE_RACE = createHistoricalUniverseId('space_race', 'us_soviet_competition');
+  static readonly SPACE_RACE = createHistoricalUniverseId('space_race', 1957);
   
   // === TEMPORAL HIERARCHIES ===
   
   // // 20th Century
-  // static readonly TWENTIETH_CENTURY = createHistoricalUniverseId('20th_century', 'global_events');
-  // static readonly WORLD_WAR_I = createHistoricalUniverseId('wwi', 'global_conflict');
-  // static readonly WORLD_WAR_II = createHistoricalUniverseId('wwii', 'global_conflict');
-  // static readonly COLD_WAR = createHistoricalUniverseId('cold_war', 'ideological_conflict');
+  static readonly TWENTIETH_CENTURY = createHistoricalUniverseId('20th_century', 1901);
+  // static readonly WORLD_WAR_I = createHistoricalUniverseId('wwi', 1914);
+  // static readonly WORLD_WAR_II = createHistoricalUniverseId('wwii', 1939);
+  static readonly COLD_WAR = createHistoricalUniverseId('cold_war', 1947);
   
   // Cultural Movements
   // static readonly CIVIL_RIGHTS_MOVEMENT = createHistoricalUniverseId('civil_rights', 'us_social_movement');

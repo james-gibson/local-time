@@ -175,8 +175,10 @@ export class UniverseRegistry {
       for (const network of builtIn.default.networks || []) {
         this.registerNetwork(network);
       }
-      for (const universe of builtIn.default.universes) {
-        this.registerUniverse(universe['universeId'], universe as unknown as Universe);
+      for (const entry of builtIn.default.universes) {
+        for (const universe of Array.isArray(entry) ? entry : [entry]) {
+          this.registerUniverse(universe['universeId'], universe as unknown as Universe);
+        }
       }
 
     } catch (error) {
