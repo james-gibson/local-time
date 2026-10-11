@@ -57,6 +57,10 @@ export class CommonUniverseIds {
   static readonly SILICON_VALLEY = createHistoricalUniverseId('silicon_valley', 1956);
   static readonly INTERNET_DEVELOPMENT = createCyberSecurityUniverseId('internet', 'infrastructure_evolution');
   static readonly CYBERSECURITY_TIMELINE = createCyberSecurityUniverseId('global', 'security_evolution');
+
+  // Software engineering / version control
+  static readonly SOFTWARE_ENGINEERING = createHistoricalUniverseId('software_engineering', '*');
+  static readonly VERSION_CONTROL = createHistoricalUniverseId('version_control', '*');
   
   // Space Industry
   static readonly NASA_OPERATIONS = createMissionUniverseId('nasa', 'comprehensive_missions', 1958);
@@ -143,6 +147,21 @@ export class CommonUniverseIds {
       children: new Set([this.SPACE_RACE]),
       level: 'global',
       timespan: { start: 1947, end: 1991 }
+    });
+
+    // Software engineering / version control history
+    this.addHierarchy(this.SOFTWARE_ENGINEERING, {
+      parent: this.WORLD_HISTORY,
+      children: new Set([this.VERSION_CONTROL]),
+      level: 'global',
+      timespan: { start: 1972, end: new Date().getFullYear() }
+    });
+
+    this.addHierarchy(this.VERSION_CONTROL, {
+      parent: this.SOFTWARE_ENGINEERING,
+      children: new Set(),
+      level: 'global',
+      timespan: { start: 1972, end: new Date().getFullYear() }
     });
   }
   
@@ -300,6 +319,17 @@ export class CommonUniverseIds {
       this.APOLLO_PROGRAM,
       this.SPACE_RACE,
       this.COLD_WAR
+    ];
+  }
+
+  /**
+   * Get the context universes that apply to any version-control-system entity
+   */
+  static getVersionControlUniverses(): UniverseId[] {
+    return [
+      this.VERSION_CONTROL,
+      this.SOFTWARE_ENGINEERING,
+      this.WORLD_HISTORY
     ];
   }
 }
