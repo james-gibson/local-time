@@ -177,7 +177,14 @@ export class UniverseRegistry {
       }
       for (const entry of builtIn.default.universes) {
         for (const universe of Array.isArray(entry) ? entry : [entry]) {
-          this.registerUniverse(universe['universeId'], universe as unknown as Universe);
+          try {
+            this.registerUniverse(universe['universeId'], universe as unknown as Universe);
+          } catch (error) {
+            console.warn(
+              `Skipping invalid built-in universe: ${(universe as { universeId?: string })?.universeId}`,
+              error,
+            );
+          }
         }
       }
 

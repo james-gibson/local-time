@@ -1,5 +1,4 @@
-import {UniverseBuilder, createHistoricalUniverseId, TimePrecision, HistoricalUniverseId} from '../../../index';
-import {createHistoricalEventOwnerId} from '../../../core/universe-ids';
+import {UniverseBuilder, TimePrecision} from '../../../index';
 
 /**
  * @universe history:tulsa_race_massacre:1921
@@ -9,7 +8,7 @@ import {createHistoricalEventOwnerId} from '../../../core/universe-ids';
  * @significance This event holds the highest cultural and historical significance (1.0) due to the scale of the destruction, the profound loss of life and generational wealth, and the decades-long, deliberate suppression of its history.
  */
 export const tulsaRaceMassacre1921Universe = new UniverseBuilder()
-    .historical(createHistoricalUniverseId("tulsa_race_massacre","*"),"1921")
+    .historical("tulsa_race_massacre", "1921")
     .withDescription('A temporal documentation of the 1921 Tulsa Race Massacre and the destruction of the Greenwood District.')
     .withRealityRelation('documentary', 0.0)
     // Source: Based on historical records, including the final report of the "Oklahoma Commission to Study the Tulsa Race Riot of 1921" (published in 2001).
@@ -64,14 +63,14 @@ export const tulsaRaceMassacre1921Universe = new UniverseBuilder()
 
 
 /**
- * @universe history:tulsa_massacre_media_coverage:1921-06
+ * @universe history:tulsa_race_massacre_media_coverage:1921
  * @description This universe documents the media landscape in June 1921 concerning the Tulsa Race Massacre. It focuses on how local newspapers in Tulsa actively fueled the violence and then, along with national outlets, initiated a decades-long period of silence and suppression. The universe highlights the near-total absence of immediate international coverage, showing that the news did not spread globally but was instead deliberately buried.
  * @temporal-strategy The primary epoch covers June 1921, capturing the immediate media aftermath. Keyframes identify the initial inflammatory reporting, the subsequent news blackout, and the limited, often biased, coverage that did appear. A final, out-of-epoch keyframe is included to represent the eventual, much later, international recognition of the event.
  * @reality-relation Documentary, based on media analysis and historical records of newspaper archives. Fictionalization degree is 0.0.
  * @significance The deliberate suppression of the Tulsa Race Massacre by the media is a significant historical event in itself (0.98), demonstrating the power of the press to shape, and erase, historical memory.
  */
 export const tulsaMassacreMediaCoverageUniverse = new UniverseBuilder()
-    .historical(createHistoricalUniverseId("tulsa_race_massacre_media_coverage","*"),"1921")
+    .historical("tulsa_race_massacre_media_coverage", "1921")
     .withDescription('A documentation of the immediate media response to the Tulsa Race Massacre, focusing on the initial incitement, subsequent suppression, and lack of international dissemination.')
     .withRealityRelation('documentary', 0.0)
     // Source: Analysis based on the Library of Congress newspaper archives and the 2001 Oklahoma Commission report, which studied media complicity.【1】
