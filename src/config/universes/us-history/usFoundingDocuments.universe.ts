@@ -1,5 +1,5 @@
 import { Universe, UniverseType } from '../../../core/types';
-import { US_APPLICABLE_UNIVERSES } from './parents';
+import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**
  * Local Time helper: milliseconds since epoch -> nanoseconds (bigint),
@@ -99,7 +99,7 @@ export const usConstitutionUniverse: Universe = {
   },
   // Informational connection metadata (not yet a first-class `Universe` field).
   connections: {
-    natural: { parentUniverses: US_APPLICABLE_UNIVERSES },
+    natural: { parentUniverses: CommonUniverseIds.getUSApplicableUniverses() },
   },
 } as unknown as Universe;
 
@@ -190,7 +190,7 @@ export const billOfRightsUniverse: Universe = {
     natural: {
       parentUniverses: [
         usConstitutionUniverse.universeId,
-        ...US_APPLICABLE_UNIVERSES,
+        ...CommonUniverseIds.getUSApplicableUniverses(),
       ],
     },
     references: [

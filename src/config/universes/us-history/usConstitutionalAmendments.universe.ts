@@ -1,5 +1,5 @@
 import { Universe, UniverseType } from '../../../core/types';
-import { US_APPLICABLE_UNIVERSES } from './parents';
+import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import { usConstitutionUniverse } from './usFoundingDocuments.universe';
 
 /**
@@ -118,7 +118,7 @@ const createAmendmentUniverse = (data: AmendmentData): Universe => {
       natural: {
         parentUniverses: [
           usConstitutionUniverse.universeId,
-          ...US_APPLICABLE_UNIVERSES,
+          ...CommonUniverseIds.getUSApplicableUniverses(),
         ],
       },
       references,
