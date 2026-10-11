@@ -639,6 +639,12 @@ export enum ReferenceType {
   
   // Zero-reference specific
   FULFILLS_PROMISE = 'fulfills_promise',
+  // The source point lies inside the frame opened by a keyframe of a prior
+  // frame, and derives its position from it rather than asserting its own.
+  // Used for fictional continuations of the real line (a projected future is
+  // anchored to the real-era keyframe it grows out of) and for frames nested
+  // inside another universe's regime. See james-gibson/local-time#41.
+  IN_A_PRIOR_KEYFRAME = 'in_a_prior_keyframe',
   
   // Experience types
   EXPERIENCED = 'experienced',
