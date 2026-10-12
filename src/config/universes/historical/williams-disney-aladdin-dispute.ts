@@ -1,4 +1,4 @@
-import { Universe, UniverseType, UniverseId, ReferenceType, CommonUniverseIds } from '../../../core';
+import { Universe, UniverseType, UniverseId, ReferenceType, KeyframeType, CommonUniverseIds } from '../../../core';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
@@ -123,6 +123,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
     keyframes: [
       {
         id: 'salary-agreement',
+        type: KeyframeType.CONTRACT,
         timestamp: ns('1991-01-01T00:00:00Z'),
         significance: 0.9,
         tags: ['contract', 'salary', 'zero-point-era'],
@@ -134,6 +135,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
       },
       {
         id: 'marketing-stipulation',
+        type: KeyframeType.CONTRACT,
         timestamp: ns('1991-06-01T00:00:00Z'),
         significance: 1,
         tags: ['contract', 'marketing', 'the-clause-the-dispute-turns-on'],
@@ -145,6 +147,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
       },
       {
         id: 'ferngully-competition',
+        type: KeyframeType.MARKET_EVENT,
         timestamp: ns('1991-06-01T00:00:00Z'),
         significance: 0.5,
         tags: ['fern gully', '20th-century-fox', 'alleged', 'disputed'],
@@ -156,6 +159,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
       },
       {
         id: 'marketing-breach',
+        type: KeyframeType.BREACH,
         timestamp: ns('1992-11-25T00:00:00Z'),
         significance: 1,
         tags: ['breach', 'marketing', 'genie'],
@@ -163,6 +167,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
       },
       {
         id: 'aladdin-release',
+        type: KeyframeType.RELEASE,
         timestamp: ns('1992-11-25T00:00:00Z'),
         significance: 0.95,
         tags: ['release', 'the-work-itself'],
@@ -174,10 +179,12 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
         // "the dispute involves Aladdin", which is true but stops being
         // informative the moment Aladdin records more than one release.
         targetUniverseId: 'disney:aladdin:1992' as UniverseId,
-        targetKeyframeId: 'us-release',
+        targetKeyframeId: 'us-wide-release',
+        targetKeyframeType: KeyframeType.RELEASE,
       },
       {
         id: 'public-refusal',
+        type: KeyframeType.PUBLIC_STATEMENT,
         timestamp: ns('1993-01-01T00:00:00Z'),
         significance: 0.85,
         tags: ['public-statement', 'rupture'],
@@ -189,6 +196,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
       },
       {
         id: 'genie-recast',
+        type: KeyframeType.CASTING,
         timestamp: ns('1994-05-20T00:00:00Z'),
         significance: 0.9,
         tags: ['casting', 'return-of-jafar', 'dan-castellaneta'],
@@ -196,6 +204,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
       },
       {
         id: 'katzenberg-departure',
+        type: KeyframeType.MILESTONE,
         timestamp: ns('1994-08-01T00:00:00Z'),
         significance: 0.6,
         tags: ['corporate', 'disney', 'leadership'],
@@ -207,6 +216,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
       },
       {
         id: 'roth-apology',
+        type: KeyframeType.APOLOGY,
         timestamp: ns('1995-01-01T00:00:00Z'),
         significance: 0.9,
         tags: ['apology', 'reconciliation'],
@@ -218,6 +228,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
       },
       {
         id: 'williams-returns',
+        type: KeyframeType.CONTRACT,
         timestamp: ns('1996-05-20T00:00:00Z'),
         significance: 0.85,
         tags: ['resolution', 'king-of-thieves', 'return'],

@@ -506,12 +506,22 @@ export class UniverseBuilder {
         windows: { strategy: 'time_based' }
       };
     }
-    
+
+    // `options` carries the fields the positional signature has no room for:
+    // certainty, dateRange, type, and a cross-universe target. It was previously
+    // accepted and silently dropped, so every universe built through the builder
+    // was flat — no certainty, no ranges, no typing. See local-time#3.
     this.universe.temporalStructure.keyframes.push({
       id,
       timestamp,
       significance,
-      tags
+      tags,
+      ...(options?.certainty !== undefined ? { certainty: options.certainty } : {}),
+      ...(options?.dateRange ? { dateRange: options.dateRange } : {}),
+      ...(options?.type ? { type: options.type } : {}),
+      ...(options?.targetUniverseId ? { targetUniverseId: options.targetUniverseId } : {}),
+      ...(options?.targetKeyframeId ? { targetKeyframeId: options.targetKeyframeId } : {}),
+      ...(options?.targetKeyframeType ? { targetKeyframeType: options.targetKeyframeType } : {}),
     });
     return this;
   }
