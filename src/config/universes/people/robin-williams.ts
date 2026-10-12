@@ -1,4 +1,4 @@
-import { Universe, TimePrecision } from '../../../core/types';
+import { Universe, TimePrecision, KeyframeType } from '../../../core/types';
 import { UniverseBuilder } from '../../../core/universe-builder';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
@@ -71,6 +71,24 @@ export interface RobinWilliamsFilmMetadata {
   cultural_significance: number;
   /** Within-collection cross references; the `member_of` studio link is added automatically. */
   relations?: RobinWilliamsFilmRelation[];
+  /**
+   * Every way this film became available, in order.
+   *
+   * A film does not have one release date — it has a premiere, a wide release,
+   * a home-video date, a LaserDisc, a DVD, a stream. Modelling only "the
+   * release" makes a reference to it permanently ambiguous, which is what
+   * motivated `KeyframeType` (local-time#3). Each entry becomes a keyframe
+   * typed `RELEASE`, distinguished by `id`, so a reference can name the
+   * specific one it means.
+   */
+  releases?: Array<{
+    id: string;
+    date: string;
+    significance: number;
+    tags?: string[];
+    /** What distinguishes this release, e.g. "two theaters: El Capitan and City Cinemas". */
+    note?: string;
+  }>;
 }
 
 /**
@@ -123,6 +141,16 @@ export const createRobinWilliamsFilmUniverse = (
       description: relation.description,
       evidence: relation.evidence,
     });
+  }
+
+  // Every way the film became available. A film has several releases, not one —
+  // see the `releases` field on RobinWilliamsFilmMetadata. Each is typed RELEASE
+  // and distinguished by id, so a reference can name the specific one it means.
+  for (const release of data.releases ?? []) {
+    builder.addDateKeyframe(release.date, release.id, release.significance, [
+      'release',
+      ...(release.tags ?? []),
+    ], { type: KeyframeType.RELEASE });
   }
 
   const universe = builder.build();
@@ -242,6 +270,49 @@ const filmData: RobinWilliamsFilmMetadata[] = [
     comicInsights:
       "The Genie is pure, unrestrained improvisation. Williams' ability to rapidly cycle through impressions, characters, and anachronistic references became the character's signature. For a comic, this is a study in free association and finding comedic game from a single premise ('what if a genie knew 20th-century pop culture?').",
     cultural_significance: 0.96,
+    releases: [
+      {
+        id: 'us-premiere',
+        date: '1992-11-11',
+        significance: 0.8,
+        tags: ['premiere', 'two-theaters'],
+        note: 'Two theaters only: the El Capitan in Los Angeles and the City Cinemas 1-2-3 in New York.',
+      },
+      {
+        id: 'us-wide-release',
+        date: '1992-11-25',
+        significance: 1.0,
+        tags: ['wide-release', 'theatrical'],
+        note: 'Expanded to 1,131 theaters; the release the marketing campaign was visible at, and the one the Disney dispute is anchored to.',
+      },
+      {
+        id: 'us-vhs',
+        date: '1993-09-29',
+        significance: 0.95,
+        tags: ['home-video', 'walt-disney-classics'],
+        note: 'First VHS release, in the Walt Disney Classics line; not officially advertised until 1993-10-01.',
+      },
+      {
+        id: 'us-laserdisc',
+        date: '1994-09-21',
+        significance: 0.5,
+        tags: ['laserdisc', 'thx'],
+        note: 'THX-certified widescreen LaserDisc.',
+      },
+      {
+        id: 'us-dvd-platinum',
+        date: '2004-10-05',
+        significance: 0.7,
+        tags: ['dvd', 'platinum-edition'],
+        note: 'Platinum Edition: re-released on VHS and released on DVD for the first time.',
+      },
+      {
+        id: 'digital-hd',
+        date: '2015-09-29',
+        significance: 0.5,
+        tags: ['digital-hd'],
+      },
+    ],
   },
   {
     slug: 'mrs_doubtfire',

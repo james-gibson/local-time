@@ -7,6 +7,7 @@ import {
   damImpactTimelineUniverse,
   legalUniverses,
   presidentialElectionUniverses,
+  recurringElectionIssueUniverses,
   usCopyrightLawChangesUniverse
 } from './us-gov';
 import {pokemonUniverses} from './games/pokemon';
@@ -28,6 +29,7 @@ import {idiocracyUniverse} from "./films/20th"
 import {usHistoryUniverses} from "./us-history"
 import {pixarFilmUniverses} from "./pixar"
 import {versionControlUniverses} from "./version-control"
+import {wikidataTypologyUniverses} from "./system"
 export const allUniverses = [
     ...filmUniverses,
   ...pixarFilmUniverses,
@@ -53,8 +55,10 @@ export const allUniverses = [
   damImpactTimelineUniverse,
   usCopyrightLawChangesUniverse,
   ...presidentialElectionUniverses,
+  ...recurringElectionIssueUniverses,
   ...usHistoryUniverses,
   ...versionControlUniverses,
+  ...wikidataTypologyUniverses,
   ...gamestopUniverses,
   idiocracyUniverse,
   ...costcoUniverses,

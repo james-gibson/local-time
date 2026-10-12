@@ -21,7 +21,7 @@ export const jamesCameronFilmography: Universe[] = [
      * - IMDb, "Piranha II: The Spawning (1982)".
      */
     new UniverseBuilder()
-        .film('Saturn_International', 'piranha_ii_the_spawning', 1982)
+        .film('saturn_international', 'piranha_ii_the_spawning', 1982)
         .withRuntime(94)
         .withRealityRelation('pure_fiction', 1.0)
         .withCopyright(['Ovidio G. Assonitis'], 1982, 'active')
@@ -44,7 +44,7 @@ export const jamesCameronFilmography: Universe[] = [
      * - American Film Institute (AFI) Catalog.
      */
     new UniverseBuilder()
-        .film('Orion_Pictures', 'the_terminator', 1984)
+        .film('orion_pictures', 'the_terminator', 1984)
         .withRuntime(107)
         .withRealityRelation('pure_fiction', 1.0)
         .withCopyright(['Hemdale Film Corporation'], 1984, 'active')

@@ -44,6 +44,7 @@ export type LegalUniverseId = UniverseId & { readonly __legalBrand: true };
 export type BiographyUniverseId = UniverseId & { readonly __biographyBrand: true };
 export type GameUniverseId = UniverseId & { readonly __gameBrand: true };
 export type CyberSecurityUniverseId = UniverseId & { readonly __cyberSecurityBrand: true };
+
 /**
  * A technology universe: `technology:<slug>:<span>`.
  *
@@ -61,6 +62,48 @@ export type TechnologyUniverseId = UniverseId & { readonly __technologyBrand: tr
  */
 export type TechnicalUniverseId = TechnologyUniverseId;
 
+/** A specification of the system itself — an ID schema, a typology, a rule set. */
+export type SystemUniverseId = UniverseId & { readonly __systemBrand: true };
+
+/**
+ * The operating span of a film-studio universe.
+ *
+ * A studio is an institution like any other, so it borrows the HISTORICAL
+ * vocabulary: `founded`, a founding year, `YYYY-YYYY` for a studio that stopped
+ * operating, `YYYY-present` for one that has not, or `*` for an unbounded one.
+ * See james-gibson/local-time#44.
+ */
+export type FilmStudioSpan =
+  | 'founded'
+  | '*'
+  | `${number}`
+  | `${number}-${number}`
+  | `${number}-present`;
+
+/**
+ * A film distributor as an institution in its own right: `film_studio:<slug>:<span>`.
+ *
+ * The grammar is encoded *in the type*, so the format is a compile-time fact
+ * rather than a runtime regex comment. The runtime guard is deliberately stricter
+ * than the type — it also enforces the character classes and rejects the studio
+ * segments other namespaces reserve — which is what makes the narrowing sound.
+ *
+ * A studio is a legal entity with a founding, renames, acquisitions, absorptions
+ * and a shutdown, so a film's distributor is a fact *as of its release*, never a
+ * permanent fact about the film. See james-gibson/local-time#44.
+ */
+export type FilmStudioUniverseId = UniverseId &
+  `film_studio:${string}:${FilmStudioSpan}`;
+
+/** The `<slug>` segment of a `film_studio:` ID, extracted from its type. */
+export type FilmStudioSlugOf<T extends string> =
+  T extends `film_studio:${infer S}:${string}` ? S : never;
+
+/** The `<span>` segment of a `film_studio:` ID, extracted from its type. */
+export type FilmStudioSpanOf<T extends string> =
+  T extends `film_studio:${string}:${infer P}` ? P : never;
+
+
 // Union type for all specific universe ID types
 export type TypedUniverseId = 
   | FilmUniverseId 
@@ -74,14 +117,88 @@ export type TypedUniverseId =
   | BiographyUniverseId
   | SparkleFartUniverseId
   | CyberSecurityUniverseId
-    | TechnologyUniverseId
+  | TechnologyUniverseId
+  | TechnicalUniverseId
+  | FilmStudioUniverseId
+  | SystemUniverseId
   | GameUniverseId;
 
 /**
+ * The generic studio token for a film whose distributor is not a registered
+ * studio universe — or does not need to be resolved to one.
+ *
+ * This is the only "unknown studio" the vocabulary allows. A film ID names
+ * either this token or a token that resolves to a `film_studio:` universe; the
+ * set of registered studios lives in `src/config/universes/studios`, which
+ * `src/core` cannot import (config depends on core, never the reverse). See
+ * james-gibson/local-time#44.
+ */
+export const GENERIC_FILM_STUDIO_TOKEN = 'film';
+
+/**
+ * Studio segments claimed by another universe namespace.
+ *
+ * A film ID must not open with one of these, and `src/core` *does* know them:
+ * they are how `isFilmUniverseId` tells a film universe apart from a mission, a
+ * game, a biography or a series. That is shape, not membership — knowing the
+ * namespace vocabulary says nothing about which real studios are registered.
+ * The studios themselves are data in `src/config/universes/studios`.
+ * See james-gibson/local-time#44.
+ */
+const RESERVED_STUDIO_TOKENS = [
+  'amazon',
+  'anime',
+  'biography',
+  'book',
+  'cybersecurity',
+  'disney_plus',
+  'esa',
+  'fashion',
+  'film_studio',
+  'game',
+  'history',
+  'legal',
+  'literature',
+  'military',
+  'nasa',
+  'netflix',
+  'personal',
+  'publisher',
+  'series',
+  'spacex',
+  'technical',
+  'tv',
+  'us_gov',
+] as const;
+
+/** Longest first, so `film_studio` is preferred to `film`. */
+const RESERVED_STUDIO_ALTERNATION = [...RESERVED_STUDIO_TOKENS]
+  .sort((a, b) => b.length - a.length)
+  .join('|');
+
+/**
  * Universe ID validation patterns
+ *
+ * Validation is split between *shape* and *membership*:
+ *
+ * - `src/core` can check shape, but not membership, because it cannot import
+ *   `src/config` where the studio registry lives. So `FILM` accepts any
+ *   well-formed studio token that is not a reserved namespace prefix, and
+ *   `FILM_STUDIO` accepts any well-formed studio universe.
+ * - Membership — is this token actually a registered studio? — is checked by
+ *   `isRegisteredFilmStudio` / `isRegisteredFilmUniverseId` in
+ *   `src/config/universes/studios`.
+ *
+ * The consequence is deliberate: `isFilmUniverseId` alone guarantees an ID is
+ * well-formed *and* is not some other kind of universe, not that its studio
+ * exists. Callers that care about the studio must use the config-layer check.
+ * See james-gibson/local-time#44.
  */
 export const UNIVERSE_ID_PATTERNS = {
-  FILM: /^(film|columbia|disney|pixar|paramount|universal|warner|warner_bros|sony|mgm|20th_century_fox):[a-z0-9_]+:\d{4}$/,
+  FILM: new RegExp(
+    `^(?!${RESERVED_STUDIO_ALTERNATION}:)[a-z0-9_]+:[a-z0-9_]+:\\d{4}$`,
+  ),
+  FILM_STUDIO: /^film_studio:[a-z0-9_]+:(\*|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
   SERIES: /^(series|tv|netflix|hbo|disney_plus|amazon):[a-z0-9_]+:\d{4}$/,
   BOOK: /^(book|literature|publisher):[a-z0-9_]+:\d{4}$/,
   FASHION: /^fashion:[a-z0-9_]+:(career|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
@@ -93,6 +210,7 @@ export const UNIVERSE_ID_PATTERNS = {
   BIOGRAPHY: /^biography:[a-z0-9_]+:\d{4}-(\d{4}|present)$/,
   GAME: /^(game|anime)[a-z0-9_]?:[a-z0-9_]+:[a-z0-9_]+:\d{4}$/,
   CYBERSECURITY: /^cybersecurity:.*$/,
+  
   /**
    * Technology universes: `technology:<slug>:<span>`.
    *
@@ -113,6 +231,22 @@ export const UNIVERSE_ID_PATTERNS = {
    * wildcard for "span not fixed", a year, a year range, or a range ending `present`.
    */
   TECHNOLOGY: /^technology:[a-z0-9_]+:(\*|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
+
+  TECHNICAL: /^technical:.*:(\*)$/,
+  /**
+   * Specifications of the system itself — ID schemas, typologies, rule sets.
+   *
+   * The `<span>` is a version (`v1`, `v2`) rather than a date, because a schema is
+   * versioned, not dated: `system:ids:static_id_schema:v2` supersedes `…:v1`
+   * without the old one ceasing to have existed. A year is also accepted, for the
+   * rare case where a spec is anchored to when it was written down.
+   *
+   * The slug is allowed a second segment (`ids:static_id_schema`) so a spec can
+   * namescape under a subsystem without inventing a new domain. Two levels is the
+   * cap; deeper is a sign the thing belongs in its own namespace.
+   */
+  SYSTEM: /^system:[a-z0-9_]+(?::[a-z0-9_]+)?:(\*|v\d+|\d{4}|\d{4}-\d{4})$/,
+
   SPARKLE_FART: /^8J\+mhPCfkqgu.*$/,
   FALLBACK: /^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/
 } as const;
@@ -134,6 +268,10 @@ export function isValidUniverseId(id: string): id is UniverseId {
 // }
 export function isFilmUniverseId(id: string): id is FilmUniverseId {
   return UNIVERSE_ID_PATTERNS.FILM.test(id);
+}
+
+export function isFilmStudioUniverseId(id: string): id is FilmStudioUniverseId {
+  return UNIVERSE_ID_PATTERNS.FILM_STUDIO.test(id);
 }
 
 export function isSeriesUniverseId(id: string): id is SeriesUniverseId {
@@ -175,6 +313,33 @@ export function isTechnicalUniverseId(id: string): id is TechnicalUniverseId {
   return isTechnologyUniverseId(id);
 }
 
+export function isSystemUniverseId(id: string): id is SystemUniverseId {
+  return UNIVERSE_ID_PATTERNS.SYSTEM.test(id);
+}
+
+/**
+ * A `system:` universe ID: `system:<slug>[:<subsystem>]:<version>`.
+ *
+ * The span is a *version*, not a date — see {@link UNIVERSE_ID_PATTERNS.SYSTEM}.
+ * `name` may carry one colon (`ids:static_id_schema`) to nest under a subsystem;
+ * spaces and hyphens in either part are normalised to underscores.
+ */
+export function createSystemUniverseId(name: string, version: string | number): SystemUniverseId {
+  // `toIdFragment` collapses every non-`[a-z0-9_]` char, so the subsystem colon has
+  // to survive normalisation — split first, normalise each segment, rejoin.
+  const segments = name.split(':').map(toIdFragment);
+  if (segments.length > 2 || segments.some((s) => s === '')) {
+    throw new Error(
+      `system: name must be <slug> or <slug>:<subsystem>, got ${JSON.stringify(name)}`,
+    );
+  }
+  const id = `system:${segments.join(':')}:${String(version).trim().toLowerCase()}`;
+  if (!isSystemUniverseId(id)) {
+    throw new Error(`Invalid system universe ID format: ${id}`);
+  }
+  return id as SystemUniverseId;
+}
+
 export function isSparkleFartUniverseId(id: string): id is SparkleFartUniverseId {
   return UNIVERSE_ID_PATTERNS.SPARKLE_FART.test(id);
 }
@@ -210,14 +375,75 @@ export function createSparkleFartUniverseId(source: string, traceId: string): Sp
   return id as SparkleFartUniverseId;
 }
 
+/**
+ * Reduce a studio or title fragment to the shape a universe ID requires: lower
+ * case, words joined by underscores, and nothing else. This is what turns
+ * `Saturn_International` into `saturn_international` and
+ * `Piranha II: The Spawning` into `piranha_ii_the_spawning` (local-time#26).
+ */
+function toIdFragment(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\-.]+/g, '_')
+    .replace(/[^a-z0-9_]/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+/**
+ * A film universe ID. Shape only: `src/core` cannot see the studio registry, so
+ * a token this accepts is well-formed, not necessarily a *registered* studio.
+ * Use `isRegisteredFilmStudio` (config layer) when the studio must exist.
+ * See james-gibson/local-time#44.
+ */
 export function createFilmUniverseId(studio: string, title: string, year: number): FilmUniverseId {
-  const id = `${studio}:${title}:${year}`;
+  const id = `${toIdFragment(studio)}:${toIdFragment(title)}:${year}`;
   if (!isFilmUniverseId(id)) {
     // console.error('the system didnt like that id');
     // return `film:${id}` as FilmUniverseId;
     throw new Error(`Invalid film universe ID format: ${id}`);
   }
   return id as FilmUniverseId;
+}
+
+/**
+ * A film-studio universe ID: `film_studio:<slug>:<span>`.
+ *
+ * `<span>` is a `FilmStudioSpan`, so a malformed span is a **compile-time**
+ * error rather than a runtime throw. The span is lower-cased but never slugged —
+ * `1918-present` must survive its hyphen.
+ */
+export function createFilmStudioUniverseId(
+  slug: string,
+  span: FilmStudioSpan | number,
+): FilmStudioUniverseId {
+  const id = `film_studio:${toIdFragment(slug)}:${String(span).trim().toLowerCase()}`;
+  if (!isFilmStudioUniverseId(id)) {
+    throw new Error(`Invalid film studio universe ID format: ${id}`);
+  }
+  return id as FilmStudioUniverseId;
+}
+
+/**
+ * Parse a `film_studio:` ID back into its segments — typed, so no caller has to
+ * re-derive the grammar with `split`/`replace`.
+ *
+ * This only accepts an already-narrowed ID, which is what makes it safe: the
+ * caller must have passed `isFilmStudioUniverseId` first, so the string surgery
+ * lives here once instead of at every call site. See james-gibson/local-time#44.
+ */
+export function parseFilmStudioUniverseId(
+  id: FilmStudioUniverseId,
+): { slug: string; span: FilmStudioSpan } {
+  const [, slug, span] = id.split(':');
+  if (slug === undefined || span === undefined) {
+    throw new Error(`Not a film-studio universe ID: ${id}`);
+  }
+  // Sound: `FilmStudioUniverseId` encodes `film_studio:<slug>:<span>` in its
+  // type, so the third segment is already a `FilmStudioSpan`. `split` widens to
+  // `string`, hence the assertion — this is the one place the cast is justified.
+  return { slug, span: span as FilmStudioSpan };
 }
 export function createCyberSecurityUniverseId(name: string, cve: string): CyberSecurityUniverseId {
   const id = `cybersecurity:${name}:${cve}`;

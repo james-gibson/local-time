@@ -1,18 +1,26 @@
 import {
   UniverseId,
   FilmUniverseId,
+  FilmStudioUniverseId,
+  FilmStudioSpan,
+  FilmStudioSlugOf,
+  FilmStudioSpanOf,
   HistoricalUniverseId,
   MissionUniverseId,
   BiographyUniverseId,
   GameUniverseId,
   isValidUniverseId,
   isFilmUniverseId,
+  isFilmStudioUniverseId,
+  createFilmStudioUniverseId,
+  parseFilmStudioUniverseId,
   isHistoricalUniverseId,
   isMissionUniverseId,
   isBiographyUniverseId,
   isGameUniverseId,
   createUniverseId,
   createFilmUniverseId,
+  GENERIC_FILM_STUDIO_TOKEN,
   createHistoricalUniverseId,
   createMissionUniverseId,
   createBiographyUniverseId,
@@ -105,10 +113,23 @@ describe('Universe ID Type System', () => {
     });
 
     test('Factory functions validate input formats', () => {
-      expect(() => createFilmUniverseId('invalid studio', 'title', 2020)).toThrow();
+      // #44 split validation: core validates shape, the studio registry (config
+      // layer) validates membership. So a well-formed but unregistered studio is
+      // no longer core's error — only a malformed fragment is.
+      expect(() => createFilmUniverseId('disney', '!!!', 2020)).toThrow();
+      expect(() => createFilmUniverseId('disney', 'title', 20)).toThrow();
+      expect(() => createFilmUniverseId('history', 'title', 2020)).toThrow(); // reserved
       expect(() => createHistoricalUniverseId('invalid event', 2020)).toThrow();
       expect(() => createMissionUniverseId('invalid agency', 'mission', 2020)).toThrow();
       expect(() => createBiographyUniverseId('invalid person', 1900, 2000)).toThrow();
+    });
+
+    test('a well-formed but unregistered studio is not an error', () => {
+      // Membership is the config registry's job, not core's.
+      expect(createFilmUniverseId('invalid studio', 'title', 2020)).
+        toBe('invalid_studio:title:2020');
+      expect(createFilmUniverseId('nonexistent_studio', 'title', 2020)).
+        toBe('nonexistent_studio:title:2020');
     });
   });
 
@@ -239,6 +260,100 @@ describe('Universe ID Type System', () => {
       // Numbers in identifiers should be allowed
       expect(isValidUniverseId('game:pokemon:red_blue:1996')).toBe(true);
       expect(isValidUniverseId('nasa:apollo11:1969')).toBe(true);
+    });
+  });
+
+  describe('Film studio IDs (local-time#26 and #44)', () => {
+    test('the FILM pattern is shape-only — core cannot see the studio registry', () => {
+      // Superseded by #44: src/core cannot import src/config, so an allowlist
+      // here could not be the registry. The FILM pattern accepts any well-formed
+      // token that is not a reserved namespace prefix, and membership lives in
+      // `src/config/universes/studios`. `film` is the generic token for an
+      // unknown distributor.
+      expect(isFilmUniverseId('disney:frozen:2013')).toBe(true);
+      expect(isFilmUniverseId('nonexistent_studio:some_title:2000')).toBe(true);
+      expect(isFilmUniverseId('film:mary_poppins:1964')).toBe(true);
+      expect(GENERIC_FILM_STUDIO_TOKEN).toBe('film');
+
+      // The reserved prefixes are what keep the namespaces apart — that part is
+      // still core's job, and it is shape, not membership.
+      expect(isFilmUniverseId('nasa:apollo11:1969')).toBe(false);
+      expect(isFilmUniverseId('history:something:1963')).toBe(false);
+      expect(isFilmUniverseId('film_studio:mgm:1924-present')).toBe(false);
+      expect(UNIVERSE_ID_PATTERNS.FILM.source).toContain('a-z0-9_]+:[a-z0-9_]+');
+      expect(UNIVERSE_ID_PATTERNS.FILM.source).not.toContain('miramax');
+      expect(UNIVERSE_ID_PATTERNS.FILM.source).not.toContain('touchstone_pictures');
+    });
+
+    test('accepts the real distributors that #26 rejected', () => {
+      // The exact example from the issue.
+      expect(createFilmUniverseId('touchstone_pictures', 'good_morning_vietnam', 1987))
+        .toBe('touchstone_pictures:good_morning_vietnam:1987');
+
+      expect(isFilmUniverseId('miramax:good_will_hunting:1997')).toBe(true);
+      expect(isFilmUniverseId('united_artists:the_birdcage:1996')).toBe(true);
+      expect(isFilmUniverseId('orion_pictures:the_terminator:1984')).toBe(true);
+      expect(isFilmUniverseId('tristar_pictures:terminator_2_judgment_day:1991')).toBe(true);
+      expect(isFilmUniverseId('saturn_international:piranha_ii_the_spawning:1982')).toBe(true);
+      expect(isFilmUniverseId('20th_century_studios:avatar_the_way_of_water:2022')).toBe(true);
+      expect(isFilmUniverseId('lucasfilm:star_wars_episode_iv:1977')).toBe(true);
+      expect(isFilmUniverseId('marvel_studios:iron_man:2008')).toBe(true);
+      expect(isFilmUniverseId('a24:everything_everywhere_all_at_once:2022')).toBe(true);
+    });
+
+    test('normalises studio and title fragments into the ID', () => {
+      // Upper case and punctuation used to pass straight through — or throw.
+      expect(createFilmUniverseId('Saturn_International', 'Piranha II: The Spawning', 1982))
+        .toBe('saturn_international:piranha_ii_the_spawning:1982');
+      expect(createFilmUniverseId('20th Century Fox', 'Across the Universe', 2007))
+        .toBe('20th_century_fox:across_the_universe:2007');
+      expect(createFilmUniverseId('disney', '  Mary   Poppins ', 1964))
+        .toBe('disney:mary_poppins:1964');
+    });
+
+    test('still rejects a fragment that normalises to nothing', () => {
+      expect(() => createFilmUniverseId('disney', '!!!', 2020)).toThrow();
+      expect(() => createFilmUniverseId('disney', 'title', 20)).toThrow();
+    });
+
+    test('film-studio universes use the institutional span vocabulary (#44)', () => {
+      expect(isFilmStudioUniverseId('film_studio:mgm:founded')).toBe(true);
+      expect(isFilmStudioUniverseId('film_studio:mgm:1924')).toBe(true);
+      expect(isFilmStudioUniverseId('film_studio:united_artists:1919-1981')).toBe(true);
+      expect(isFilmStudioUniverseId('film_studio:a24:2012-present')).toBe(true);
+      expect(isFilmStudioUniverseId('film_studio:mgm:*')).toBe(true);
+      expect(isFilmStudioUniverseId('film_studio:mgm:nonsense')).toBe(false);
+
+      // The span is lower-cased but never slugged — its hyphen must survive.
+      expect(createFilmStudioUniverseId('20th Century Fox', 1935)).toBe(
+        'film_studio:20th_century_fox:1935',
+      );
+      expect(createFilmStudioUniverseId('united_artists', '1919-1981')).toBe(
+        'film_studio:united_artists:1919-1981',
+      );
+
+      // A span outside the vocabulary is a compile-time error, not a runtime one.
+      // @ts-expect-error - 'nonsense' is not a FilmStudioSpan
+      expect(() => createFilmStudioUniverseId('mgm', 'nonsense')).toThrow();
+
+      // A string that claims to be a span still has to clear the regex.
+      expect(() =>
+        createFilmStudioUniverseId('mgm', 'nonsense' as FilmStudioSpan),
+      ).toThrow();
+    });
+
+    test('a film-studio ID parses back into typed segments, with no string surgery', () => {
+      const id = createFilmStudioUniverseId('united_artists', '1919-1981');
+      const { slug, span } = parseFilmStudioUniverseId(id);
+
+      expect(slug).toBe('united_artists');
+      expect(span).toBe('1919-1981');
+
+      // The types carry the grammar, so extraction is total and assignable.
+      const slugOf: FilmStudioSlugOf<typeof id> = slug;
+      const spanOf: FilmStudioSpanOf<typeof id> = span;
+      expect(slugOf).toBe('united_artists');
+      expect(spanOf).toBe('1919-1981');
     });
   });
 });
