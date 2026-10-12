@@ -22,6 +22,47 @@ export const apollo11Universe: Universe = {
       relativeFormat: 'HMS'
     } as ZeroReferenceEpoch,
     
+    /**
+     * A second frame over the **same absolute interval** as `launch`, re-zeroed onto the
+     * go/no-go poll five and a half minutes earlier.
+     *
+     * This is what "treat a prior keyframe as the zero" looks like without inventing a
+     * new reference type. `IN_A_PRIOR_KEYFRAME` is deliberately *not* used here: it is a
+     * universe-level claim that one universe's zero derives from a keyframe in a *different*
+     * universe (see `idiocracy.ts`, whose fictional 2505 frame derives from the real 2005
+     * hibernation keyframe). `go_no_go_poll` and `liftoff` are both keyframes inside this
+     * one universe, so that type would assert a cross-universe derivation that does not
+     * exist.
+     *
+     * Within a universe, ordering between keyframes is already carried by `timestamp`,
+     * which is a bigint. What was missing was a *frame* anchored at the earlier keyframe,
+     * so that events could be addressed on a T± axis that starts before liftoff. With this
+     * epoch, liftoff is `T+00:05:30` and the ignition sequence `T-00:05:30`, instead of
+     * both collapsing onto `T+00:00:00` in the `launch` frame.
+     *
+     * The span is deliberately identical to `launch`'s: the same real interval, two
+     * different origins. Narrowing it to the terminal count would have made the frame too
+     * short to project the rest of the launch sequence onto.
+     *
+     * Note the constraint this does NOT remove: `findEventsInRelativeRange` still ignores
+     * its bounds (#55). A second frame is what makes pre-epoch addressing *expressible*;
+     * that method is what still fails to honour it.
+     */
+    go_no_go: {
+      epochId: "apollo11:go_no_go",
+      startTime: BigInt(Date.UTC(1969, 6, 16, 8, 0, 0)) * 1000000n, // T-5:32:00 from liftoff
+      endTime: BigInt(Date.UTC(1969, 6, 16, 19, 0, 0)) * 1000000n,   // T+5:28:00 from liftoff
+      precision: TimePrecision.SECOND,
+      description: "Apollo 11 launch timeline, zeroed on the go/no-go poll rather than liftoff",
+
+      // Zero-reference specific properties
+      zeroPoint: BigInt(Date.UTC(1969, 6, 16, 13, 26, 30)) * 1000000n, // Go/no-go poll
+      zeroEvent: "Apollo 11 go/no-go poll",
+      beforePrefix: "T-",
+      afterPrefix: "T+",
+      relativeFormat: 'HMS'
+    } as ZeroReferenceEpoch,
+
     mission: {
       epochId: "apollo11:mission",
       startTime: BigInt(Date.UTC(1969, 6, 16, 13, 32, 0)) * 1000000n,
