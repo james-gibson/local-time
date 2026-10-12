@@ -44,7 +44,24 @@ export type LegalUniverseId = UniverseId & { readonly __legalBrand: true };
 export type BiographyUniverseId = UniverseId & { readonly __biographyBrand: true };
 export type GameUniverseId = UniverseId & { readonly __gameBrand: true };
 export type CyberSecurityUniverseId = UniverseId & { readonly __cyberSecurityBrand: true };
-export type TechnicalUniverseId = UniverseId & { readonly __technicalBrand: true };
+
+/**
+ * A technology universe: `technology:<slug>:<span>`.
+ *
+ * Renamed from `TechnicalUniverseId` in local-time#21. The old name said "technical"
+ * while the ids said "technology", and the pattern that backed it said `technical:`
+ * again — three names for one thing, two of them unused, and the disagreement is what
+ * broke `createTechnologyUniverseId`. Aligning the type with `UniverseType.TECHNOLOGY`
+ * and the `technology:` domain removes the ambiguity.
+ */
+export type TechnologyUniverseId = UniverseId & { readonly __technologyBrand: true };
+
+/**
+ * @deprecated Use {@link TechnologyUniverseId}. Retained so existing importers still
+ * resolve; the `technical:` prefix it once described is not used by any universe.
+ */
+export type TechnicalUniverseId = TechnologyUniverseId;
+
 /** A specification of the system itself — an ID schema, a typology, a rule set. */
 export type SystemUniverseId = UniverseId & { readonly __systemBrand: true };
 
@@ -86,6 +103,7 @@ export type FilmStudioSlugOf<T extends string> =
 export type FilmStudioSpanOf<T extends string> =
   T extends `film_studio:${string}:${infer P}` ? P : never;
 
+
 // Union type for all specific universe ID types
 export type TypedUniverseId = 
   | FilmUniverseId 
@@ -99,7 +117,8 @@ export type TypedUniverseId =
   | BiographyUniverseId
   | SparkleFartUniverseId
   | CyberSecurityUniverseId
-    | TechnicalUniverseId
+  | TechnologyUniverseId
+  | TechnicalUniverseId
   | FilmStudioUniverseId
   | SystemUniverseId
   | GameUniverseId;
@@ -191,6 +210,28 @@ export const UNIVERSE_ID_PATTERNS = {
   BIOGRAPHY: /^biography:[a-z0-9_]+:\d{4}-(\d{4}|present)$/,
   GAME: /^(game|anime)[a-z0-9_]?:[a-z0-9_]+:[a-z0-9_]+:\d{4}$/,
   CYBERSECURITY: /^cybersecurity:.*$/,
+  
+  /**
+   * Technology universes: `technology:<slug>:<span>`.
+   *
+   * This was `TECHNICAL: /^technical:.*:(\*)$/` — wrong on all three counts, which is
+   * what made `createTechnologyUniverseId` throw unconditionally (local-time#21):
+   *
+   * - The factory emitted `technology:${name}:*`, which a `technical:` prefix can
+   *   never match, so the function had no reachable success path.
+   * - **Not one `technical:` id exists in the codebase.** `technology:` is what the
+   *   data actually uses — `technology:sccs:1972`, `technology:git:2005`,
+   *   `technology:electric_telegraph:1837`, `technology:transistor:1947`,
+   *   `technology:world_wide_web:1989`. Those validated only via the `FALLBACK`
+   *   catch-all, never as a declared domain.
+   * - The wildcard-only span rejected every real technology id, all of which carry a
+   *   year.
+   *
+   * The span vocabulary now matches `FASHION` / `HISTORICAL` / `FILM_STUDIO`: a
+   * wildcard for "span not fixed", a year, a year range, or a range ending `present`.
+   */
+  TECHNOLOGY: /^technology:[a-z0-9_]+:(\*|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
+
   TECHNICAL: /^technical:.*:(\*)$/,
   /**
    * Specifications of the system itself — ID schemas, typologies, rule sets.
@@ -205,6 +246,7 @@ export const UNIVERSE_ID_PATTERNS = {
    * cap; deeper is a sign the thing belongs in its own namespace.
    */
   SYSTEM: /^system:[a-z0-9_]+(?::[a-z0-9_]+)?:(\*|v\d+|\d{4}|\d{4}-\d{4})$/,
+
   SPARKLE_FART: /^8J\+mhPCfkqgu.*$/,
   FALLBACK: /^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/
 } as const;
@@ -259,8 +301,16 @@ export function isMissionUniverseId(id: string): id is MissionUniverseId {
 export function isLegalUniverseId(id: string): id is LegalUniverseId {
   return UNIVERSE_ID_PATTERNS.LEGAL.test(id);
 }
+export function isTechnologyUniverseId(id: string): id is TechnologyUniverseId {
+  return UNIVERSE_ID_PATTERNS.TECHNOLOGY.test(id);
+}
+
+/**
+ * @deprecated Use {@link isTechnologyUniverseId}. This guard used to test
+ * `technical:` ids, which no universe in the repository carries.
+ */
 export function isTechnicalUniverseId(id: string): id is TechnicalUniverseId {
-  return UNIVERSE_ID_PATTERNS.TECHNICAL.test(id);
+  return isTechnologyUniverseId(id);
 }
 
 export function isSystemUniverseId(id: string): id is SystemUniverseId {
@@ -403,12 +453,51 @@ export function createCyberSecurityUniverseId(name: string, cve: string): CyberS
   return id as CyberSecurityUniverseId;
 }
 
-export function createTechnologyUniverseId(name: string): TechnicalUniverseId {
-  const id = `technology:${name}:*`;
-  if (!isTechnicalUniverseId(id)) {
-    throw new Error(`Invalid technical universe ID format: ${id}`);
+/**
+ * Lowercase a free-text name into a single id segment: strip anything that is not a
+ * letter or digit, collapse separators to underscores, trim the edges.
+ *
+ * `'Electric Telegraph'` → `'electric_telegraph'`.
+ *
+ * Deliberately *not* named `toIdFragment`: PR #44 adds that helper alongside the film
+ * studio work, and giving this one the same name would collide on merge.
+ */
+function normaliseIdSegment(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\-.]+/g, '_')
+    .replace(/[^a-z0-9_]/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+/**
+ * A technology universe id: `technology:<name>:*`.
+ *
+ * `name` is normalised through {@link normaliseIdSegment} first, so
+ * `'Electric Telegraph'` becomes `electric_telegraph`.
+ *
+ * The `*` span means "not pinned to a dated window" — a technology such as the
+ * electric telegraph is not an event, so `createTechnologyUniverseId('electric_telegraph')`
+ * yields `technology:electric_telegraph:*` where the dated record
+ * `technology:electric_telegraph:1837` names the invention. Both validate.
+ *
+ * Before local-time#21 this function could not return: it built a `technology:` id and
+ * then validated it against a `technical:` pattern, so it threw for every possible
+ * argument. There were no callers, which is why it went unnoticed — the bug was latent,
+ * not exercised.
+ *
+ * Note the name collision this sat next to: `createTechnicalUniverseId` in
+ * `core/ids/id-creators.ts` and again in `core/types.ts` is a *different*, three-argument
+ * function with a different id shape. See the linked issue.
+ */
+export function createTechnologyUniverseId(name: string): TechnologyUniverseId {
+  const id = `technology:${normaliseIdSegment(name)}:*`;
+  if (!isTechnologyUniverseId(id)) {
+    throw new Error(`Invalid technology universe ID format: ${id}`);
   }
-  return id as TechnicalUniverseId;
+  return id as TechnologyUniverseId;
 }
 export function createSeriesUniverseId(network: string, title: string, year: number): SeriesUniverseId {
   const id = `${network}:${title}:${year}`;
