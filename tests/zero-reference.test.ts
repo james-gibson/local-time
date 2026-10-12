@@ -2,7 +2,6 @@ import { ZeroReferenceAddressing } from '../src/addressing/zero-reference-addres
 import { ZeroReferenceQueryService } from '../src/zero-reference-queries';
 import { apollo11Universe, ddayUniverse, ZeroReferenceExamples } from '../src/zero-reference-examples';
 import { ZeroReferenceEpoch, TimePrecision } from '../src/temporal-system';
-import {Universe} from '@prisma/client';
 
 describe('Zero-Reference Temporal Systems', () => {
   let queryService: ZeroReferenceQueryService;
