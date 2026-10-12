@@ -30,6 +30,9 @@ import {usHistoryUniverses} from "./us-history"
 import {pixarFilmUniverses} from "./pixar"
 import {versionControlUniverses} from "./version-control"
 import {wikidataTypologyUniverses} from "./system"
+import {hillaryClintonUniverses} from "./people/hillary-clinton"
+import {hillaryClintonConspiracyTheoriesUniverses} from "./people/clinton-conspiracy-theories"
+import {hillaryClintonConspiracyRebuttalsUniverses} from "./people/clinton-conspiracy-rebuttals"
 export const allUniverses = [
     ...filmUniverses,
   ...pixarFilmUniverses,
@@ -62,6 +65,9 @@ export const allUniverses = [
   ...gamestopUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
+  ...hillaryClintonUniverses,
+  ...hillaryClintonConspiracyTheoriesUniverses,
+  ...hillaryClintonConspiracyRebuttalsUniverses,
 ];
 
 export const allNetworks = [
