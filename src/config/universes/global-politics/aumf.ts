@@ -1,4 +1,5 @@
-import { UniverseBuilder, createHistoricalUniverseId, TimePrecision } from '../../../core';
+import { createHistoricalUniverseId } from '../../../core/universe-ids';
+import { UniverseBuilder, TimePrecision } from '../../../core';
 
 /**
  * @universe us_gov:aumf_2001:2001-present

@@ -1,4 +1,5 @@
-import { UniverseBuilder,createHistoricalUniverseId,TimePrecision } from '../../../index';
+import { createHistoricalUniverseId } from '../../../core/universe-ids';
+import { UniverseBuilder, TimePrecision } from '../../../index';
 
 /**
  * @universeName Ed Sheeran "Thinking Out Loud" Copyright Trial

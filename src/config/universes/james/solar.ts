@@ -1,3 +1,4 @@
+import { createTechnicalUniverseId } from '../../../core/universe-ids';
 import {
     Universe,
     UniverseType,
@@ -8,7 +9,6 @@ import {
     UsageRestriction,
     CopyrightStatus,
 } from '../../../core/types';
-import { createTechnicalUniverseId } from '../../../core/ids/id-creators';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**

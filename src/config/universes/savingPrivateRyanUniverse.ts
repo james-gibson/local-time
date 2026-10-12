@@ -1,4 +1,5 @@
-import {createUniverseId, TimePrecision, Universe, UniverseType} from '../../core';
+import { createUniverseId } from '../../core/universe-ids';
+import { TimePrecision, Universe, UniverseType } from '../../core';
 import * as utils from '../../utils';
 
 export const savingPrivateRyanUniverse: Universe = {

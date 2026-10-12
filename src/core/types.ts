@@ -789,18 +789,14 @@ export enum CopyrightStatus {
   PRIVATE = 'private'
 }
 
-// `createTechnicalUniverseId` used to be defined here, byte-identically to a second
-// copy in `core/ids/id-creators.ts` (local-time#51). It now lives in
-// `core/universe-ids.ts` and is re-exported below with the other id factories, so the
-// `core/types` import path used by config/universes/cybersecurity/access-control.ts
-// keeps resolving.
-
-// Re-export the canonical id factories from universe-ids for compatibility.
-export {
-  createHistoricalUniverseId,
-  createTechnologyUniverseId,
-  createTechnicalUniverseId,
-} from './universe-ids';
+// Universe-id factories used to be re-exported here, and `createTechnicalUniverseId`
+// was additionally *defined* here — byte-identically to a second copy in
+// `core/ids/id-creators.ts` (local-time#51). Both are gone: the factories live in
+// `core/universe-ids.ts` and are imported from there, which is the one path that now
+// exists for them.
+//
+// `core/index.ts` still re-exports `./universe-ids`, so the package barrel is
+// unchanged; what was removed is the *deep* `core/types` path, which no caller used.
 
 
 // Relationship types for connections

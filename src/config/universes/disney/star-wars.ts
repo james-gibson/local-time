@@ -1,4 +1,5 @@
-import { UniverseBuilder, createFilmUniverseId } from '../../../index';
+import { createFilmUniverseId } from '../../../core/universe-ids';
+import { UniverseBuilder } from '../../../index';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**
