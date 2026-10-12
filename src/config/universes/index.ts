@@ -7,6 +7,7 @@ import {
   damImpactTimelineUniverse,
   legalUniverses,
   presidentialElectionUniverses,
+  recurringElectionIssueUniverses,
   usCopyrightLawChangesUniverse
 } from './us-gov';
 import {pokemonUniverses} from './games/pokemon';
@@ -53,6 +54,7 @@ export const allUniverses = [
   damImpactTimelineUniverse,
   usCopyrightLawChangesUniverse,
   ...presidentialElectionUniverses,
+  ...recurringElectionIssueUniverses,
   ...usHistoryUniverses,
   ...versionControlUniverses,
   ...gamestopUniverses,
