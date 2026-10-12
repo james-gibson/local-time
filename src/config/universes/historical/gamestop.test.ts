@@ -18,6 +18,8 @@ const segmentIds = (u: Universe): string[] =>
 
 const metadata = (u: Universe): any => u.metadata as any;
 
+const temporalStructure = (u: Universe): any => u.temporalStructure as any;
+
 describe('GameStop short squeeze universe (james-gibson/local-time#4)', () => {
   test('exposes a single timeline universe with the canonical id', () => {
     expect(gamestopUniverses).toHaveLength(1);
@@ -69,6 +71,52 @@ describe('GameStop short squeeze universe (james-gibson/local-time#4)', () => {
       'Volatility and Risk',
       'Hedge Fund Practices',
       'Regulatory Scrutiny',
+    ]);
+  });
+
+  /**
+   * The issue's File 1 has three columns — Date, Event, Significance. The first two
+   * were carried as the keyframe `timestamp` and `description`; the third, a textual
+   * rationale for why each event mattered, was dropped. The owner's proposed
+   * implementation carried it as `metadata.significance_note`, so both the source and
+   * the design called for it.
+   *
+   * A numeric `significance` is not a substitute: it ranks the keyframe, the note says
+   * why it mattered. This asserts the note exists on every keyframe, so the column
+   * cannot go missing again unnoticed.
+   */
+  test("every keyframe carries the issue's textual Significance column", () => {
+    const keyframes = temporalStructure(gamestopSqueezeUniverse).keyframes as {
+      id: string;
+      significance: number;
+      metadata?: { significance_note?: string };
+    }[];
+
+    expect(keyframes).toHaveLength(7);
+    for (const kf of keyframes) {
+      const note = kf.metadata?.significance_note;
+      expect(`${kf.id}:${typeof note === 'string' && note.trim().length > 0}`)
+        .toBe(`${kf.id}:true`);
+    }
+  });
+
+  test('the significance note is not just the numeric ranking restated', () => {
+    const keyframes = temporalStructure(gamestopSqueezeUniverse).keyframes as {
+      id: string;
+      significance: number;
+      metadata?: { significance_note?: string };
+    }[];
+    for (const kf of keyframes) {
+      expect(kf.metadata!.significance_note).not.toBe(String(kf.significance));
+    }
+    expect(keyframes.map(k => k.id)).toEqual([
+      'board_announcement',
+      'initial_surge',
+      'musk_tweet',
+      'melvin_closes_position',
+      'trading_restrictions',
+      'sec_statement',
+      'house_hearing',
     ]);
   });
 

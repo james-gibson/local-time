@@ -14,7 +14,11 @@ import { dateToNanoseconds } from '../../../utils/temporal-conversion';
  * when several brokerages restricted buying of GME and other "meme stocks".
  *
  * The issue supplied three research tables; they map onto this universe as:
- * - "Key Events and Timeline"  -> `temporalStructure` (segments + keyframes).
+ * - "Key Events and Timeline"  -> `temporalStructure` (segments + keyframes). All
+ *   three columns of that table are carried: `Date` -> keyframe `timestamp`,
+ *   `Event` -> keyframe `description`, and `Significance` -> keyframe
+ *   `metadata.significance_note`. The numeric `significance` field is a separate,
+ *   coarser thing: it ranks the keyframe, the note says why it mattered.
  * - "Reasons for Popularity"   -> `metadata.culturalDrivers`.
  * - "Points of Controversy"    -> `metadata.controversies`.
  *
@@ -151,6 +155,10 @@ export const gamestopSqueezeUniverse: Universe = {
         certainty: 1.0,
         description:
           'GameStop announces new board members, including Chewy co-founder Ryan Cohen.',
+        metadata: {
+          significance_note:
+            'Seen as a positive catalyst by retail investors, leading to an initial surge in the stock price.',
+        },
       },
       {
         id: 'initial_surge',
@@ -160,6 +168,10 @@ export const gamestopSqueezeUniverse: Universe = {
         certainty: 1.0,
         description:
           "GameStop's stock rises over 50%, driven by users on the subreddit r/WallStreetBets.",
+        metadata: {
+          significance_note:
+            'Marked the beginning of the major surge and brought mainstream attention to the stock.',
+        },
       },
       {
         id: 'musk_tweet',
@@ -169,6 +181,10 @@ export const gamestopSqueezeUniverse: Universe = {
         certainty: 1.0,
         description:
           "Elon Musk tweets 'Gamestonk!!' with a link to r/WallStreetBets, amplifying the hype.",
+        metadata: {
+          significance_note:
+            "Musk's tweet further amplified the hype and brought more attention to the situation, contributing to the stock's continued rise.",
+        },
       },
       {
         id: 'melvin_closes_position',
@@ -178,6 +194,10 @@ export const gamestopSqueezeUniverse: Universe = {
         certainty: 1.0,
         description:
           'Hedge fund Melvin Capital closes out its short position after massive losses.',
+        metadata: {
+          significance_note:
+            "Seen as a major victory for retail investors on r/WallStreetBets and fuelled the 'us vs. them' narrative.",
+        },
       },
       {
         id: 'trading_restrictions',
@@ -187,6 +207,10 @@ export const gamestopSqueezeUniverse: Universe = {
         certainty: 1.0,
         description:
           "Robinhood and other brokerages restrict the buying of GameStop and other 'meme stocks'.",
+        metadata: {
+          significance_note:
+            'This move sparked widespread outrage and accusations of market manipulation, leading to a drop in the stock price and calls for investigations.',
+        },
       },
       {
         id: 'sec_statement',
@@ -196,6 +220,10 @@ export const gamestopSqueezeUniverse: Universe = {
         certainty: 1.0,
         description:
           'The SEC issues a statement on market volatility, acknowledging the situation.',
+        metadata: {
+          significance_note:
+            'This indicated that regulators were taking notice of the unprecedented market activity.',
+        },
       },
       {
         id: 'house_hearing',
@@ -205,6 +233,10 @@ export const gamestopSqueezeUniverse: Universe = {
         certainty: 1.0,
         description:
           'The U.S. House Financial Services Committee holds a hearing; Robinhood, Melvin Capital and Reddit testify.',
+        metadata: {
+          significance_note:
+            'Key figures from Robinhood, Melvin Capital and Reddit testified, bringing the issue to the forefront of political discussion.',
+        },
       },
     ],
     windows: { strategy: 'phase_based' },
