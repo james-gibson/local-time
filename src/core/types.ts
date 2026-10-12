@@ -465,6 +465,68 @@ export interface TemporalSegment {
   description?: string;
 }
 
+/**
+ * What kind of event a keyframe records.
+ *
+ * A keyframe's `id` names the *instance* — `us-wide-release`; its `type` names the
+ * *kind* — `release`. The type is what makes multiple events of one kind
+ * addressable: a film has several releases, a company has several mergers, and a
+ * career has several contracts, so "the release" and "the merger" are never
+ * well-defined targets on their own. A reference needs the type to say what it
+ * means and the id to say which one it means.
+ *
+ * `tags` stays free-form and orthogonal — use it for the specifics of an event
+ * (`wallstreetbets`, `academy-awards`), not for its category.
+ *
+ * See james-gibson/local-time#3, where a film's several releases are the case
+ * that motivated this.
+ */
+export enum KeyframeType {
+  // Entity lifecycle
+  FOUNDING = 'founding',
+  INCORPORATION = 'incorporation',
+  DISSOLUTION = 'dissolution',
+  SHUTDOWN = 'shutdown',
+
+  // Transactions between entities
+  MERGER = 'merger',
+  ACQUISITION = 'acquisition',
+  SPIN_OFF = 'spin_off',
+
+  // Making a thing available
+  RELEASE = 'release',
+  PUBLICATION = 'publication',
+  LAUNCH = 'launch',
+
+  // Agreements
+  CONTRACT = 'contract',
+  BREACH = 'breach',
+  AMENDMENT = 'amendment',
+
+  // Law and the state
+  LEGISLATION = 'legislation',
+  RULING = 'ruling',
+  REGULATION = 'regulation',
+  ELECTION = 'election',
+
+  // Public acts
+  ANNOUNCEMENT = 'announcement',
+  PUBLIC_STATEMENT = 'public_statement',
+  APOLOGY = 'apology',
+  CASTING = 'casting',
+
+  // Recognition
+  AWARD = 'award',
+  NOMINATION = 'nomination',
+
+  // Markets
+  MARKET_EVENT = 'market_event',
+
+  // Structural markers
+  MILESTONE = 'milestone',
+  ZERO_POINT = 'zero_point',
+}
+
 export interface TemporalKeyframe {
   id: string;
   timestamp: bigint;
@@ -475,6 +537,35 @@ export interface TemporalKeyframe {
     earliest: bigint;
     latest: bigint;
   };
+  /**
+   * What kind of event this is. Required in spirit for any universe that has
+   * more than one event of a kind — see {@link KeyframeType} for why "the
+   * release" is never a well-defined target on its own.
+   */
+  type?: KeyframeType;
+  /**
+   * A keyframe in *another* universe that this keyframe's event refers to.
+   *
+   * This is a name-level reference with **deferred resolution**: the target need
+   * not be recorded yet, and an unresolved target is *not* a broken link. It
+   * names which event in the target universe this one means, and stays
+   * meaningful before the target records it — which is the whole point. A
+   * universe-level reference cannot disambiguate, so once the target accumulates
+   * several keyframes of the same kind the reference has to be event-level or it
+   * loses fidelity permanently.
+   *
+   * Pair it with `targetKeyframeType` when the target records several events of
+   * that kind, so the reference is unambiguous before the target's ids are known.
+   *
+   * Prefer this over dropping to `connections.references[].targetKeyframeId`
+   * when the reference is to a specific *occurrence* rather than to the framing
+   * relationship between the two universes. See james-gibson/local-time#3, where
+   * the Aladdin dispute references a release that `disney:aladdin:1992` had not
+   * yet recorded.
+   */
+  targetUniverseId?: UniverseId;
+  targetKeyframeId?: string;
+  targetKeyframeType?: KeyframeType;
 }
 
 export interface WindowingStrategy {
