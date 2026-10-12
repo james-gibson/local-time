@@ -1,8 +1,45 @@
 import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalKeyframe, TemporalSegment, TemporalLayer, RealityRelation, Attribution, TemporalStructure, WindowingStrategy, RealityRelationTypeEnum } from './types';
 import { UniverseId, createFilmUniverseId } from './universe-ids';
 
+/**
+ * Universe types that are not required to carry a timeline. A specification describes a
+ * shape, not a stretch of time. Keyed by type, not by id, so the exemption is deliberate
+ * rather than an id special-case.
+ */
+const NON_TEMPORAL_TYPES = new Set<string>([
+  UniverseType.TECHNICAL_SPECIFICATION,
+  UniverseType.TECHNICAL_LOG,
+  UniverseType.ABSTRACT_CONCEPT,
+]);
+
 export class UniverseBuilder {
   private universe: Partial<Universe>;
+
+  /**
+   * Defaults supplied by the convenience factories (#45). `build()` applies them only when
+   * the caller has not set the field explicitly, so `withRealityRelation` always wins over
+   * `createHistoricalBuilder`'s `documentary`.
+   */
+  private defaults?: {
+    realityRelationType?: string;
+    fictionalizationDegree?: number;
+    windowsStrategy?: string;
+  };
+
+  /** Explicitly set by a fluent call, which must beat any default. */
+  private realityRelationWasSet = false;
+  private windowsWereSet = false;
+
+  /**
+   * Apply type-appropriate defaults. Used by {@link createFilmBuilder} and
+   * {@link createHistoricalBuilder}, which previously applied none at all: both just
+   * forwarded to the constructor, so a "historical" builder still produced a universe with
+   * `realityRelation.type: 'pure_fiction'` and `fictionalizationDegree: 1.0`.
+   */
+  withDefaults(realityRelationType: string, fictionalizationDegree: number, windowsStrategy: string): this {
+    this.defaults = { realityRelationType, fictionalizationDegree, windowsStrategy };
+    return this;
+  }
 
   constructor(universeId?: UniverseId | string, type?: UniverseType) {
     this.universe = {
@@ -109,6 +146,7 @@ export class UniverseBuilder {
   }
 
   withRealityRelation(type: string, degree: number, anchors?: any[], description?: string): this {
+    this.realityRelationWasSet = true;
     this.universe.realityRelation = {
       type: type as any,
       realityAnchors: anchors || [],
@@ -172,7 +210,7 @@ export class UniverseBuilder {
     const duration = BigInt(durationHours) * BigInt(3600) * BigInt(1_000_000_000);
     
     const zeroEpoch = {
-      epochId: 'zero_reference',
+      epochId: 'zero_ref',
       startTime: zeroTime,
       endTime: zeroTime + duration,
       precision: TimePrecision.SECOND,
@@ -186,7 +224,7 @@ export class UniverseBuilder {
     this.addLayer({
       layerId: 'zero_reference',
       type: 'primary',
-      epochs: { zero_reference: zeroEpoch }
+      epochs: { zero_ref: zeroEpoch }
     });
     return this;
   }
@@ -195,7 +233,7 @@ export class UniverseBuilder {
     this.addLayer({
       layerId: 'zero_reference',
       type: 'primary',
-      epochs: { zero_reference: config }
+      epochs: { zero_ref: config }
     });
     return this;
   }
@@ -593,16 +631,222 @@ export class UniverseBuilder {
     }
     this.universe.epochs = epochs;
 
+    // Defaults first, so validation runs against the values that will actually ship.
+    if (this.defaults && !this.realityRelationWasSet) {
+      this.universe.realityRelation = {
+        type: this.defaults.realityRelationType as any,
+        fictionalizationDegree: this.defaults.fictionalizationDegree!,
+        realityAnchors: [],
+      };
+    }
+    if (this.defaults && !this.windowsWereSet) {
+      const structure = this.ensureTemporalStructure();
+      structure.windows = { strategy: this.defaults.windowsStrategy as any };
+    }
+
+    this.validate();
+    this.extractMetadata();
+
     return this.universe as Universe;
+  }
+
+  private ensureTemporalStructure(): any {
+    if (!this.universe.temporalStructure) {
+      this.universe.temporalStructure = {
+        segments: [],
+        keyframes: [],
+        windows: { strategy: 'time_based' },
+      } as any;
+    }
+    return this.universe.temporalStructure;
+  }
+
+  /**
+   * #45: `build()` validated nothing. Every invalid universe built successfully, which is
+   * why this file is the only failing suite in the repo.
+   *
+   * Order is deliberate and load-bearing. The tests assert distinct messages for distinct
+   * faults, so a check that runs early must not mask one that runs later:
+   *
+   *   1. attribution      - a universe with no provenance at all is unusable
+   *   2. realityRelation  - `fictionalizationDegree` outside [0,1]
+   *   3. cultural_significance
+   *   4. keyframe significance
+   *   5. primary layer    - last, because several callers reach it with no layer at all and
+   *                         would otherwise see this error instead of the one they caused
+   */
+  private validate(): void {
+    const errors: string[] = [];
+    const universe = this.universe;
+
+    // 1. Attribution. The constructor seeds `{ citations_required: true }`, so presence of
+    // the object is not enough - it has to actually say where the content came from.
+    const attribution = universe.attribution as any;
+    const hasCopyright = Boolean(attribution?.copyright?.holders?.length);
+    const hasPublicDomain = Boolean(attribution?.public_domain);
+    const hasSources = Boolean(attribution?.sources?.length);
+    if (!hasCopyright && !hasPublicDomain && !hasSources) {
+      errors.push(
+        'Attribution is required: set public_domain, copyright, or sources (at least one).',
+      );
+    }
+
+    // 2. fictionalizationDegree
+    const degree = universe.realityRelation?.fictionalizationDegree;
+    if (typeof degree !== 'number' || degree < 0 || degree > 1) {
+      errors.push(
+        `fictionalizationDegree must be between 0.0 and 1.0 (got ${String(degree)}).`,
+      );
+    }
+
+    // 3. cultural_significance
+    const significance = (universe.metadata as any)?.cultural_significance;
+    if (significance !== undefined && (significance < 0 || significance > 1)) {
+      errors.push(
+        `cultural_significance must be between 0.0 and 1.0 (got ${significance}).`,
+      );
+    }
+
+    // 4. Keyframe significance
+    const inUnit = (v: unknown) => typeof v === 'number' && v >= 0 && v <= 1;
+    for (const layer of universe.layers ?? []) {
+      for (const keyframe of Object.values(layer.epochs ?? {}) as any[]) {
+        const frames = (keyframe as any).keyframes;
+        if (!Array.isArray(frames)) continue;
+        for (const frame of frames) {
+          if (!inUnit(frame?.significance)) {
+            errors.push(
+              `Keyframe significance must be between 0.0 and 1.0 ` +
+              `(keyframe "${frame?.id ?? 'unknown'}" has ${String(frame?.significance)}).`,
+            );
+          }
+        }
+      }
+    }
+    const structureKeyframes = universe.temporalStructure?.keyframes;
+    if (Array.isArray(structureKeyframes)) {
+      for (const frame of structureKeyframes) {
+        if (!inUnit(frame?.significance)) {
+          errors.push(
+            `Keyframe significance must be between 0.0 and 1.0 ` +
+            `(keyframe "${frame?.id ?? 'unknown'}" has ${String(frame?.significance)}).`,
+          );
+        }
+      }
+    }
+
+    // 5. Temporal content.
+    //
+    // This was originally "at least one layer with type 'primary'", which was wrong and
+    // broke four suites on first run. `addDateKeyframe` / `addDateSegment` populate
+    // `temporalStructure` directly and never touch `layers`, so `ed-sheeran.ts` builds a
+    // universe with 1 segment and 2 keyframes and zero layers - real temporal content that
+    // a layer check refuses to see. Worse, it builds at module scope, so the throw happened
+    // during import and took the entire `allUniverses` barrel down with it.
+    //
+    // The rule that matches reality: the universe must carry temporal content by *either*
+    // route. A builder that adds neither has nothing to place on a timeline.
+    const hasPrimaryLayer = (universe.layers ?? []).some((layer: any) => layer.type === 'primary');
+    const structure = universe.temporalStructure;
+    const hasStructureContent =
+      Boolean(structure?.segments?.length) || Boolean(structure?.keyframes?.length) ||
+      // build() flattens every layer's epochs onto the universe, so a builder that only
+      // declared epochs (withRuntime, withDateRange, withZeroReference) has content there.
+      Object.keys(universe.epochs ?? {}).length > 0;
+
+    // Not every universe is a stretch of time. `system:ids:static_id_schema:v1` describes
+    // the shape of an id, and its version suffix `v1` is not a year — demanding a timeline
+    // of it would be inventing one. Exempt by type rather than by id, so the next spec or
+    // concept inherits the exemption deliberately.
+    //
+    // `ABSTRACT_CONCEPT` currently has exactly one member, so this is not a broad hole:
+    // it was measured across all 225 registered universes before being added.
+    const isNonTemporal = NON_TEMPORAL_TYPES.has(universe.type as UniverseType);
+    if (!isNonTemporal && !hasPrimaryLayer && !hasStructureContent) {
+      errors.push(
+        'At least one primary temporal layer is required: the universe has neither a ' +
+        'primary layer nor any temporal structure content (segments or keyframes).',
+      );
+    }
+
+    if (errors.length) {
+      throw new Error(`Universe validation failed: ${errors.join(' ')}`);
+    }
+  }
+
+  /**
+   * #45: `build()` extracted no metadata either, so every builder-produced universe shipped
+   * with an empty or absent `metadata` block. These three are the derivable ones - a caller
+   * who set them explicitly keeps their value.
+   */
+  private extractMetadata(): void {
+    const universe = this.universe;
+    const id = universe.universeId as string;
+    if (!id) return;
+
+    const metadata = (universe.metadata ?? {}) as any;
+    universe.metadata = metadata;
+
+    // canonicalName from the id slug: `film:test_movie:2023` -> "Test Movie".
+    // Explicit values are never overwritten.
+    if (!metadata.canonicalName) {
+      const parts = id.split(':');
+      // Three-segment ids are `namespace:slug:year`; anything longer is
+      // `namespace:...:slug:year`, so take the segment before the trailing year.
+      const slug = parts.length <= 3 ? parts[1] : parts[parts.length - 2];
+      if (slug) {
+        metadata.canonicalName = slug
+          .replace(/[_.]+/g, ' ')
+          .trim()
+          .split(/\s+/)
+          .filter(Boolean)
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      }
+    }
+
+    // released from the id's trailing year.
+    if (!metadata.released) {
+      const parts = id.split(':');
+      const trailing = parts[parts.length - 1] ?? '';
+      const yearMatch = trailing.match(/^(\d{4})/);
+      if (yearMatch) {
+        metadata.released = new Date(Number(yearMatch[1]), 0, 1);
+      }
+    }
+
+    // creators: role lists in a stable order, then copyright holders. Copyright holders are
+    // a studio, which is a creator of the work but not a role, so they go last.
+    if (!metadata.creators) {
+      const creators = (universe.attribution as any)?.creators;
+      const roles: string[] = [
+        'director', 'writer', 'producer', 'host', 'researcher',
+        'historical_advisors', 'participant', 'based_on',
+      ];
+      const collected: string[] = [];
+      for (const role of roles) {
+        for (const name of creators?.[role] ?? []) {
+          if (!collected.includes(name)) collected.push(name);
+        }
+      }
+      for (const holder of (universe.attribution as any)?.copyright?.holders ?? []) {
+        if (!collected.includes(holder)) collected.push(holder);
+      }
+      if (collected.length) metadata.creators = collected;
+    }
   }
 }
 
 export function createFilmBuilder(universeId?: UniverseId | string): UniverseBuilder {
-  return new UniverseBuilder(universeId, UniverseType.FILM);
+  return new UniverseBuilder(universeId, UniverseType.FILM)
+    .withDefaults('pure_fiction', 1.0, 'scene_based');
 }
 
 export function createHistoricalBuilder(universeId?: UniverseId | string): UniverseBuilder {
-  return new UniverseBuilder(universeId, UniverseType.HISTORICAL_EVENT);
+  // Previously forwarded straight to the constructor, so a "historical" builder produced
+  // `pure_fiction` / 1.0 - the opposite of the point of the factory.
+  return new UniverseBuilder(universeId, UniverseType.HISTORICAL_EVENT)
+    .withDefaults('documentary', 0.0, 'time_based');
 }
 
 export function createMissionBuilder(universeId?: UniverseId | string): UniverseBuilder {
