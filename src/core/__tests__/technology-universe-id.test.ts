@@ -57,7 +57,7 @@ describe('technology universe IDs (local-time#21)', () => {
         /**
          * These are the ids the repository actually uses. Before #21 the pattern
          * rejected all of them — wildcard-only span — and they validated solely
-         * through the FALLBACK catch-all rather than as a declared domain.
+         * through ANY_YEAR_TERMINATED rather than as a declared domain.
          */
         test.each([
             'technology:sccs:1972',

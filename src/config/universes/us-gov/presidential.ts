@@ -57,7 +57,7 @@ export const createElectionUniverse = (
         identifiers: {
             // Previously `event:us_election:<year>`, which disagreed with the universeId
             // namespace. `event:` is not a domain in UNIVERSE_ID_PATTERNS; it only ever
-            // validated through the FALLBACK pattern.
+            // validated through ANY_YEAR_TERMINATED.
             primary: `history:us_election:${record.idYear}`,
             aliases: [`us_presidential_election_${yearString}`],
         },

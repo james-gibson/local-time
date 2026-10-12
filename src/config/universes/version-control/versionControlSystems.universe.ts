@@ -9,7 +9,7 @@ import { CommonUniverseIds } from '../../../core/common-universe-ids';
  * dominate modern software development. Each system is a `TECHNOLOGY` universe
  * with the canonical `technology:<slug>:<year>` id (matching the technology
  * universes in `historical/stem.ts`), so they resolve through the registry's
- * `FALLBACK` id pattern.
+ * `ANY_YEAR_TERMINATED` id pattern.
  *
  * The systems form a single inheritance chain plus a distributed fork:
  *

@@ -42,7 +42,7 @@ function leadingTokens(source: string): string[] {
 }
 
 /** Patterns that cannot collide with a 3-segment FILM id, so are not namespace claims. */
-const NOT_A_NAMESPACE_CLAIM = new Set(['FILM', 'FALLBACK', 'SPARKLE_FART']);
+const NOT_A_NAMESPACE_CLAIM = new Set(['FILM', 'ANY_YEAR_TERMINATED', 'SPARKLE_FART']);
 
 const namespacePrefixes: string[] = [];
 for (const [name, pattern] of Object.entries(UNIVERSE_ID_PATTERNS)) {
