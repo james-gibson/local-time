@@ -1,4 +1,5 @@
-import {createUniverseId, TimePrecision, Universe, UniverseType} from '../../core';
+import { createUniverseId } from '../../core/universe-ids';
+import { TimePrecision, Universe, UniverseType } from '../../core';
 
 export const backToTheFutureUniverse: Universe = {
     universeId: createUniverseId("film:bttf:1985"),

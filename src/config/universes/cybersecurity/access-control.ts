@@ -1,11 +1,5 @@
-import {
-    Universe,
-    UniverseType,
-    TimePrecision,
-    createTechnicalUniverseId,
-    TemporalReference,
-    RelationshipType,
-} from '../../../core/types';
+import { createTechnicalUniverseId } from '../../../core/universe-ids';
+import { Universe, UniverseType, TimePrecision, TemporalReference, RelationshipType } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**

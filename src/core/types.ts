@@ -789,15 +789,14 @@ export enum CopyrightStatus {
   PRIVATE = 'private'
 }
 
-// Function to create technical universe IDs
-export function createTechnicalUniverseId(category: string, identifier: string, version?: string): UniverseId {
-  const versionSuffix = version ? `:${version}` : '';
-  const id = `${category}:${identifier}${versionSuffix}:${new Date().getFullYear()}`;
-  return id as UniverseId;
-}
-
-// Re-export createHistoricalUniverseId from universe-ids for compatibility
-export { createHistoricalUniverseId,createTechnologyUniverseId } from './universe-ids';
+// Universe-id factories used to be re-exported here, and `createTechnicalUniverseId`
+// was additionally *defined* here — byte-identically to a second copy in
+// `core/ids/id-creators.ts` (local-time#51). Both are gone: the factories live in
+// `core/universe-ids.ts` and are imported from there, which is the one path that now
+// exists for them.
+//
+// `core/index.ts` still re-exports `./universe-ids`, so the package barrel is
+// unchanged; what was removed is the *deep* `core/types` path, which no caller used.
 
 
 // Relationship types for connections

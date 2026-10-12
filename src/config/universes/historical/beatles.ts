@@ -1,4 +1,5 @@
-import { UniverseBuilder, createHistoricalUniverseId,TimePrecision } from '../../../index';
+import { createHistoricalUniverseId } from '../../../core/universe-ids';
+import { UniverseBuilder, TimePrecision } from '../../../index';
 
 /**
  * @universeName The Beatles (Historical)

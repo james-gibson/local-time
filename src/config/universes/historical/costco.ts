@@ -1,4 +1,5 @@
-import { Universe, UniverseType, CommonUniverseIds } from '../../../core';
+import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { Universe, UniverseType } from '../../../core';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
