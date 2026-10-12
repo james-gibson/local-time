@@ -125,32 +125,103 @@ export class ZeroReferenceQueryService {
    * Convert between different zero-reference systems
    * Example: What time in Apollo 11 corresponds to H+1:00 in D-Day?
    */
+  /**
+   * Convert an address from one zero-reference frame into another.
+   *
+   * #56: this was a stub. It parsed well enough to look like it had worked, and then
+   * returned the literal string "converted_time" instead of an address. That is worse than
+   * an obvious failure: a caller could believe two addresses referred to the same moment.
+   *
+   * The old parse was wrong in a way that only stayed harmless because the result was
+   * discarded:
+   *
+   *   'nasa:apollo11:1969:launch:T-00:00:00'.split(':')
+   *     -> ['nasa','apollo11','1969','launch','T-00','00','00']
+   *
+   * A relative offset contains colons, so `slice(0, -2)` produced the source universe id
+   * `nasa:apollo11:1969:launch` and the source epoch `T-00`. Both wrong.
+   *
+   * The universe id is resolved here by matching the longest *registered* id that prefixes
+   * the address, rather than assuming a segment count. `parseRelativeAddress` hardcodes
+   * `parts.splice(0, 3)`, which is correct for the three-segment ids in this repo today and
+   * silently wrong for any other.
+   *
+   * Returns null when the address cannot be resolved, names an unknown universe or epoch,
+   * or carries an unparseable offset.
+   */
   async convertBetweenZeroReferenceSystems(
     sourceAddress: string,
     targetUniverseId: string,
     targetEpochId: string
   ): Promise<string | null> {
-    // Simple parsing for now - would use ZeroReferenceAddressing when available
-    const parts = sourceAddress.split(':');
-    if (parts.length < 3) return null;
-    
-    const sourceUniverseId = parts.slice(0, -2).join(':');
-    const sourceEpochId = parts[parts.length - 2];
-    
-    const sourceUniverse = this.universes.get(sourceUniverseId);
+    const source = this.resolveAddress(sourceAddress);
+    if (!source) return null;
+
+    const sourceUniverse = this.universes.get(source.universeId);
     const targetUniverse = this.universes.get(targetUniverseId);
-    
     if (!sourceUniverse || !targetUniverse) return null;
-    
-    const sourceEpoch = sourceUniverse.epochs[sourceEpochId] as ZeroReferenceEpoch;
+
+    const sourceEpoch = sourceUniverse.epochs[source.epochId] as ZeroReferenceEpoch;
     const targetEpoch = targetUniverse.epochs[targetEpochId] as ZeroReferenceEpoch;
-    
     if (!this.isZeroReferenceEpoch(sourceEpoch) || !this.isZeroReferenceEpoch(targetEpoch)) {
       return null;
     }
-    
-    // Simple conversion - would use proper ZeroReferenceAddressing when available
-    return `${targetUniverseId}:${targetEpochId}:converted_time`;
+
+    let relative: RelativeTimeComponents;
+    try {
+      const parsed = ZeroReferenceAddressing.parseRelativeTime(source.timeStr);
+      if (!parsed) return null;
+      relative = parsed;
+    } catch {
+      // parseRelativeTime throws on a non-match despite its declared `| null` return type.
+      return null;
+    }
+
+    const absolute = ZeroReferenceAddressing.relativeToAbsolute(relative, sourceEpoch);
+    const inTarget = ZeroReferenceAddressing.absoluteToRelative(absolute, targetEpoch);
+
+    // generateRelativeAddress rather than a hand-built string: it is the canonical
+    // formatter and wraps hours into days itself.
+    //
+    // Limitation worth stating plainly: it ignores the target epoch's own
+    // `relativeFormat`. Apollo 11 to D-Day is ~9,131 days, and no HH:MM:SS form can
+    // express that, so the day form is emitted regardless. The address is correct and
+    // lossless; it is not always re-parseable by `parseRelativeAddress`, whose pattern
+    // accepts only two-digit hours. Filed as a follow-up rather than fixed here.
+    return ZeroReferenceAddressing.generateRelativeAddress(
+      targetUniverseId,
+      targetEpochId,
+      inTarget.prefix,
+      inTarget.hours,
+      inTarget.minutes,
+      inTarget.seconds,
+      inTarget.milliseconds,
+    );
+  }
+
+  /**
+   * Split `<universeId>:<epochId>:<relative offset>` using the universe registry to decide
+   * where the universe id ends, rather than assuming a segment count.
+   */
+  private resolveAddress(
+    address: string,
+  ): { universeId: string; epochId: string; timeStr: string } | null {
+    let best: { universeId: string; epochId: string; timeStr: string } | null = null;
+    for (const universeId of this.universes.keys()) {
+      const prefix = `${universeId}:`;
+      if (!address.startsWith(prefix)) continue;
+      const rest = address.slice(prefix.length);
+      const sep = rest.indexOf(':');
+      if (sep === -1) continue;
+      const candidate = {
+        universeId,
+        epochId: rest.slice(0, sep),
+        timeStr: rest.slice(sep + 1),
+      };
+      // One universe id can prefix another, so take the longest match: more specific wins.
+      if (!best || candidate.universeId.length > best.universeId.length) best = candidate;
+    }
+    return best;
   }
   
   /**

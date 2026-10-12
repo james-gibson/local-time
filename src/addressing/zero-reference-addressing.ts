@@ -101,13 +101,30 @@ export class ZeroReferenceAddressing {
       const ms = milliseconds.toString().padStart(3, '0');
       return `${h}:${m}:${s}.${ms}`;
     } else if (days > 0) {
-      return `${d} ${h}:${m}`;
+      // Seconds were dropped here. Any offset past 24h produced an address that silently
+      // lost them: `H+9171 07:04` stood for 07:04:00, not 07:04:46. Caught by #56's
+      // round-trip test, which re-derived the absolute instant from the address and came
+      // back 46 seconds short.
+      //
+      // Note the day form still cannot be read back by `parseRelativeTime`, whose pattern
+      // accepts only two-digit hours. That asymmetry predates this change and is filed
+      // separately - it is a parser limitation, not a formatter one.
+      return `${d} ${h}:${m}:${s}`;
     }
     
     return `${h}:${m}:${s}`;
   }
   
-  private static parseRelativeTime(timeStr: string): RelativeTimeComponents | null {
+  /**
+   * Public so `ZeroReferenceQueryService` can reuse it. #56's cross-system conversion has
+   * to parse a relative offset out of an address, and a second hand-rolled parser here
+   * would drift from this one.
+   *
+   * Note the declared `| null` is a lie: this **throws** on a non-match. Callers must
+   * guard rather than null-check. Filed separately - not changed here, because callers
+   * currently rely on the throw.
+   */
+  public static parseRelativeTime(timeStr: string): RelativeTimeComponents | null {
     const match = timeStr.match(/^([A-Z][+-])((\d{2}):(\d{2}):(\d{2})(?:\.(\d{3}))?)$/);
     const errMsg = `This isn't a relative timestamp string: ${timeStr}.`;
     // console.trace({timeStr})
