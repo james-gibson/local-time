@@ -143,30 +143,46 @@ export class UniverseRegistry {
     return undefined;
   }
   
-  async registerNetwork(network: UniverseNetwork) {
-    if (network.universes && network.universes.size > 0) {
-      for (const universe of network.universes?.values()) {
-        const exists = this.getUniverse(universe);
+  /**
+   * Register a network and index its members.
+   *
+   * Never throws. A network is a grouping, not a universe, and a problem with one member
+   * must not cost the caller the network itself.
+   *
+   * #57: the previous version registered the network *as a universe* under its own
+   * `networkId`:
+   *
+   *     this.registerUniverse(network.networkId, network as unknown as Universe);
+   *
+   * `registerUniverse` throws for an id that is not a valid universe id, and a network id
+   * never is — `nasa` is not `category:identifier:year`. Because this method was `async` and
+   * its callers did not await it, the throw escaped as an unhandled rejection and
+   * `this.networks.set(...)` below never ran. So **a network with any members could never
+   * be registered at all.** `disney` and `marvel` appeared to work only because their
+   * member sets are empty, which is also why this went unnoticed for so long.
+   *
+   * Ordering is the fix: the network is stored first, so nothing after this point can
+   * prevent it from being registered.
+   *
+   * The alias is set only when the network has no existing alias, so a multi-member network
+   * resolves to its first member deterministically rather than whichever member happened to
+   * be iterated last.
+   */
+  async registerNetwork(network: UniverseNetwork): Promise<void> {
+    if (!network?.networkId) return;
+    this.networks.set(network.networkId, network);
 
-        if (!exists) {
-          if (isValidUniverseId(universe)) {
-            const universeId = createUniverseId(universe);
-            this.aliases.set(network.networkId, universeId);
+    for (const memberId of network.universes ?? []) {
+      try {
+        if (!this.getUniverse(memberId) && isValidUniverseId(memberId)) {
+          if (!this.aliases.has(network.networkId)) {
+            this.aliases.set(network.networkId, createUniverseId(memberId));
           }
-          // console.error('uhh')
-          this.registerUniverse(network.networkId, network as unknown as Universe);
         }
+      } catch (error) {
+        console.warn(`Network "${network.networkId}" member "${memberId}" not indexed:`, error);
       }
     }
-    if (!network.networkId) {
-      const id = (network as any)['universeId'] ?? '';
-      const alreadyExists = await this.getUniverse(id);
-      !alreadyExists && this.registerUniverse(id, network as unknown as Universe);
-      console.error('this probably is wrong or not fully accurate: ', {alreadyExists, id, network,n:this.networks});
-    }
-
-
-    this.networks.set(network.networkId, network);
   }
   
   getNetwork(networkId: string): UniverseNetwork | undefined {
@@ -181,7 +197,7 @@ export class UniverseRegistry {
     try {
       const builtIn = await import('./built-in-universes');
       for (const network of builtIn.default.networks || []) {
-        this.registerNetwork(network);
+        await this.registerNetwork(network);
       }
       for (const entry of builtIn.default.universes) {
         for (const universe of Array.isArray(entry) ? entry : [entry]) {
@@ -205,7 +221,7 @@ export class UniverseRegistry {
     const configs = await this.configLoader.loadConfigurations();
     for (const config of configs) {
       for (const network of config.networks || []) {
-        this.registerNetwork(network);
+        await this.registerNetwork(network);
       }
       for (const universe of config.universes) {
         this.registerUniverse(universe.universeId,universe);

@@ -241,7 +241,7 @@ export const UNIVERSE_ID_PATTERNS = {
    * - **Not one `technical:` id exists in the codebase.** `technology:` is what the
    *   data actually uses — `technology:sccs:1972`, `technology:git:2005`,
    *   `technology:electric_telegraph:1837`, `technology:transistor:1947`,
-   *   `technology:world_wide_web:1989`. Those validated only via the `FALLBACK`
+   *   `technology:world_wide_web:1989`. Those validated only via `ANY_YEAR_TERMINATED`
    *   catch-all, never as a declared domain.
    * - The wildcard-only span rejected every real technology id, all of which carry a
    *   year.
@@ -266,7 +266,35 @@ export const UNIVERSE_ID_PATTERNS = {
   SYSTEM: /^system:[a-z0-9_]+(?::[a-z0-9_]+)?:(\*|v\d+|\d{4}|\d{4}-\d{4})$/,
 
   SPARKLE_FART: /^8J\+mhPCfkqgu.*$/,
-  FALLBACK: /^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/
+
+  /**
+   * The permissive escape hatch, renamed from `FALLBACK` in #50.
+   *
+   * The old name implied a shape it does not enforce. The first character class includes
+   * the colon, so this is **not** a three-segment pattern — it matches any id whose final
+   * segment is a four-digit year and whose other segments contain no disallowed character:
+   *
+   *   a:b:1999                  -> true
+   *   a:b:c:1999                -> true
+   *   this:is:not:a:real:id:1999 -> true
+   *
+   * `ANY_YEAR_TERMINATED` says what it actually does: it constrains the *suffix*, and
+   * nothing else. `isValidUniverseId` is `Object.values(UNIVERSE_ID_PATTERNS).some(...)`,
+   * so this pattern is a universal pass-through and the validator it feeds has almost no
+   * discriminating power left. That is a known cost, not a bug:
+   *
+   *   - `hearing:rogers_commission:1986` validates as **FILM**, because FILM's pattern is
+   *     the same generic three-segment shape. #57 hit this: the id for a congressional
+   *     hearing would have been accepted as a film.
+   *   - four-segment ids built by the three-argument `createTechnicalUniverseId` are
+   *     accepted although no declared pattern covers them (#51).
+   *
+   * Tightening this to a real three-segment shape is the better fix and is still open; it
+   * needs an inventory of every id that currently validates only here. Until then the
+   * permissive behaviour is deliberately unchanged — **the rename must not alter which ids
+   * pass**, and `universe-id-fallback.test.ts` pins that.
+   */
+  ANY_YEAR_TERMINATED: /^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/
 } as const;
 
 /**

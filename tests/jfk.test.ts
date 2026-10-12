@@ -106,28 +106,45 @@ describe(' JFK-NASA Space Race Timeline Test', () => {
 
             expect(disasterEra).toBeDefined();
 
-            if (disasterEra) {
+            {
+                expect(disasterEra!.start).toBeDefined();
                 // Verify Rogers Commission followed Challenger disaster
                 const challenger = registry.getUniverse('nasa:challenger:1986');
-                const rogersCommission = registry.getUniverse('hearing:rogers_commission:1986');
+                // Was `hearing:rogers_commission:1986`. That id validates as **FILM** -
+                // UNIVERSE_ID_PATTERNS.FILM is the generic three-segment shape, so a
+                // congressional commission would be typed as a movie. See #50.
+                const rogersCommission = registry.getUniverse('history:rogers_commission:1986');
 
-                if (challenger && rogersCommission &&
-                    challenger.temporalStructure && rogersCommission.epochs && rogersCommission.epochs.hearing) {
+                {
+                    expect(challenger).toBeDefined();
+                    expect(rogersCommission).toBeDefined();
 
-                    const disasterEvent = challenger.temporalStructure.keyframes.find(k =>
+                    const disasterEvent = challenger!.temporalStructure!.keyframes.find(k =>
                         k.tags.includes('disaster') || k.tags.includes('explosion')
                     );
 
                     if (disasterEvent) {
-                        const timeToHearing = (rogersCommission?.epochs?.hearing?.startTime ?? BigInt(0)) - disasterEvent.timestamp;
+                        expect(disasterEvent).toBeDefined();
+                    // Read through `?.` and assert, rather than stacking non-null assertions:
+                    // the registry normalises epochs at registration time and may leave
+                    // `startTime` absent, which is exactly the case the old truthiness guard
+                    // was silently absorbing.
+                    // Keyed by `epochId`, not by the layer key. The registry normalises
+                    // epochs at registration and indexes them by `epochId`; the existing
+                    // fixtures all namespace theirs (`apollo11:launch`, `dday:hhour`), so
+                    // `epochs.hearing` was never a valid lookup. The console warns about
+                    // epochs *missing* an `epochId`, which then fall back to the layer key -
+                    // so the two only coincide for a universe that omits `epochId` entirely.
+                    const hearingEpoch = rogersCommission?.epochs?.['rogers:hearing'];
+                    expect(hearingEpoch).toBeDefined();
+                    const timeToHearing = hearingEpoch!.startTime! - disasterEvent!.timestamp;
                         const daysToHearing = Number(timeToHearing / (BigInt(24 * 60 * 60 * 1000) * 1000000n));
 
                         // Rogers Commission should start within 7 days of disaster
                         expect(daysToHearing).toBeGreaterThanOrEqual(0);
                         expect(daysToHearing).toBeLessThan(10);
 
-                        // console.log(`Congressional Response Time:`);
-                        // console.log(`Days from Challenger disaster to Rogers Commission: ${daysToHearing}`);
+
                     }
                 }
             }
@@ -173,12 +190,16 @@ describe(' JFK-NASA Space Race Timeline Test', () => {
         const registry = localTime.getRegistry();
         const nasaNetwork = registry.getNetwork('nasa');
 
-        if (nasaNetwork && nasaNetwork.eras) {
-            const culturalEra = nasaNetwork.eras.find(e => e.eraId === 'cultural_impact');
-
+        // The truthiness guard that wrapped this test is gone. `getNetwork('nasa')` returned
+        // undefined, so `if (nasaNetwork && ...)` was false and the body never ran: the test
+        // passed without asserting anything. #57.
+        expect(nasaNetwork).toBeDefined();
+        expect(nasaNetwork!.eras).toBeDefined();
+        {
+            const culturalEra = nasaNetwork!.eras.find(e => e.eraId === 'cultural_impact');
             expect(culturalEra).toBeDefined();
+            {
 
-            if (culturalEra) {
                 // Test Apollo 13 mission vs Apollo 13 movie temporal relationship
                 const apollo13Mission = registry.getUniverse('nasa:apollo13:1970');
                 const apollo13Movie = registry.getUniverse('movie:apollo13:1995');
@@ -186,16 +207,23 @@ describe(' JFK-NASA Space Race Timeline Test', () => {
                 if (apollo13Mission?.epochs && apollo13Movie &&
                     apollo13Mission.epochs?.mission && apollo13Movie?.epochs?.theatrical) {
 
-                    const missionDate = apollo13Mission.epochs?.mission?.startTime ?? 0;
-                    const movieDate = apollo13Movie.epochs?.theatrical?.startTime ?? 0;
-                    const yearsBetween = ((BigInt(movieDate) * 1000000n) - (BigInt(missionDate) * 1000000n)) / (BigInt(365 * 24 * 60 * 60 * 1000) * 1000000n);
+                    const missionDate = apollo13Mission.epochs!.mission!.startTime as bigint;
+                    const movieDate = apollo13Movie.epochs!.theatrical!.startTime as bigint;
 
-                    // Movie came out 25 years after mission
-                    expect(yearsBetween).toBeGreaterThan(24);
-                    expect(yearsBetween).toBeLessThan(10);
+                    // `startTime` is ALREADY nanoseconds. The old code multiplied both by
+                    // 1000000n again then divided by a nanosecond year, so `yearsBetween`
+                    // came out around 0.0000256 - a seconds/ns error, the same class as the
+                    // one #8's proposed data carried. Invisible because the whole test was
+                    // unreachable.
+                    const NS_PER_YEAR = 31_557_600n * 1_000_000_000n; // 365.25 days
+                    const yearsBetween = Number(movieDate - missionDate) / Number(NS_PER_YEAR);
 
-                    console.log(`Cultural Impact Delay:`);
-                    console.log(`Years from Apollo 13 mission to movie: ${Number(yearsBetween).toFixed(1)}`);
+                    // 1970-04-11 to 1995-06-30 is ~25.2 years. The old bounds were
+                    // `toBeGreaterThan(24)` and `toBeLessThan(10)` - mutually impossible, so
+                    // this could never have held even with the units right.
+                    expect(Number.isFinite(yearsBetween)).toBe(true);
+                    expect(yearsBetween).toBeGreaterThan(25);
+                    expect(yearsBetween).toBeLessThan(26);
                 }
             }
         }
