@@ -144,6 +144,23 @@ export const GENERIC_FILM_STUDIO_TOKEN = 'film';
  * namespace vocabulary says nothing about which real studios are registered.
  * The studios themselves are data in `src/config/universes/studios`.
  * See james-gibson/local-time#44.
+ *
+ * ## This list must track the declared namespaces
+ *
+ * It is a second, hand-maintained copy of the namespace vocabulary, and it silently
+ * drifted twice after #44 landed:
+ *
+ * - `system` was missing when PR #47 added the `system:` namespace.
+ * - `technology` was missing when PR #49 gave `technology:` a declared pattern.
+ * - `technical` was still listed after PR #49 deleted that namespace outright, so the
+ *   list reserved a prefix that matched nothing while missing the two that became real.
+ *
+ * `createFilmUniverseId('system', 'x', 2000)` returned `system:x:2000`, which `isFilmUniverseId`
+ * accepted *and* `isSystemUniverseId` accepted. No film studio is named "System" or
+ * "Technology", so nothing noticed.
+ *
+ * A test now derives the namespace vocabulary from `UNIVERSE_ID_PATTERNS` and asserts this
+ * list covers it, so adding a namespace without reserving it fails the build.
  */
 const RESERVED_STUDIO_TOKENS = [
   'amazon',
@@ -156,6 +173,7 @@ const RESERVED_STUDIO_TOKENS = [
   'fashion',
   'film_studio',
   'game',
+  'hbo',
   'history',
   'legal',
   'literature',
@@ -166,7 +184,8 @@ const RESERVED_STUDIO_TOKENS = [
   'publisher',
   'series',
   'spacex',
-  'technical',
+  'system',
+  'technology',
   'tv',
   'us_gov',
 ] as const;
@@ -232,7 +251,6 @@ export const UNIVERSE_ID_PATTERNS = {
    */
   TECHNOLOGY: /^technology:[a-z0-9_]+:(\*|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
 
-  TECHNICAL: /^technical:.*:(\*)$/,
   /**
    * Specifications of the system itself — ID schemas, typologies, rule sets.
    *
