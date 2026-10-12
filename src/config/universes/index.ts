@@ -30,6 +30,7 @@ import {usHistoryUniverses} from "./us-history"
 import {pixarFilmUniverses} from "./pixar"
 import {versionControlUniverses} from "./version-control"
 import {wikidataTypologyUniverses} from "./system"
+import {hillaryClintonUniverses} from "./people/hillary-clinton"
 export const allUniverses = [
     ...filmUniverses,
   ...pixarFilmUniverses,
@@ -62,6 +63,7 @@ export const allUniverses = [
   ...gamestopUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
+  ...hillaryClintonUniverses,
 ];
 
 export const allNetworks = [
