@@ -1,5 +1,5 @@
 import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalKeyframe, TemporalSegment, TemporalLayer, RealityRelation, Attribution, TemporalStructure, WindowingStrategy, RealityRelationTypeEnum } from './types';
-import { UniverseId } from './universe-ids';
+import { UniverseId, createFilmUniverseId } from './universe-ids';
 
 export class UniverseBuilder {
   private universe: Partial<Universe>;
@@ -25,7 +25,15 @@ export class UniverseBuilder {
 
   // Fluent API methods for different universe types
   film(studio: string, title: string, year: number, subtitle?: string): this {
-    const id = subtitle ? `${studio}:${title}_${subtitle}:${year}` : `${studio}:${title}:${year}`;
+    // Route through the validating factory so a film universe can never carry an
+    // ID the film validators reject. This method used to concatenate — studios
+    // like `Saturn_International` and titles like `Across the Universe` passed
+    // straight through (local-time#26).
+    const id = createFilmUniverseId(
+      studio,
+      subtitle ? `${title}_${subtitle}` : title,
+      year,
+    );
     this.universe.universeId = id;
     this.universe.type = UniverseType.FILM;
     if (this.universe.identifiers) {

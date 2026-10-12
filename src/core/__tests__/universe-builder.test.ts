@@ -288,4 +288,38 @@ describe('UniverseBuilder', () => {
       expect(universe.metadata?.cultural_significance).toBe(0.95);
     });
   });
+
+  describe('Film IDs are validated at build time (local-time#26)', () => {
+    test('normalises upper-case studios and punctuated titles', () => {
+      const universe = new UniverseBuilder()
+        .film('Saturn_International', 'Piranha II: The Spawning', 1982)
+        .build();
+
+      expect(universe.universeId).toBe('saturn_international:piranha_ii_the_spawning:1982');
+      expect(universe.identifiers.primary).toBe('saturn_international:piranha_ii_the_spawning:1982');
+    });
+
+    test('agrees with the hand-normalised ID authors used to write by hand', () => {
+      const universe = new UniverseBuilder()
+        .film('columbia', 'Across the Universe', 2007)
+        .build();
+
+      expect(universe.universeId).toBe('columbia:across_the_universe:2007');
+    });
+
+    test('keeps the subtitle suffix in the ID fragment', () => {
+      const universe = new UniverseBuilder()
+        .film('pixar', 'toy_story_fictional_short', 2005, 'monopoly_night')
+        .build();
+
+      expect(universe.universeId).toBe('pixar:toy_story_fictional_short_monopoly_night:2005');
+    });
+
+    test('rejects a fragment that normalises to nothing', () => {
+      // #44 split validation: the studio name is no longer checked here, so the
+      // failure has to be a malformed fragment, not an unregistered studio.
+      expect(() => new UniverseBuilder().film('disney', '!!!', 2020)).toThrow();
+      expect(() => new UniverseBuilder().film('disney', 'title', 20)).toThrow();
+    });
+  });
 });
