@@ -499,6 +499,46 @@ export function createTechnologyUniverseId(name: string): TechnologyUniverseId {
   }
   return id as TechnologyUniverseId;
 }
+
+/**
+ * A qualified, versioned, dated id: `<category>:<identifier>[:<version>]:<currentYear>`.
+ *
+ * **Not to be confused with {@link createTechnologyUniverseId}**, one line above. The
+ * names differ by four characters and mean unrelated things:
+ *
+ * - `createTechnologyUniverseId(name)` — a *technology universe*, `technology:<name>:*`.
+ * - `createTechnicalUniverseId(category, identifier, version?)` — a generic namespaced
+ *   identifier, e.g. `system:secure_ledger:authentication_v1:2026`. Not a technology at
+ *   all; "technical" here means "machine-facing", and `category` is free-form
+ *   (`system`, `log`, …).
+ *
+ * This function was previously defined **twice, byte-identically**, in
+ * `core/ids/id-creators.ts` and `core/types.ts` (local-time#51). Two copies meant the
+ * identity depended on the import path: `config/universes/james/solar.ts` imported the
+ * `id-creators` one, `config/universes/cybersecurity/access-control.ts` the `types` one,
+ * and neither could see the other's. The single definition lives here, and both modules
+ * re-export it, so every import path resolves to the same function.
+ *
+ * Two things this still does that are worth knowing:
+ *
+ * - **It stamps `new Date().getFullYear()`**, so the id is not deterministic across
+ *   years. That behaviour is preserved deliberately — changing it would alter the ids of
+ *   five live universes — but it makes the function untestable against a fixed expected
+ *   value. Not yet fixed; tracked in #51.
+ * - **It does not validate.** Unlike the other factories in this file it returns
+ *   `id as UniverseId` without checking against any pattern, so a four-segment id like
+ *   `system:secure_ledger:authentication_v1:2026` is returned unchecked.
+ */
+export function createTechnicalUniverseId(
+  category: string,
+  identifier: string,
+  version?: string,
+): UniverseId {
+  const versionSuffix = version ? `:${version}` : '';
+  const id = `${category}:${identifier}${versionSuffix}:${new Date().getFullYear()}`;
+  return id as UniverseId;
+}
+
 export function createSeriesUniverseId(network: string, title: string, year: number): SeriesUniverseId {
   const id = `${network}:${title}:${year}`;
   if (!isSeriesUniverseId(id)) {

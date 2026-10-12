@@ -789,15 +789,18 @@ export enum CopyrightStatus {
   PRIVATE = 'private'
 }
 
-// Function to create technical universe IDs
-export function createTechnicalUniverseId(category: string, identifier: string, version?: string): UniverseId {
-  const versionSuffix = version ? `:${version}` : '';
-  const id = `${category}:${identifier}${versionSuffix}:${new Date().getFullYear()}`;
-  return id as UniverseId;
-}
+// `createTechnicalUniverseId` used to be defined here, byte-identically to a second
+// copy in `core/ids/id-creators.ts` (local-time#51). It now lives in
+// `core/universe-ids.ts` and is re-exported below with the other id factories, so the
+// `core/types` import path used by config/universes/cybersecurity/access-control.ts
+// keeps resolving.
 
-// Re-export createHistoricalUniverseId from universe-ids for compatibility
-export { createHistoricalUniverseId,createTechnologyUniverseId } from './universe-ids';
+// Re-export the canonical id factories from universe-ids for compatibility.
+export {
+  createHistoricalUniverseId,
+  createTechnologyUniverseId,
+  createTechnicalUniverseId,
+} from './universe-ids';
 
 
 // Relationship types for connections
