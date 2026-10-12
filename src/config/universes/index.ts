@@ -30,6 +30,9 @@ import {usHistoryUniverses} from "./us-history"
 import {pixarFilmUniverses} from "./pixar"
 import {versionControlUniverses} from "./version-control"
 import {wikidataTypologyUniverses} from "./system"
+import {nasaUniverses, nasaNetwork} from "./nasa"
+import {rogersCommissionUniverse} from "./us-gov/rogers-commission"
+import {apollo13FilmUniverse} from "./films/apollo13-film"
 import {hillaryClintonUniverses} from "./people/hillary-clinton"
 import {hillaryClintonConspiracyTheoriesUniverses} from "./people/clinton-conspiracy-theories"
 import {hillaryClintonConspiracyRebuttalsUniverses} from "./people/clinton-conspiracy-rebuttals"
@@ -65,13 +68,19 @@ export const allUniverses = [
   ...gamestopUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
+  ...nasaUniverses,
+  rogersCommissionUniverse,
+  apollo13FilmUniverse,
   ...hillaryClintonUniverses,
   ...hillaryClintonConspiracyTheoriesUniverses,
   ...hillaryClintonConspiracyRebuttalsUniverses,
 ];
 
 export const allNetworks = [
-  ...universeNetworks
+  ...universeNetworks,
+  // Added here rather than in `disney/networks.ts`, which exports `universeNetworks`, so
+  // that the nasa network does not create a disney -> nasa import edge.
+  nasaNetwork,
 ];
 
 export { 

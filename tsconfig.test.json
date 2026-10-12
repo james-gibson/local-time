@@ -1,0 +1,25 @@
+{
+  "//": [
+    "Type-checks the test suite, which `tsconfig.json` never did.",
+    "",
+    "`tsconfig.json` sets `\"include\": [\"src/**/*\", \"docs/*\"]`, so `npx tsc --noEmit`",
+    "has never examined a single file in `tests/`. Every 'tsc is clean' claim made against",
+    "this repo was therefore blind to the test suite — which is where the real damage lives.",
+    "",
+    "Concretely: an unbalanced brace in tests/jfk.test.ts that closed a `describe` early,",
+    "and a `localTime` reference that fell out of scope, both compiled invisibly and were",
+    "caught only because ts-jest type-checks each file it runs.",
+    "",
+    "`rootDir` is deliberately not inherited as `src`: including `tests/**/*` under that",
+    "rootDir is TS6059 in every file, which is a build-layout complaint rather than a type",
+    "error and would mask real ones. There is no `outDir` here because this config is only",
+    "ever used with --noEmit; the shipped build continues to use tsconfig.json unchanged."
+  ],
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "types": ["node", "jest"]
+  },
+  "include": ["src/**/*", "tests/**/*"]
+}
