@@ -28,6 +28,7 @@ import {idiocracyUniverse} from "./films/20th"
 import {usHistoryUniverses} from "./us-history"
 import {pixarFilmUniverses} from "./pixar"
 import {versionControlUniverses} from "./version-control"
+import {wikidataTypologyUniverses} from "./system"
 export const allUniverses = [
     ...filmUniverses,
   ...pixarFilmUniverses,
@@ -55,6 +56,7 @@ export const allUniverses = [
   ...presidentialElectionUniverses,
   ...usHistoryUniverses,
   ...versionControlUniverses,
+  ...wikidataTypologyUniverses,
   ...gamestopUniverses,
   idiocracyUniverse,
   ...costcoUniverses,

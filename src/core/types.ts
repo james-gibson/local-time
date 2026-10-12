@@ -598,7 +598,13 @@ export enum UniverseType {
   LEGAL_TIMELINE = 'legal_timeline',
   INSTITUTIONAL_PERIOD = 'institutional_period',
   TECHNICAL_SPECIFICATION = 'technical_specification',
-  TECHNICAL_LOG = 'technical_log'
+  TECHNICAL_LOG = 'technical_log',
+  /**
+   * A specification of the system itself — an ID scheme, a typology, a validation
+   * rule set. Not an entity that happened in time, and not a work: a rule that
+   * other universes are measured against. See james-gibson/local-time#9.
+   */
+  ABSTRACT_CONCEPT = 'abstract_concept'
 }
 
 export enum ReferenceType {

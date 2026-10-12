@@ -45,6 +45,8 @@ export type BiographyUniverseId = UniverseId & { readonly __biographyBrand: true
 export type GameUniverseId = UniverseId & { readonly __gameBrand: true };
 export type CyberSecurityUniverseId = UniverseId & { readonly __cyberSecurityBrand: true };
 export type TechnicalUniverseId = UniverseId & { readonly __technicalBrand: true };
+/** A specification of the system itself — an ID schema, a typology, a rule set. */
+export type SystemUniverseId = UniverseId & { readonly __systemBrand: true };
 
 /**
  * The operating span of a film-studio universe.
@@ -99,6 +101,7 @@ export type TypedUniverseId =
   | CyberSecurityUniverseId
     | TechnicalUniverseId
   | FilmStudioUniverseId
+  | SystemUniverseId
   | GameUniverseId;
 
 /**
@@ -189,6 +192,19 @@ export const UNIVERSE_ID_PATTERNS = {
   GAME: /^(game|anime)[a-z0-9_]?:[a-z0-9_]+:[a-z0-9_]+:\d{4}$/,
   CYBERSECURITY: /^cybersecurity:.*$/,
   TECHNICAL: /^technical:.*:(\*)$/,
+  /**
+   * Specifications of the system itself — ID schemas, typologies, rule sets.
+   *
+   * The `<span>` is a version (`v1`, `v2`) rather than a date, because a schema is
+   * versioned, not dated: `system:ids:static_id_schema:v2` supersedes `…:v1`
+   * without the old one ceasing to have existed. A year is also accepted, for the
+   * rare case where a spec is anchored to when it was written down.
+   *
+   * The slug is allowed a second segment (`ids:static_id_schema`) so a spec can
+   * namescape under a subsystem without inventing a new domain. Two levels is the
+   * cap; deeper is a sign the thing belongs in its own namespace.
+   */
+  SYSTEM: /^system:[a-z0-9_]+(?::[a-z0-9_]+)?:(\*|v\d+|\d{4}|\d{4}-\d{4})$/,
   SPARKLE_FART: /^8J\+mhPCfkqgu.*$/,
   FALLBACK: /^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/
 } as const;
@@ -245,6 +261,33 @@ export function isLegalUniverseId(id: string): id is LegalUniverseId {
 }
 export function isTechnicalUniverseId(id: string): id is TechnicalUniverseId {
   return UNIVERSE_ID_PATTERNS.TECHNICAL.test(id);
+}
+
+export function isSystemUniverseId(id: string): id is SystemUniverseId {
+  return UNIVERSE_ID_PATTERNS.SYSTEM.test(id);
+}
+
+/**
+ * A `system:` universe ID: `system:<slug>[:<subsystem>]:<version>`.
+ *
+ * The span is a *version*, not a date — see {@link UNIVERSE_ID_PATTERNS.SYSTEM}.
+ * `name` may carry one colon (`ids:static_id_schema`) to nest under a subsystem;
+ * spaces and hyphens in either part are normalised to underscores.
+ */
+export function createSystemUniverseId(name: string, version: string | number): SystemUniverseId {
+  // `toIdFragment` collapses every non-`[a-z0-9_]` char, so the subsystem colon has
+  // to survive normalisation — split first, normalise each segment, rejoin.
+  const segments = name.split(':').map(toIdFragment);
+  if (segments.length > 2 || segments.some((s) => s === '')) {
+    throw new Error(
+      `system: name must be <slug> or <slug>:<subsystem>, got ${JSON.stringify(name)}`,
+    );
+  }
+  const id = `system:${segments.join(':')}:${String(version).trim().toLowerCase()}`;
+  if (!isSystemUniverseId(id)) {
+    throw new Error(`Invalid system universe ID format: ${id}`);
+  }
+  return id as SystemUniverseId;
 }
 
 export function isSparkleFartUniverseId(id: string): id is SparkleFartUniverseId {
