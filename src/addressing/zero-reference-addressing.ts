@@ -46,7 +46,11 @@ export class ZeroReferenceAddressing {
     relativeTime: RelativeTimeComponents,
     zeroEpoch: ZeroReferenceEpoch
   ): bigint {
-    const totalMs = (relativeTime.hours * 3600 + relativeTime.minutes * 60 + relativeTime.seconds) * 1000 + (relativeTime.milliseconds || 0);
+    // `days` was dropped here. RelativeTimeComponents carries it as an optional field and
+    // generateRelativeAddress emits it, so every multi-day offset silently resolved to the
+    // same instant as its hours-only form: T+1 day and T+0 hours were indistinguishable.
+    // #55's fix depends on this conversion being correct for ranges beyond a single day.
+    const totalMs = ((relativeTime.days || 0) * 86400 + relativeTime.hours * 3600 + relativeTime.minutes * 60 + relativeTime.seconds) * 1000 + (relativeTime.milliseconds || 0);
     const offsetNs = BigInt(totalMs) * 1000000n;
 
     if (relativeTime.prefix.endsWith('-')) {

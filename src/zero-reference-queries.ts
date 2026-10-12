@@ -1,4 +1,5 @@
 import { Universe, ZeroReferenceEpoch } from './temporal-system';
+import { ZeroReferenceAddressing } from './addressing/zero-reference-addressing';
 // import { ZeroReferenceAddressing, RelativeTimeComponents } from './zero-reference-addressing';
 
 export interface RelativeTimeComponents {
@@ -168,18 +169,49 @@ export class ZeroReferenceQueryService {
     const epoch = universe.epochs[epochId] as ZeroReferenceEpoch;
     if (!this.isZeroReferenceEpoch(epoch)) return [];
     
-    // Simple conversion for now - would use ZeroReferenceAddressing when available
-    const fromAbsolute = epoch.zeroPoint;
-    const toAbsolute = epoch.zeroPoint + 3600000000000n; // +1 hour as example
-    
-    const startTime = fromAbsolute < toAbsolute ? fromAbsolute : toAbsolute;
-    const endTime = fromAbsolute < toAbsolute ? toAbsolute : fromAbsolute;
-    
-    return universe.temporalStructure?.keyframes?.filter(
+    // Resolve both bounds through the addressing module rather than inventing a second
+    // conversion here. The previous implementation ignored both arguments entirely and
+    // returned [zeroPoint, zeroPoint + 1h], so a query for T-00:10:00..T+00:05:00 silently
+    // returned the hour *after* liftoff - which excluded go_no_go_poll at 13:26:30, the
+    // very event a pre-liftoff range exists to ask about.
+    //
+    // The prefix is validated against the epoch's own before/after prefixes. A mismatch
+    // used to be impossible to detect because the prefix was never read; guessing the sign
+    // would return a well-formed timestamp for the wrong interval, which is the failure
+    // mode this function is being fixed for.
+    this.assertUsablePrefix(epoch, fromRelative);
+    this.assertUsablePrefix(epoch, toRelative);
+
+    const fromAbsolute = ZeroReferenceAddressing.relativeToAbsolute(fromRelative, epoch);
+    const toAbsolute = ZeroReferenceAddressing.relativeToAbsolute(toRelative, epoch);
+
+    // A caller may legitimately pass the bounds in either order (e.g. an address dragged
+    // backwards), so normalise rather than returning nothing.
+    const startTime = fromAbsolute <= toAbsolute ? fromAbsolute : toAbsolute;
+    const endTime = fromAbsolute <= toAbsolute ? toAbsolute : fromAbsolute;
+
+    const keyframes = universe.temporalStructure?.keyframes ?? [];
+    return keyframes.filter(
       (keyframe: any) => keyframe.timestamp >= startTime && keyframe.timestamp <= endTime
-    ) || [];
+    );
   }
   
+  /**
+   * A relative bound is only meaningful against the epoch that interprets it. An
+   * unrecognised prefix is rejected rather than guessed at, because a wrong guess produces
+   * a valid-looking timestamp for the wrong interval - indistinguishable from a correct
+   * answer to anyone reading the result.
+   */
+  private assertUsablePrefix(epoch: ZeroReferenceEpoch, relative: RelativeTimeComponents): void {
+    const known = [epoch.beforePrefix, epoch.afterPrefix];
+    if (!known.includes(relative.prefix)) {
+      throw new Error(
+        `Unrecognised prefix "${relative.prefix}" for epoch "${epoch.epochId}"; ` +
+        `expected one of ${known.map(p => `"${p}"`).join(' or ')}.`
+      );
+    }
+  }
+
   private isZeroReferenceEpoch(epoch: any): epoch is ZeroReferenceEpoch {
     return epoch && 
            typeof epoch.zeroPoint === 'bigint' &&
