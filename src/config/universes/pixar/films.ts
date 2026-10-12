@@ -1,4 +1,4 @@
-import { Universe } from '../../../core/types';
+import { TimePrecision, Universe } from '../../../core/types';
 import { UniverseBuilder } from '../../../core/universe-builder';
 import { createFilmUniverseId } from '../../../core/universe-ids';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
@@ -109,9 +109,16 @@ export const createPixarFilmUniverse = (id: string, data: PixarFilmMetadata): Un
       .addRuntimeKeyframe(57, 18, 'strange_new_planet', 0.85, ['dialogue_reference', 'star_wars_reference', 'buzz_lightyear']);
   }
 
-  // 'Elio' has no confirmed runtime yet (0), so no runtime epoch is modelled.
+  // 'Elio' has no confirmed runtime yet (0), so no runtime epoch is modelled. It still needs
+  // *some* temporal content, though: #45 made `build()` reject a universe carrying no
+  // segments, keyframes or epochs, and this was the one entry that had none. Its release
+  // year is known, so that is the epoch - a real temporal fact, not a placeholder.
   if (data.runtimeMinutes > 0) {
     builder.withRuntime(data.runtimeMinutes);
+  } else {
+    builder.withDateRange(
+      data.releaseYear, 1, 1, data.releaseYear, 12, 31, TimePrecision.DAY,
+    );
   }
 
   const universe = builder.build();

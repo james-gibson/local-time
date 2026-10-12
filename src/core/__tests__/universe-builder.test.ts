@@ -293,6 +293,11 @@ describe('UniverseBuilder', () => {
     test('normalises upper-case studios and punctuated titles', () => {
       const universe = new UniverseBuilder()
         .film('Saturn_International', 'Piranha II: The Spawning', 1982)
+        // #45: build() validates, so a universe has to be complete enough to build.
+        // These three assert only on the id, so nothing they check is affected.
+        .withRealityRelation('pure_fiction', 1.0)
+        .withPublicDomain(['Test'])
+        .withRuntime(100)
         .build();
 
       expect(universe.universeId).toBe('saturn_international:piranha_ii_the_spawning:1982');
@@ -302,6 +307,9 @@ describe('UniverseBuilder', () => {
     test('agrees with the hand-normalised ID authors used to write by hand', () => {
       const universe = new UniverseBuilder()
         .film('columbia', 'Across the Universe', 2007)
+        .withRealityRelation('pure_fiction', 1.0)
+        .withPublicDomain(['Test'])
+        .withRuntime(100)
         .build();
 
       expect(universe.universeId).toBe('columbia:across_the_universe:2007');
@@ -310,6 +318,9 @@ describe('UniverseBuilder', () => {
     test('keeps the subtitle suffix in the ID fragment', () => {
       const universe = new UniverseBuilder()
         .film('pixar', 'toy_story_fictional_short', 2005, 'monopoly_night')
+        .withRealityRelation('pure_fiction', 1.0)
+        .withPublicDomain(['Test'])
+        .withRuntime(100)
         .build();
 
       expect(universe.universeId).toBe('pixar:toy_story_fictional_short_monopoly_night:2005');
