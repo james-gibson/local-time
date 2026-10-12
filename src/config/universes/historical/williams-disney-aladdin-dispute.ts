@@ -1,4 +1,4 @@
-import { Universe, UniverseType, ReferenceType, CommonUniverseIds } from '../../../core';
+import { Universe, UniverseType, UniverseId, ReferenceType, CommonUniverseIds } from '../../../core';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
@@ -167,6 +167,14 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
         significance: 0.95,
         tags: ['release', 'the-work-itself'],
         certainty: 1,
+        // Name-level reference with deferred resolution. `disney:aladdin:1992`
+        // records no release keyframe at all — `withReleaseDate` sets metadata
+        // only — so this names one that is *supposed* to exist rather than one
+        // that does. That is deliberate: a universe-level reference would say
+        // "the dispute involves Aladdin", which is true but stops being
+        // informative the moment Aladdin records more than one release.
+        targetUniverseId: 'disney:aladdin:1992' as UniverseId,
+        targetKeyframeId: 'us-release',
       },
       {
         id: 'public-refusal',
@@ -249,7 +257,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
         type: 'IN_A_PRIOR_KEYFRAME',
         targetUniverseId: 'disney:aladdin:1992',
         description:
-          'The dispute opens on the work made under its terms: Aladdin released 1992-11-25, the date the alleged marketing breach and the rupture are anchored to. The anchor is universe-level because `disney:aladdin:1992` currently carries no keyframes — `withReleaseDate` sets metadata only, and the film has a `runtime` epoch and no release keyframe. Adding one would tighten this to a keyframe-level anchor.',
+          'Frame-level: the dispute derives its frame from Aladdin — the work made under the disputed terms. The *event-level* reference to Aladdin\'s release lives on the `aladdin-release` keyframe below, because that is the occurrence that disambiguates.',
       },
     ],
   },

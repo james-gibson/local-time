@@ -475,6 +475,25 @@ export interface TemporalKeyframe {
     earliest: bigint;
     latest: bigint;
   };
+  /**
+   * A keyframe in *another* universe that this keyframe's event refers to.
+   *
+   * This is a name-level reference with **deferred resolution**: the target need
+   * not be recorded yet, and an unresolved target is *not* a broken link. It
+   * names which event in the target universe this one means, and stays
+   * meaningful before the target records it — which is the whole point. A
+   * universe-level reference cannot disambiguate, so once the target accumulates
+   * several keyframes of the same kind the reference has to be event-level or it
+   * loses fidelity permanently.
+   *
+   * Prefer this over dropping to `connections.references[].targetKeyframeId`
+   * when the reference is to a specific *occurrence* rather than to the framing
+   * relationship between the two universes. See james-gibson/local-time#3, where
+   * the Aladdin release is referenced before `disney:aladdin:1992` records any
+   * release keyframe at all.
+   */
+  targetUniverseId?: UniverseId;
+  targetKeyframeId?: string;
 }
 
 export interface WindowingStrategy {
