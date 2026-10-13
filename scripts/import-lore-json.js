@@ -324,27 +324,36 @@ if (!existsSync(jsonDir)) {
   process.exit(1);
 }
 
-/** Recursively collect .json paths (skipping dot-dirs and any .ok/ metadata). */
-function collectJson(dir, out = []) {
+/** Recursively collect lore JSON paths — always written beside a .md, so a
+ *  standalone .json (a real config like opencode.json) is not a lore document. */
+function collectLoreJson(dir, out = []) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.name.startsWith('.')) continue;
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) collectJson(full, out);
-    else if (entry.name.endsWith('.json')) out.push(full);
+    if (entry.isDirectory()) collectLoreJson(full, out);
+    else if (entry.name.endsWith('.json') && existsSync(full.replace(/\.json$/, '.md'))) out.push(full);
   }
   return out.sort();
 }
 
 mkdirSync(outputDir, { recursive: true });
 
-const jsonPaths = collectJson(jsonDir);
-console.log(`Importing ${jsonPaths.length} JSON document(s) from ${jsonDir} -> ${outputDir}`);
+const jsonPaths = collectLoreJson(jsonDir);
+console.log(`Importing ${jsonPaths.length} lore document(s) from ${jsonDir} -> ${outputDir}`);
 
 const exports = [];
+const notEnrolled = [];
 for (const jsonPath of jsonPaths) {
   const json = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+  // Enrolment is the contract, and the JSON carries it so this check needs no
+  // second read of the markdown. A JSON without the flag is stale or hand-made:
+  // skip it rather than quietly inventing a universe.
+  if (json['local-time-sync'] !== true) {
+    notEnrolled.push(relative(jsonDir, jsonPath));
+    continue;
+  }
   if (!json.universeId) {
-    console.warn(`  ! ${relative(jsonDir, jsonPath)} has no universeId — skipped`);
+    notEnrolled.push(`${relative(jsonDir, jsonPath)} (enrolled, no universe-id)`);
     continue;
   }
   const moduleName = String(json.universeId).replace(/[^a-zA-Z0-9]+/g, '_');
@@ -352,6 +361,10 @@ for (const jsonPath of jsonPaths) {
   writeFileSync(tsPath, emitUniverse(json));
   exports.push({ moduleName, id: toIdentifier(json.universeId) });
   console.log(`  ${relative(jsonDir, jsonPath)} -> ${basename(tsPath)}`);
+}
+
+if (notEnrolled.length) {
+  console.log(`Not enrolled (${notEnrolled.length}): ${notEnrolled.join(', ')}`);
 }
 
 if (exports.length) {
