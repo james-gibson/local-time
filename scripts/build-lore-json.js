@@ -267,6 +267,9 @@ function normalise(mdPath, content, zeroIndex) {
 
     // --- identity ---
     universeId: fm['universe-id'] ?? null,
+    // Carried through so the importer can refuse a stale or un-enrolled JSON
+    // without re-reading the markdown. `null` means the flag was absent.
+    'local-time-sync': fm['local-time-sync'] ?? null,
     type: fm.type ?? null,
     title: fm.title ?? null,
     description: fm.description ?? null,
@@ -316,14 +319,25 @@ const loreDir = resolveLoreDir(contentArg);
 const mdPaths = collectMarkdown(loreDir);
 console.log(`Building JSON from ${mdPaths.length} lore docs in ${loreDir}`);
 
-// Pass 1 — index every doc's own zeroth, so a doc that *references* another
-// universe's zeroth can resolve it instead of restating it.
+/** Frontmatter key that enrols a doc in this sync. */
+const ENROL_KEY = 'local-time-sync';
+
+const isEnrolled = (fm) => {
+  const v = fm[ENROL_KEY];
+  return v === true || v === 'true' || v === 'yes';
+};
+
+// Pass 1 — index every enrolled doc's own zeroth, so a doc that *references*
+// another universe's zeroth can resolve it instead of restating it.
 const contents = new Map();
+const frontmatters = new Map();
 const zeroIndex = new Map();
 for (const mdPath of mdPaths) {
   const content = readFileSync(mdPath, 'utf-8');
   contents.set(mdPath, content);
   const { frontmatter: fm } = splitFrontmatter(content);
+  frontmatters.set(mdPath, fm);
+  if (!isEnrolled(fm)) continue;
   const id = fm['universe-id'];
   const zr = fm['zero-reference'] || {};
   // A doc that borrows another universe's zeroth contributes none of its own.
@@ -332,13 +346,26 @@ for (const mdPath of mdPaths) {
   if (zero.zeroPoint) zeroIndex.set(id, zero);
 }
 
-// Pass 2 — emit. Every doc gets a JSON beside its markdown; the importer decides
-// which of them are universes, so a compendium is never silently dropped here.
+// Pass 2 — emit, but only for enrolled docs.
+//
+// Without an enrolment key the walk writes a JSON beside *every* markdown in the
+// tree, so meta docs (CONVENTIONS.md, OUTSTANDING.md) acquire JSON exports they
+// have no use for. `local-time-sync: true` in a doc's frontmatter opts it in;
+// everything else is left alone. See CONVENTIONS.md.
+const enrolled = [], skipped = [];
 for (const mdPath of mdPaths) {
+  if (!isEnrolled(frontmatters.get(mdPath))) {
+    skipped.push(relative(loreDir, mdPath));
+    continue;
+  }
+  enrolled.push(mdPath);
   const json = normalise(mdPath, contents.get(mdPath), zeroIndex);
   const jsonPath = mdPath.replace(/\.md$/, '.json');
   writeFileSync(jsonPath, JSON.stringify(json, null, 2) + '\n');
   console.log(`  ${relative(loreDir, mdPath)} -> ${basename(jsonPath)}  (${json.universeId ?? 'no universe-id'})`);
 }
+
+console.log(`Emitted ${enrolled.length}, skipped ${skipped.length} not enrolled`);
+if (skipped.length) console.log(`  ${skipped.join(', ')}`);
 
 console.log('Done.');
