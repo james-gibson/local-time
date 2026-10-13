@@ -1,0 +1,45 @@
+# My Docs
+
+> Congrats on setting up a new Doks project!
+
+- [Page not found](/404/): The page you're looking for doesn’t exist or has moved. Check the URL, use the navigation to browse sections, or return to the homepage.
+- [Privacy Policy](/privacy/): Learn how we collect, use, and protect your personal data, what rights you have over your information, and how to contact us with questions.
+- [Blog](/blog/): Read product updates, release highlights, and practical tips that explain what’s new, why it matters, and how to get the most value from this project.
+- [Docs](/docs/): Browse guides and reference documentation that explain how to use this site’s features, configure Doks, and publish clear, user-focused content.
+
+## Blog
+
+> Read product updates, release highlights, and practical tips that explain what’s new, why it matters, and how to get the most value from this project.
+
+- [Example Post](/blog/example-post/): Learn how to write clear, structured product update posts that explain what changed, why it matters, and how users can successfully adopt new features.
+
+## Docs
+
+> Browse guides and reference documentation that explain how to use this site’s features, configure Doks, and publish clear, user-focused content.
+
+- [Personal Docs Site](/docs/lore/personal-docs-2026/): The Doks/Hugo site in personal/docs. Its pages are generated from this universe's timeline, so the documentation stems from one recorded source instead o…
+- [Guides](/docs/guides/): Explore step-by-step guides that walk you through common tasks, from setup to advanced workflows, helping you learn and use this project with confidence.
+- [Reference](/docs/reference/): Find detailed, structured reference pages that explain concepts, configuration options, and behavior so you can quickly look up precise information as you work.
+- [Resources](/docs/resources/): Discover curated links to official docs, tools, templates, and learning materials that help you deepen your knowledge and get more from this project.
+
+### Personal Docs Site
+
+> The Doks/Hugo site in personal/docs. Its pages are generated from this universe's timeline, so the documentation stems from one recorded source instead o…
+
+- [Doks Scaffold](/docs/lore/personal-docs-2026/doks-scaffold/): The Doks template is scaffolded in personal/docs with the non-interactive create-thulite CLI. Part of the personal:docs:2026 timeline, bootstrap segment.
+- [Toolchain Installed](/docs/lore/personal-docs-2026/toolchain-installed/): Hugo (extended) and Dart Sass are installed, so the theme's SCSS pipeline resolves. Part of the personal:docs:2026 timeline, bootstrap segment.
+- [Docs Universe Declared](/docs/lore/personal-docs-2026/docs-universe-declared/): This universe is declared in lore and enrolled in the local-time sync. Part of the personal:docs:2026 timeline, bootstrap segment.
+- [Content From Lore](/docs/lore/personal-docs-2026/content-from-lore/): The site's docs pages are generated from this timeline, so content stems from the universe rather than being authored beside it.
+
+### Guides
+
+> Explore step-by-step guides that walk you through common tasks, from setup to advanced workflows, helping you learn and use this project with confidence.
+
+- [Example Guide](/docs/guides/example-guide/): Learn how to structure clear, task-focused guides that walk users through real workflows step by step, improving documentation usability and success.
+
+### Reference
+
+> Find detailed, structured reference pages that explain concepts, configuration options, and behavior so you can quickly look up precise information as you work.
+
+- [Example Reference](/docs/reference/example-reference/): Learn how to design concise, comprehensive reference pages that document concepts, options, and behavior clearly so users can quickly find exact answers.
+
