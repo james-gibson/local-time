@@ -18,7 +18,7 @@
  */
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { join, basename } from 'node:path';
+import { join, basename, relative } from 'node:path';
 
 // --- config maps -----------------------------------------------------------
 
@@ -324,23 +324,34 @@ if (!existsSync(jsonDir)) {
   process.exit(1);
 }
 
+/** Recursively collect .json paths (skipping dot-dirs and any .ok/ metadata). */
+function collectJson(dir, out = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) continue;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) collectJson(full, out);
+    else if (entry.name.endsWith('.json')) out.push(full);
+  }
+  return out.sort();
+}
+
 mkdirSync(outputDir, { recursive: true });
 
-const files = readdirSync(jsonDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
-console.log(`Importing ${files.length} JSON document(s) from ${jsonDir} -> ${outputDir}`);
+const jsonPaths = collectJson(jsonDir);
+console.log(`Importing ${jsonPaths.length} JSON document(s) from ${jsonDir} -> ${outputDir}`);
 
 const exports = [];
-for (const file of files) {
-  const json = JSON.parse(readFileSync(join(jsonDir, file), 'utf-8'));
+for (const jsonPath of jsonPaths) {
+  const json = JSON.parse(readFileSync(jsonPath, 'utf-8'));
   if (!json.universeId) {
-    console.warn(`  ! ${file} has no universeId — skipped`);
+    console.warn(`  ! ${relative(jsonDir, jsonPath)} has no universeId — skipped`);
     continue;
   }
   const moduleName = String(json.universeId).replace(/[^a-zA-Z0-9]+/g, '_');
   const tsPath = join(outputDir, `${moduleName}.ts`);
   writeFileSync(tsPath, emitUniverse(json));
   exports.push({ moduleName, id: toIdentifier(json.universeId) });
-  console.log(`  ${file} -> ${basename(tsPath)}`);
+  console.log(`  ${relative(jsonDir, jsonPath)} -> ${basename(tsPath)}`);
 }
 
 if (exports.length) {
