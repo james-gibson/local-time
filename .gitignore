@@ -14,6 +14,13 @@ build/
 .env.local
 .env.development.local
 .env.test.local
+
+# Generated lore universes (local resolution only — never committed).
+# `import-lore-json.js` writes one module per lore compendium, carrying that
+# compendium's frontmatter (keyframes, epochs, layers, sources, attribution).
+# The compendia live under the kb's private `lore/` root, and this repo is
+# public, so the generated modules local, git-ignored, and never committed.
+src/config/universes/imported/
 .env.production.local
 
 # Database
