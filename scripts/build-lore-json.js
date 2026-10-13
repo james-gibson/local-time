@@ -270,6 +270,10 @@ function normalise(mdPath, content, zeroIndex) {
     // Carried through so the importer can refuse a stale or un-enrolled JSON
     // without re-reading the markdown. `null` means the flag was absent.
     'local-time-sync': fm['local-time-sync'] ?? null,
+    // Explicit permission to publish this universe as public documentation.
+    // Deliberately separate from the KB's root-derived `visibility`: a doc can
+    // live in a private root and still be publishable, but only on purpose.
+    publish: fm.publish ?? null,
     type: fm.type ?? null,
     title: fm.title ?? null,
     description: fm.description ?? null,
