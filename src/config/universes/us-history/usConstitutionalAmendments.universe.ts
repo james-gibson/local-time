@@ -56,6 +56,14 @@ const createAmendmentUniverse = (data: AmendmentData): Universe => {
     });
   }
 
+  // A repealing amendment is a *later* amendment that terminates this one's
+  // legal effect. The repealed amendment is not erased — it is still a ratified
+  // fact — but its period of force ends when the repealer is ratified.
+  // Cross-reference: 42i treats that as a bounded real segment (tension 0),
+  // never as an imaginary branch: it passed, so it has a real axis to end.
+  const repealer = amendmentData.find((a) => a.repeals === data.num);
+  const effectiveEnd = repealer ? repealer.ratified : data.ratified;
+
   return {
     universeId: amendmentId,
     type: UniverseType.LEGAL_TIMELINE,
@@ -89,11 +97,15 @@ const createAmendmentUniverse = (data: AmendmentData): Universe => {
           id: 'ratification_period',
           // Start time would be the proposal date, which varies; modelled from ratification.
           start: fromIso(`${data.ratified}T12:00:00Z`),
-          end: fromIso(`${data.ratified}T12:00:00Z`),
+          // A repealed amendment's period of force ends at the repealer's
+          // ratification; an unrepealed one is open-ended in this model.
+          end: fromIso(`${effectiveEnd}T12:00:00Z`),
           type: 'legal_period',
-          status: 'active',
+          status: repealer ? 'overturned' : 'active',
           jurisdiction: 'United States',
-          description: `Ratification of the ${data.num}th Amendment.`,
+          description: repealer
+            ? `Ratification of the ${data.num}th Amendment; repealed by the ${repealer.num}th on ${repealer.ratified}.`
+            : `Ratification of the ${data.num}th Amendment.`,
         },
       ],
       keyframes: [
@@ -104,6 +116,17 @@ const createAmendmentUniverse = (data: AmendmentData): Universe => {
           tags: ['legal', 'ratification', 'constitutional_law'],
           certainty: 1.0,
         },
+        ...(repealer
+          ? [
+              {
+                id: 'repealed',
+                timestamp: fromIso(`${repealer.ratified}T12:00:00Z`),
+                significance: 0.9,
+                tags: ['legal', 'repeal', 'constitutional_law'],
+                certainty: 1.0,
+              },
+            ]
+          : []),
       ],
       windows: { strategy: 'phase_based' },
     },
