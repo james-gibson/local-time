@@ -466,10 +466,6 @@ for (const r of rendered) {
   writeFileSync(r.tsPath, r.code);
   exports.push({ moduleName: r.moduleName, id: r.id });
   console.log(`  ${r.rel} -> ${basename(r.tsPath)}`);
-  const tsPath = join(outputDir, `${moduleName}.ts`);
-  writeFileSync(tsPath, emitUniverse(json));
-  exports.push({ moduleName, id: toIdentifier(json.universeId) });
-  console.log(`  ${relative(jsonDir, jsonPath)} -> ${basename(tsPath)}`);
 }
 
 if (notEnrolled.length) {
