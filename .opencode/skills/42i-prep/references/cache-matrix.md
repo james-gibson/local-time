@@ -85,6 +85,9 @@ finish with `synapse_change_review` (`impact`).
 | Synapse | the `local-time-universe` registration surfaces: `allUniverses` barrel, the namespace barrel, the `*-registration.test.ts` |
 | Qdrant memory | the `universe_id`, the epoch ids, the KB doc path |
 
+**Output →** a `42i-scaffold` for the generated module (`universe-scaffold.md`), so the edit is
+"fill in the prose", not "work out the shape".
+
 ### New universe — Path B (hand-authored TS)
 
 | Target | Warm |
@@ -92,6 +95,9 @@ finish with `synapse_change_review` (`impact`).
 | Synapse | `references/builder-api.md` surface: `src/core/universe-builder.ts`, a sibling universe at the same depth, `src/config/universes/index.ts` |
 | Synapse | `symbol: UniverseBuilder` / `regex` for the namespace barrel you will join |
 | Qdrant memory | the chosen `universeId` + the sibling you copied |
+
+**Output →** a `42i-scaffold` record (`universe-scaffold.md`) — builder-mode by default, or
+literal-mode if it carries a lever.
 
 ### New universe — derived from an existing one (the lever)
 
@@ -105,6 +111,10 @@ Prefer this over a blank file: find the lever, cache its facts, then assemble. S
 | A twin | the **sibling that already derives from this lever** — copy its `connections.natural.parentUniverses` / `references[]` and change the keys |
 | Qdrant kb | the lever's `plane_*` payload (charge, `plane_presupposes`, `zero_status`) so the child's derivation is consistent |
 | Qdrant memory | the lever id, the child id, the keyframe(s) the child will reference (`targetUniverseId` / `targetKeyframeId`) |
+
+**Output →** a `42i-scaffold` record (`universe-scaffold.md`): the compiling skeleton, the
+target path, the mode (builder|literal), the lever, and the registration checklist — so the
+working agent starts mid-file instead of deciding the shape.
 
 ### Plane / 42i / embedding work
 

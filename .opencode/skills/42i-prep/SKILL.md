@@ -1,6 +1,6 @@
 ---
 name: 42i-prep
-description: Use before a multi-step refactor, before creating or adding a universe in local-time, or before any KB/plane work. 42i prep first loads any durable gated plan for the task from Qdrant memory, classifies the task shape (research, one edit, ten, refactor, universe-create) and probes the facts the task needs but does not know by default — cwd, git remote, branch, where node is, the Synapse repo_id, the KB root — then warms the three caches that hold them: the Qdrant `kb` plane/42i vector, Qdrant memory, and the Synapse code graph. It records the block/chunk ids, hands them down with instructions so downstream agents read by id instead of re-searching, and calibrates expectations, because Synapse search returns addressed chunks, not grep output. Also load when an agent serialises edits, re-reads what it already has, misreads a thin Synapse result as "not found", or stalls because it expects a local server to be slow — the failure mode this skill calls agent anxiety.
+description: Use before a multi-step refactor, before creating or adding a universe in local-time, or before any KB/plane work. 42i prep loads any durable gated plan for the task from Qdrant memory, classifies the task shape (research, one edit, ten, refactor, universe-create), probes the unknown facts (cwd, git remote, branch, node, Synapse repo_id, KB root), and warms the three caches that hold them: the Qdrant `kb` plane/42i vector, Qdrant memory, and the Synapse code graph. For a universe it hands over a ready-to-fill starting builder (the scaffold) so the agent starts writing, not deciding. It records the block/chunk ids, hands them down so downstream agents read by id instead of re-searching, and calibrates expectations: Synapse search returns addressed chunks, not grep output. Also load when an agent serialises edits, re-reads what it already has, misreads a thin Synapse result as "not found", or stalls because it expects a local server to be slow — the failure mode this skill calls agent anxiety.
 ---
 
 # 42i prep — warm the caches, then work
@@ -77,6 +77,15 @@ it** (your template). Then the new universe is *assembly*, not research, and the
 fast. The lever registry is `CommonUniverseIds`; the attach points are
 `connections.natural.parentUniverses` and `connections.references[]`. Full pattern and real
 worked examples: [references/universe-levers.md](references/universe-levers.md).
+
+**Then ship a starting builder.** Universe creation repeats the same decisions every time —
+which file, which import, which id factory, which barrel, which test — and agents churn
+re-deciding them. So prep **pre-decides the what/where and stores a compiling skeleton**
+(the scaffold) in Qdrant, keyed by universe id. The working agent loads it and starts writing
+the narrative, not deciding the shape. Rule of thumb: the scaffold is a **`literal`** when it
+has a lever (the builder cannot emit `connections.natural.parentUniverses`), a **`builder`**
+otherwise. Both templates, plus the store/load schema:
+[references/universe-scaffold.md](references/universe-scaffold.md).
 
 ## Step 2 — the environment probe (the "skill-reset")
 
@@ -283,6 +292,9 @@ Name it, then do the opposite of it.
 - [references/universe-levers.md](references/universe-levers.md) — **derive, don't invent**:
   how a new universe attaches to an existing one (the lever registry, `parentUniverses`,
   `references[]`), what to precache, and the real worked examples.
+- [references/universe-scaffold.md](references/universe-scaffold.md) — the **starting builder**:
+  the compiling skeleton (builder- and literal-mode templates), the registration checklist, and
+  how to store/load it in Qdrant so the next agent starts writing instead of deciding.
 - [references/cache-matrix.md](references/cache-matrix.md) — the exact cache targets, key by
   key, per task type.
 - [references/handoff.md](references/handoff.md) — the id-handoff protocol, per-shape
