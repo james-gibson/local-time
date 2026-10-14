@@ -24,7 +24,15 @@ export const apollo11Universe: Universe = {
     
     /**
      * A second frame over the **same absolute interval** as `launch`, re-zeroed onto the
-     * go/no-go poll five and a half minutes earlier.
+     * go/no-go poll five minutes twenty seconds earlier.
+     *
+     * The origin is sourced (james-gibson/local-time#63). The Apollo 11 PAO launch
+     * commentary records the launch-team go/no-go status check completing at
+     * "5 minutes, 52 seconds and counting", then "Launch Director Rocco Petrone now
+     * gives a Go. We're 5 minutes, 20 seconds and counting" — so the Launch Director's
+     * Go is at approximately T-05:20 (13:26:40Z). The earlier fixture asserted 13:26:30
+     * (T-05:30), an instant no source records; it is now the citable T-05:20. (The
+     * call-out is live narration, so treat the second as accurate to a few seconds.)
      *
      * This is what "treat a prior keyframe as the zero" looks like without inventing a
      * new reference type. `IN_A_PRIOR_KEYFRAME` is deliberately *not* used here: it is a
@@ -37,7 +45,7 @@ export const apollo11Universe: Universe = {
      * Within a universe, ordering between keyframes is already carried by `timestamp`,
      * which is a bigint. What was missing was a *frame* anchored at the earlier keyframe,
      * so that events could be addressed on a T± axis that starts before liftoff. With this
-     * epoch, liftoff is `T+00:05:30` and the ignition sequence `T-00:05:30`, instead of
+     * epoch, liftoff is `T+00:05:20` and the ignition sequence `T-00:05:20`, instead of
      * both collapsing onto `T+00:00:00` in the `launch` frame.
      *
      * The span is deliberately identical to `launch`'s: the same real interval, two
@@ -53,11 +61,13 @@ export const apollo11Universe: Universe = {
       startTime: BigInt(Date.UTC(1969, 6, 16, 8, 0, 0)) * 1000000n, // T-5:32:00 from liftoff
       endTime: BigInt(Date.UTC(1969, 6, 16, 19, 0, 0)) * 1000000n,   // T+5:28:00 from liftoff
       precision: TimePrecision.SECOND,
-      description: "Apollo 11 launch timeline, zeroed on the go/no-go poll rather than liftoff",
+      description: "Apollo 11 launch timeline, zeroed on the go/no-go poll (T-05:20) rather than liftoff",
 
       // Zero-reference specific properties
-      zeroPoint: BigInt(Date.UTC(1969, 6, 16, 13, 26, 30)) * 1000000n, // Go/no-go poll
-      zeroEvent: "Apollo 11 go/no-go poll",
+      // 13:26:40Z = T-05:20, the Launch Director's "Go" (Apollo 11 PAO launch
+      // commentary). Sourced, per james-gibson/local-time#63.
+      zeroPoint: BigInt(Date.UTC(1969, 6, 16, 13, 26, 40)) * 1000000n, // Go/no-go poll, T-05:20
+      zeroEvent: "Apollo 11 launch status check (go/no-go poll), Launch Director's Go at T-05:20",
       beforePrefix: "T-",
       afterPrefix: "T+",
       relativeFormat: 'HMS'
@@ -97,7 +107,7 @@ export const apollo11Universe: Universe = {
     keyframes: [
       {
         id: "go_no_go_poll",
-        timestamp: BigInt(Date.UTC(1969, 6, 16, 13, 26, 30)) * 1000000n, // T-05:30
+        timestamp: BigInt(Date.UTC(1969, 6, 16, 13, 26, 40)) * 1000000n, // T-05:20
         significance: 0.9,
         tags: ["critical_decision", "go_no_go"]
       },
@@ -166,6 +176,11 @@ export const ddayUniverse: Universe = {
       }
     ],
     
+    // The two pre-H-Hour keyframes are approximate but inside documented windows
+    // (james-gibson/local-time#63): the airborne assault began shortly after midnight
+    // on 6 June (pathfinders ~00:15, the main drops ~00:50-01:00), and the US
+    // pre-landing naval bombardment of Utah/Omaha ran from ~05:00 to ~06:27. Neither
+    // fixture time is a recorded instant, so both are round approximations, not claims.
     keyframes: [
       {
         id: "airborne_drops",
@@ -206,8 +221,8 @@ export class ZeroReferenceExamples {
     const launchEpoch = apollo11Universe.epochs.launch as ZeroReferenceEpoch;
     
     return {
-      // T-5:30 (go/no-go poll)
-      goNoGo: "nasa:apollo11:1969:launch:T-00:05:30",
+      // T-5:20 (go/no-go poll)
+      goNoGo: "nasa:apollo11:1969:launch:T-00:05:20",
       
       // T+0:00 (liftoff)
       liftoff: "nasa:apollo11:1969:launch:T+00:00:00",
@@ -233,8 +248,8 @@ export class ZeroReferenceExamples {
   static demonstrateConversions() {
     const launchEpoch = apollo11Universe.epochs.launch as ZeroReferenceEpoch;
     
-    // Convert T-5:30 to absolute time
-    const relativeTime = { prefix: "T-", hours: 0, minutes: 5, seconds: 30, milliseconds: 0 };
+    // Convert T-5:20 to absolute time
+    const relativeTime = { prefix: "T-", hours: 0, minutes: 5, seconds: 20, milliseconds: 0 };
     // const absoluteTime = ZeroReferenceAddressing.relativeToAbsolute(relativeTime, launchEpoch);
     
     // Convert back to relative
@@ -242,7 +257,7 @@ export class ZeroReferenceExamples {
     
     return {
       original: relativeTime,
-      absolute: launchEpoch.zeroPoint - 330000000000n, // T-5:30 in nanoseconds
+      absolute: launchEpoch.zeroPoint - 320000000000n, // T-5:20 in nanoseconds
       converted: relativeTime
     };
   }
