@@ -243,7 +243,7 @@ export class ZeroReferenceQueryService {
     // Resolve both bounds through the addressing module rather than inventing a second
     // conversion here. The previous implementation ignored both arguments entirely and
     // returned [zeroPoint, zeroPoint + 1h], so a query for T-00:10:00..T+00:05:00 silently
-    // returned the hour *after* liftoff - which excluded go_no_go_poll at 13:26:30, the
+    // returned the hour *after* liftoff - which excluded go_no_go_poll at 13:26:40, the
     // very event a pre-liftoff range exists to ask about.
     //
     // The prefix is validated against the epoch's own before/after prefixes. A mismatch

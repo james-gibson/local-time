@@ -154,7 +154,7 @@ describe('Zero-Reference Temporal Systems', () => {
     it('should handle Apollo 11 countdown correctly', () => {
       const addresses = ZeroReferenceExamples.generateApollo11Addresses();
       
-      expect(addresses.goNoGo).toBe('nasa:apollo11:1969:launch:T-00:05:30');
+      expect(addresses.goNoGo).toBe('nasa:apollo11:1969:launch:T-00:05:20');
       expect(addresses.liftoff).toBe('nasa:apollo11:1969:launch:T+00:00:00');
       expect(addresses.separation).toBe('nasa:apollo11:1969:launch:T+00:02:46');
     });

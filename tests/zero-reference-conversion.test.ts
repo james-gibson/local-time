@@ -48,12 +48,12 @@ describe('convertBetweenZeroReferenceSystems (#56)', () => {
     });
 
     test('converting between two frames of the SAME universe round-trips exactly', async () => {
-        // The strongest available check: apollo11 has launch and go_no_go 5m30s apart over
+        // The strongest available check: apollo11 has launch and go_no_go 5m20s apart over
         // the same absolute interval, so a correct conversion must land on the documented
         // offset and survive the trip back.
         const inGoNoGo = await service.convertBetweenZeroReferenceSystems(
             'nasa:apollo11:1969:launch:T+00:00:00', 'nasa:apollo11:1969', 'go_no_go');
-        expect(inGoNoGo).toBe('nasa:apollo11:1969:go_no_go:T+00:05:30');
+        expect(inGoNoGo).toBe('nasa:apollo11:1969:go_no_go:T+00:05:20');
 
         const backToLaunch = await service.convertBetweenZeroReferenceSystems(
             inGoNoGo!, 'nasa:apollo11:1969', 'launch');
@@ -135,16 +135,16 @@ describe('convertBetweenZeroReferenceSystems (#56)', () => {
     test('the conversion is the inverse of absoluteToRelative for a same-frame pair', async () => {
         const source = apollo11Universe.epochs.launch as ZeroReferenceEpoch;
         const target = apollo11Universe.epochs.go_no_go as ZeroReferenceEpoch;
-        // 330s past the go/no-go zero is exactly liftoff, which the fixture records as
-        // T+00:05:30 in that frame. A true inverse: absolute -> relative -> the documented
-        // offset. (Measuring from the launch zero instead gives 11m00s, not 5m30s.)
-        const absolute = target.zeroPoint + BigInt(330) * 1_000_000_000n;
+        // 320s past the go/no-go zero is exactly liftoff, which the fixture records as
+        // T+00:05:20 in that frame. A true inverse: absolute -> relative -> the documented
+        // offset. (Measuring from the launch zero instead gives 11m00s, not 5m20s.)
+        const absolute = target.zeroPoint + BigInt(320) * 1_000_000_000n;
 
         const relative = ZeroReferenceAddressing.absoluteToRelative(absolute, target);
         expect(relative.prefix).toBe(target.afterPrefix);
         expect(relative.hours).toBe(0);
         expect(relative.minutes).toBe(5);
-        expect(relative.seconds).toBe(30);
+        expect(relative.seconds).toBe(20);
 
         // And the same instant read in the launch frame is exactly its zero.
         const inLaunch = ZeroReferenceAddressing.absoluteToRelative(absolute, source);
