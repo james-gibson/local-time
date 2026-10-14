@@ -30,6 +30,13 @@ export * from './colombia';
  * - `20th_century_fox:titanic:1997` and `…:avatar:2009` — registered by the James Cameron
  *   filmography (`../../people/james-cameron`); their runtime keyframes were folded onto
  *   those universes and the duplicates removed from `./20th/releases`.
+ *
+ * Both are *views* of one universe, not competing universes: the same film seen by a
+ * studio collection and by a filmography. `allUniverses` cannot express that because it is
+ * flat with a unique id. The vocabulary to do it already exists — the
+ * `connections.natural.parentUniverses` declarations, `CommonUniverseIds.contains`, and
+ * the unused `TemporalLayer.subuniverses` field — so folding the keyframes is a
+ * workaround, not the model. See james-gibson/local-time#74.
  */
 export const filmUniverses = [
   ...starWarsUniverses,
