@@ -164,12 +164,67 @@ export interface Universe {
     keyframes: TemporalKeyframe[];
     windows: WindowingStrategy
   };
-  
-  /** 
+
+  /**
+   * How this universe is *contained* by, and *references*, other universes.
+   *
+   * Containment is the one-owner, many-memberships edge
+   * (james-gibson/local-time#74): a universe has exactly one owner — the
+   * `universeId` it is registered under — but may be a member of any number of
+   * containers, declared here as `natural.parentUniverses`. `UniverseRegistry`
+   * folds every declared parent into `CommonUniverseIds`, so `contains()` /
+   * `getParentChain()` / `getChildren()` / `getAllDescendants()` resolve them.
+   *
+   * A hand-authored literal declares containment through this field; a universe
+   * built with `UniverseBuilder` declares it with
+   * `addConnection({ type: 'member_of', targetUniverseId })`, which the builder
+   * writes to `metadata.connections`. Both are the same edge.
+   *
+   * `references` records typed, directional edges that are *not* containment —
+   * a `DISTRIBUTED_BY`, a `PARODIES`, an `IN_A_PRIOR_KEYFRAME`.
+   */
+  connections?: UniverseConnections;
+
+  /**
    * Optional metadata about cultural significance, creators, etc.
    * Used for search, ranking, and cultural analysis
    */
   metadata?: Partial<UniverseMetadata>;
+}
+
+/**
+ * The containment and reference edges a universe declares.
+ *
+ * @example A 20th Century Fox release that is also a James Cameron film
+ * ```typescript
+ * connections: {
+ *   natural: { parentUniverses: ['film_studio:20th_century_fox:1935-2020'] },
+ *   references: [{ type: 'DISTRIBUTED_BY', targetUniverseId: 'film_studio:20th_century_fox:1935-2020' }],
+ * }
+ * ```
+ */
+export interface UniverseConnections {
+  natural?: {
+    /**
+     * Every container this universe is a member of. One owner, many
+     * memberships (james-gibson/local-time#74).
+     */
+    parentUniverses?: UniverseId[];
+  };
+  references?: UniverseReference[];
+}
+
+/**
+ * A typed, directional edge from this universe to another. Not containment —
+ * containment is `UniverseConnections.natural.parentUniverses`.
+ */
+export interface UniverseReference {
+  type: string;
+  targetUniverseId: string;
+  targetKeyframeId?: string;
+  description?: string;
+  confidence?: number;
+  evidence?: string[];
 }
 
 /**
@@ -434,7 +489,11 @@ export interface TemporalLayer {
     accuracy: number;
     deviations: string[];
   };
-  subuniverses?: string[];
+  // `subuniverses?: string[]` was declared here and never populated — zero
+  // producers, one pass-through cast in `prisma/seed.ts`. Containment is now a
+  // first-class `Universe.connections.natural.parentUniverses` edge resolved by
+  // `CommonUniverseIds`, so the field was retired rather than wired
+  // (james-gibson/local-time#74).
 }
 
 export interface TemporalEpoch {

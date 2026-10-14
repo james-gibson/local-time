@@ -306,13 +306,13 @@ them survive, but nothing reads them.
   and some omit `relationshipType` entirely (`us-gov/hydrological.ts` uses
   `id`/`description`). Those are wrong; the canonical `RealityAnchor` is
   `realEventId` / `relationshipType` / `confidence` / `evidence`.
-- **Connections live in two different places — and the builder only writes one.** Hand-authored
-  universes use a **top-level** `connections: { natural: { parentUniverses: [...] },
-  references: [...] }` object; this is an untyped extra (`connections` is on neither
-  `Universe` nor `UniverseMetadata`) carried by the `as unknown as Universe` cast. The
-  builder's `addConnection(...)` instead appends to **`metadata.connections`** as an *array*.
-  The two shapes are not interchangeable and different tests read each: the top-level
-  `connections.natural.parentUniverses` is read by `films/20th/idiocracy.test.ts`,
-  `historical/gamestop.test.ts`, `historical/costco.test.ts`; `metadata.connections` is read
-  by `people/robin-williams.test.ts` and `pixar/pixar.test.ts`. For a parent/child edge, use
-  the top-level `connections.natural.parentUniverses` form **the builder cannot emit**.
+- **Connections: two author paths, one containment edge.** A hand-authored universe declares
+  containment in a **top-level** `connections: { natural: { parentUniverses: [...] },
+  references: [...] }` object — now a first-class, optional `Universe.connections` field
+  (`UniverseConnections`), no longer an untyped cast extra. A builder declares it with
+  `addConnection({ type: 'member_of', targetUniverseId })`, which appends to
+  **`metadata.connections`** as an *array*. `UniverseRegistry` folds **both** into
+  `CommonUniverseIds` (`getMemberships` / `getParentChain` / `getChildren` /
+  `getAllDescendants` / `contains`), so a universe can be a member of several containers
+  without being registered twice (james-gibson/local-time#74). `metadata.connections` also
+  carries non-containment references (`DISTRIBUTED_BY`, `references`), which are **not** edges.

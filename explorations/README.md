@@ -33,7 +33,7 @@ written down here.
 | `TemporalLayer.type` (`primary \| meta \| recreation \| subjective`) | `types.md:83-85` | `src/core/types.ts` | — |
 | `TemporalLayer.contains` | `types.md:87` | declared, unused | — |
 | `TemporalLayer.reality_correspondence` | `types.md:88-92`, `example.ts.md:152-167` | used **once**, `savingPrivateRyanUniverse.ts:88` | **#75** |
-| `TemporalLayer.subuniverses` | `types.md:93`, `example.ts.md:198-217` | declared, **zero** uses | **#74** |
+| `TemporalLayer.subuniverses` | `types.md:93`, `example.ts.md:198-217` | **retired** — containment is now `Universe.connections.natural.parentUniverses`, resolved by `CommonUniverseIds` | **#74** |
 | `TemporalStructure` / `Segment` / `Keyframe` / `WindowingStrategy` | `types.md:106-138` | `src/core/types.ts` | — |
 | `TemporalWindow` / `WindowAlias` | `types.md:147-161`, `proposal.md:15-59` | declared; `window-search.ts` reads `universe.temporalWindows` but **no universe fills it**; `WindowAlias` unused | **#82** |
 | `ZeroReferenceEpoch` | `types.md:163-169` | `src/core/types.ts`; `zero-reference-*` | #35, #38, #39 |
@@ -84,7 +84,7 @@ serve:
 
 ## Dormant constructs (one list, so "unused" is legible)
 
-`subuniverses` (#74) · `reality_correspondence` (#75) · `WindowAlias` + `Universe.temporalWindows`
+`reality_correspondence` (#75) · `WindowAlias` + `Universe.temporalWindows`
 (#82) · `WindowRelationship` / `WindowHierarchy` (#82) · `SpecificMapping` · `NetworkEra` ·
 `TemporalReferenceGraph` / `TemporalNode` / `TemporalEdge` · the duplicate `WindowAlignment`
 declaration · `TemporalAddress`

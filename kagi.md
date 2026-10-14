@@ -189,7 +189,7 @@ This is the defect class behind james-gibson/local-time#27 and #67. Nothing thro
 
 One `universeId` has one registration. Do **not** define the same id twice to place one universe in two collections; that is what forced the lossy keyframe fold in #73.
 
-- **Containment (#74)** — a collection is a *container*, the film or event is a *child*. Declare membership with `connections.natural.parentUniverses` and resolve it with `CommonUniverseIds.contains` / `getParentChain` / `getChildren` / `getAllDescendants` / `findCommonParent`. **One owner, many memberships.** `TemporalLayer.subuniverses` exists in the types but is not yet wired; do not rely on it.
+- **Containment (#74)** — a collection is a *container*, the film or event is a *child*. Declare membership with the top-level `connections.natural.parentUniverses` (hand-authored literals) or, in a builder, `addConnection({ type: 'member_of', targetUniverseId })`. `UniverseRegistry` folds **both** into `CommonUniverseIds`, so `contains` / `getParentChain` / `getChildren` / `getAllDescendants` / `findCommonParent` resolve them, and surfaces the split as `getOwner` (exactly one per id) vs `getMemberships` (many). **One owner, many memberships.** (`TemporalLayer.subuniverses` was retired in favour of this — it was declared but had zero producers.)
 - **Composition (#75)** — combining two whole universes is an operation on **layers**, not a new array. A counterfactual premise is a `TemporalLayer` with `type: 'recreation' | 'subjective'` laid over the `primary` layer, carrying `reality_correspondence: { to: <source universe id>, accuracy, deviations: […] }`. The real timeline stays retrievable, so "as composed" and "ground truth" are both answerable.
 - **Collisions must be recorded, not resolved away.** Put the losing assertion in `reality_correspondence.deviations` and/or a `relationshipType: 'contradicts'` anchor, and make precedence total and documented. A composition that cannot show where it diverges is a merge wearing a costume.
 - **If you find yourself needing the same id twice, stop.** That is the signal to model containment or composition. Folding the data conflates provenance and is a workaround, not a model.
@@ -557,7 +557,7 @@ Always document discovered connections:
 
 **Design rationale.** The pre-implementation transcripts these rules derive from are indexed in
 [`explorations/README.md`](explorations/README.md) — including the constructs designed but never
-wired (`subuniverses` #74, `reality_correspondence` #75, `WindowAlias` #82), the address-format
+wired (`reality_correspondence` #75, `WindowAlias` #82), the address-format
 fork behind #38, and the "typesafe universe ids" challenge behind #50/#70.
 
 Generate complete, validated, production-ready TypeScript universe definitions that integrate seamlessly with the Local Time Universe System architecture.

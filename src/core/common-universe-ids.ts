@@ -274,6 +274,16 @@ export class CommonUniverseIds {
     return chain;
   }
 
+  /**
+   * The **direct** parents declared for `id` — one entry per container it is a
+   * member of. `getParentChain` is the transitive closure of this: a universe's
+   * direct memberships and its full ancestry are both addressable
+   * (james-gibson/local-time#74).
+   */
+  static getParents(universeId: UniverseId): UniverseId[] {
+    return this.parentsOf(universeId);
+  }
+
   /** Every parent declared for `id`; multi-parent aware. */
   private static parentsOf(id: UniverseId): UniverseId[] {
     const entry = this.hierarchies.get(id);

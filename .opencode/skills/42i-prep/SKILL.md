@@ -87,8 +87,11 @@ which file, which import, which id factory, which barrel, which test — and age
 re-deciding them. So prep **pre-decides the what/where and stores a compiling skeleton**
 (the scaffold) in Qdrant, keyed by universe id. The working agent loads it and starts writing
 the narrative, not deciding the shape. Rule of thumb: the scaffold is a **`literal`** when it
-has a lever (the builder cannot emit `connections.natural.parentUniverses`), a **`builder`**
-otherwise. Both templates, plus the store/load schema:
+carries authored prose, a segment `status`/`jurisdiction`/`description`, arbitrary `metadata`,
+or a KB-generated body — none of which the builder validates — and a **`builder`** otherwise.
+A lever no longer decides it: the builder can express a containment edge with
+`addConnection({ type: 'member_of', targetUniverseId })` (#74). Both templates, plus the
+store/load schema:
 [references/universe-scaffold.md](references/universe-scaffold.md).
 
 ### A ticket is a presumption set — falsify it before you build
