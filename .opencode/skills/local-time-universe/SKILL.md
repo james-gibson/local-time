@@ -153,22 +153,24 @@ one, check which of these you are looking at — the shape to reach for is diffe
   alternatives were *folded* instead (duplicate ids under #67) and calls that "a workaround,
   not the model". See #74.
 
-The vocabulary to express composition is **declared but mostly dormant** — do not build on it
-until the code reads it:
+The vocabulary to express composition exists, and **containment** is now wired (#74):
 
 | Primitive | State today |
 | --- | --- |
-| `connections.natural.parentUniverses` | the one that is actually populated |
-| `CommonUniverseIds.contains(...)` | declared, unused under `src/config/universes` |
-| `TemporalLayer.subuniverses` | declared, **zero producers** (#74) |
+| `connections.natural.parentUniverses` | the literal containment edge — the one that is actually populated |
+| `addConnection({ type: 'member_of', … })` | the builder containment edge — lands in `metadata.connections` |
+| `UniverseRegistry.getOwner` / `getMemberships` / `contains` | the read surface; the registry folds *both* edges into `CommonUniverseIds` |
+| `TemporalLayer.subuniverses` | **retired** — it had zero producers (#74) |
 | `TemporalLayer.reality_correspondence` | used once, `savingPrivateRyanUniverse.ts` (#75) |
 | `UniverseNetwork.sharedEpochs` / `eras` | declared; every member set is empty |
 | `TemporalKeyframe.targetUniverseId` | the only cross-universe keyframe link (#3) |
 
-`allUniverses` is **flat with unique ids** and the registry does not resolve nesting or merge
-a network's `sharedEpochs`, so today "composition" means a `parentUniverses` edge or a shared
-id reference — not a nested literal, and not a sub-universe the registry will find. The
-designed-vs-in-code ledger is `explorations/README.md`; the unfinished work is #74, #75, #82.
+`allUniverses` is **flat with unique ids** — one owner per id — but a universe may be a *member*
+of any number of containers. The registry derives those membership edges from the declared
+parents (literal or builder), so `contains` / `getParentChain` / `getChildren` /
+`getAllDescendants` answer membership without the id ever being registered twice. The
+designed-vs-in-code ledger is `explorations/README.md`; the unfinished work is #75 (composition)
+and #82 (shared windows).
 
 **The cheapest universe is a derived one.** Before authoring anything, look for a **lever**: an
 existing universe that already holds the facts — a shared context from `CommonUniverseIds`

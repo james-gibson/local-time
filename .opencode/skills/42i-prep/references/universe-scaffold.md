@@ -38,13 +38,14 @@ Everything except `open` is knowable before the work starts. That is the whole p
 | Mode | Use when | Validated? |
 | --- | --- | --- |
 | **builder** | default; plain universe, no lever | yes — `build()` checks it |
-| **literal** | a **lever** (`connections.natural.parentUniverses`), a segment `status`/`jurisdiction`/`description`, arbitrary `metadata`, or a KB-generated file | no — nothing checks it |
+| **literal** | authored prose, a segment `status`/`jurisdiction`/`description`, arbitrary `metadata`, or a KB-generated file — none of which the builder validates | no — nothing checks it |
 
-**The trap that forces the choice:** the builder's `addConnection(...)` writes
-`metadata.connections` (an *array*); the lever edge lives in the **top-level**
-`connections.natural.parentUniverses` object, which the builder **cannot emit**. So **if the
-scaffold has a lever, it is a literal.** (Worked cases: `rogers-commission.ts`,
-`idiocracy.ts`, every `imported/*.ts`.)
+**Where the containment edge goes.** A lever no longer forces a literal: a *literal* declares
+it in the **top-level** `connections.natural.parentUniverses` object, and a *builder* declares
+it with `addConnection({ type: 'member_of', targetUniverseId })` (which writes
+`metadata.connections`). `UniverseRegistry` folds **both** into `CommonUniverseIds`
+(james-gibson/local-time#74). Choose the literal for the other reasons above; either form
+carries a lever. (Worked cases: `rogers-commission.ts`, `idiocracy.ts`, every `imported/*.ts`.)
 
 ## Template — builder mode
 
@@ -113,7 +114,7 @@ export const <name>Universe = {
     windows: { strategy: 'time_based' },
   },
   metadata: { canonicalName: '<Canonical Name>', creators: [], cultural_significance: 0.7 },
-  connections: {                            // ← the lever; the builder cannot emit this
+  connections: {                            // ← the literal containment edge (a builder uses addConnection)
     natural: { parentUniverses: ['<lever id>'] },
     references: [],
   },

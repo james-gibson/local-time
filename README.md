@@ -22,7 +22,7 @@ This README is the front door. The deeper material:
 
 **Design rationale**
 
-- **[Design rationale index](explorations/README.md)** — the pre-implementation design transcripts, mapped to what is implemented and what is not. In particular it records the constructs that are designed and typed but **never populated** (`TemporalLayer.subuniverses`, `reality_correspondence`, shared window aliases) and the issues that track them: [#74](https://github.com/james-gibson/local-time/issues/74) containment, [#75](https://github.com/james-gibson/local-time/issues/75) composition, [#76](https://github.com/james-gibson/local-time/issues/76) embedding projection, [#82](https://github.com/james-gibson/local-time/issues/82) shared windows.
+- **[Design rationale index](explorations/README.md)** — the pre-implementation design transcripts, mapped to what is implemented and what is not. In particular it records the constructs that are designed and typed but **never populated** (`reality_correspondence`, shared window aliases) and the issues that track them: [#74](https://github.com/james-gibson/local-time/issues/74) containment, [#75](https://github.com/james-gibson/local-time/issues/75) composition, [#76](https://github.com/james-gibson/local-time/issues/76) embedding projection, [#82](https://github.com/james-gibson/local-time/issues/82) shared windows.
 - **[Universe generator prompt](kagi.md)** — the instructions a model follows when generating a universe definition, including the registration invariants.
 - **[Exploration transcripts](explorations/)** — `prompt.md`, `types.md`, `proposal.md`, `multi.md`, `example.ts.md`.
 
