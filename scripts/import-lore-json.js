@@ -18,7 +18,7 @@
  */
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { join, basename } from 'node:path';
+import { join, basename, relative } from 'node:path';
 
 // --- config maps -----------------------------------------------------------
 
@@ -324,23 +324,47 @@ if (!existsSync(jsonDir)) {
   process.exit(1);
 }
 
+/** Recursively collect lore JSON paths — always written beside a .md, so a
+ *  standalone .json (a real config like opencode.json) is not a lore document. */
+function collectLoreJson(dir, out = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) continue;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) collectLoreJson(full, out);
+    else if (entry.name.endsWith('.json') && existsSync(full.replace(/\.json$/, '.md'))) out.push(full);
+  }
+  return out.sort();
+}
+
 mkdirSync(outputDir, { recursive: true });
 
-const files = readdirSync(jsonDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
-console.log(`Importing ${files.length} JSON document(s) from ${jsonDir} -> ${outputDir}`);
+const jsonPaths = collectLoreJson(jsonDir);
+console.log(`Importing ${jsonPaths.length} lore document(s) from ${jsonDir} -> ${outputDir}`);
 
 const exports = [];
-for (const file of files) {
-  const json = JSON.parse(readFileSync(join(jsonDir, file), 'utf-8'));
+const notEnrolled = [];
+for (const jsonPath of jsonPaths) {
+  const json = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+  // Enrolment is the contract, and the JSON carries it so this check needs no
+  // second read of the markdown. A JSON without the flag is stale or hand-made:
+  // skip it rather than quietly inventing a universe.
+  if (json['local-time-sync'] !== true) {
+    notEnrolled.push(relative(jsonDir, jsonPath));
+    continue;
+  }
   if (!json.universeId) {
-    console.warn(`  ! ${file} has no universeId — skipped`);
+    notEnrolled.push(`${relative(jsonDir, jsonPath)} (enrolled, no universe-id)`);
     continue;
   }
   const moduleName = String(json.universeId).replace(/[^a-zA-Z0-9]+/g, '_');
   const tsPath = join(outputDir, `${moduleName}.ts`);
   writeFileSync(tsPath, emitUniverse(json));
   exports.push({ moduleName, id: toIdentifier(json.universeId) });
-  console.log(`  ${file} -> ${basename(tsPath)}`);
+  console.log(`  ${relative(jsonDir, jsonPath)} -> ${basename(tsPath)}`);
+}
+
+if (notEnrolled.length) {
+  console.log(`Not enrolled (${notEnrolled.length}): ${notEnrolled.join(', ')}`);
 }
 
 if (exports.length) {

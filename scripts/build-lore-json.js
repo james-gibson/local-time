@@ -19,17 +19,31 @@
  */
 
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
-import { join, basename, resolve } from 'node:path';
+import { join, basename, resolve, relative } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 
 /** Resolve the directory that actually contains the markdown lore docs. */
 function resolveLoreDir(input) {
   const abs = resolve(input);
-  const entries = readdirSync(abs);
-  if (entries.some((e) => e.endsWith('.md'))) return abs; // dir is itself `lore`
+  // Prefer the project layout: content lives under <root>/lore. The project root
+  // itself can hold top-level markdown (OUTSTANDING.md, CONVENTIONS.md), so a
+  // plain "any .md here?" test resolves the root instead of its `lore/` dir and
+  // the compendia never regenerate.
   const nested = join(abs, 'lore');
   if (exists(nested) && statSync(nested).isDirectory()) return nested;
+  if (readdirSync(abs).some((e) => e.endsWith('.md'))) return abs; // dir is itself `lore`
   return abs;
+}
+
+/** Recursively collect .md paths (skipping dot-dirs like .ok/). */
+function collectMarkdown(dir, out = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) continue;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) collectMarkdown(full, out);
+    else if (entry.name.endsWith('.md')) out.push(full);
+  }
+  return out;
 }
 
 function exists(p) {
@@ -253,6 +267,13 @@ function normalise(mdPath, content, zeroIndex) {
 
     // --- identity ---
     universeId: fm['universe-id'] ?? null,
+    // Carried through so the importer can refuse a stale or un-enrolled JSON
+    // without re-reading the markdown. `null` means the flag was absent.
+    'local-time-sync': fm['local-time-sync'] ?? null,
+    // Explicit permission to publish this universe as public documentation.
+    // Deliberately separate from the KB's root-derived `visibility`: a doc can
+    // live in a private root and still be publishable, but only on purpose.
+    publish: fm.publish ?? null,
     type: fm.type ?? null,
     title: fm.title ?? null,
     description: fm.description ?? null,
@@ -299,18 +320,28 @@ function normalise(mdPath, content, zeroIndex) {
 const contentArg = process.argv[2] || '.';
 const loreDir = resolveLoreDir(contentArg);
 
-const files = readdirSync(loreDir).filter((f) => f.endsWith('.md') && !f.startsWith('.'));
-console.log(`Building JSON from ${files.length} lore docs in ${loreDir}`);
+const mdPaths = collectMarkdown(loreDir);
+console.log(`Building JSON from ${mdPaths.length} lore docs in ${loreDir}`);
 
-// Pass 1 — index every doc's own zeroth, so a doc that *references* another
-// universe's zeroth can resolve it instead of restating it.
+/** Frontmatter key that enrols a doc in this sync. */
+const ENROL_KEY = 'local-time-sync';
+
+const isEnrolled = (fm) => {
+  const v = fm[ENROL_KEY];
+  return v === true || v === 'true' || v === 'yes';
+};
+
+// Pass 1 — index every enrolled doc's own zeroth, so a doc that *references*
+// another universe's zeroth can resolve it instead of restating it.
 const contents = new Map();
+const frontmatters = new Map();
 const zeroIndex = new Map();
-for (const file of files) {
-  const mdPath = join(loreDir, file);
+for (const mdPath of mdPaths) {
   const content = readFileSync(mdPath, 'utf-8');
-  contents.set(file, content);
+  contents.set(mdPath, content);
   const { frontmatter: fm } = splitFrontmatter(content);
+  frontmatters.set(mdPath, fm);
+  if (!isEnrolled(fm)) continue;
   const id = fm['universe-id'];
   const zr = fm['zero-reference'] || {};
   // A doc that borrows another universe's zeroth contributes none of its own.
@@ -319,13 +350,26 @@ for (const file of files) {
   if (zero.zeroPoint) zeroIndex.set(id, zero);
 }
 
-// Pass 2 — emit.
-for (const file of files) {
-  const mdPath = join(loreDir, file);
-  const json = normalise(mdPath, contents.get(file), zeroIndex);
+// Pass 2 — emit, but only for enrolled docs.
+//
+// Without an enrolment key the walk writes a JSON beside *every* markdown in the
+// tree, so meta docs (CONVENTIONS.md, OUTSTANDING.md) acquire JSON exports they
+// have no use for. `local-time-sync: true` in a doc's frontmatter opts it in;
+// everything else is left alone. See CONVENTIONS.md.
+const enrolled = [], skipped = [];
+for (const mdPath of mdPaths) {
+  if (!isEnrolled(frontmatters.get(mdPath))) {
+    skipped.push(relative(loreDir, mdPath));
+    continue;
+  }
+  enrolled.push(mdPath);
+  const json = normalise(mdPath, contents.get(mdPath), zeroIndex);
   const jsonPath = mdPath.replace(/\.md$/, '.json');
   writeFileSync(jsonPath, JSON.stringify(json, null, 2) + '\n');
-  console.log(`  ${file} -> ${basename(jsonPath)}  (${json.universeId ?? 'no universe-id'})`);
+  console.log(`  ${relative(loreDir, mdPath)} -> ${basename(jsonPath)}  (${json.universeId ?? 'no universe-id'})`);
 }
+
+console.log(`Emitted ${enrolled.length}, skipped ${skipped.length} not enrolled`);
+if (skipped.length) console.log(`  ${skipped.join(', ')}`);
 
 console.log('Done.');
