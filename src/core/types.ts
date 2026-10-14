@@ -745,6 +745,14 @@ export enum UniverseType {
   FILM = 'film',
   SERIES = 'series',
   BOOK = 'book',
+  /**
+   * A video game as a work: a base game, an expansion or a remaster, identified
+   * by `game:<franchise>:<title>:<year>` (see `createGameUniverseId`). The
+   * `game:` namespace predates this member — `games/pokemon.ts` typed its games
+   * as `SIMULATION`, which describes the *inside* of a game, not the work. A
+   * game is a released work with a release keyframe, so it gets its own member.
+   */
+  GAME = 'game',
   PATENT = 'patent',
   HISTORICAL_EVENT = 'historical_event',
   PERSONAL_EXPERIENCE = 'personal_experience',
