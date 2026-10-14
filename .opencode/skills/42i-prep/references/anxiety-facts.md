@@ -23,6 +23,8 @@ measured.
 - Hedging the plan ("this may take a while", "the index may be rebuilding") without evidence.
 - Serialising `write_safely` calls for the same file.
 - Avoiding a refresh that is incremental and cheap, then working from stale data.
+- **Trusting the ticket** — implementing a mechanism it names without checking that the mechanism
+  exists, is public, and will accept the new value.
 
 ## The facts
 
@@ -39,6 +41,7 @@ are local, and the expensive parts are cached or skipped.
 | "Reading a block will be slow." | `read_chunk` is one addressed call. A *search* is the slow, lossy option, and it may elide hits under budget. Reading by id is the fast path. |
 | "OpenKnowledge is a server, it'll lag." | OK `exec` read-only (`cat`, `ls`, `grep`) is cheap; watched docs bypass the round trip. |
 | "I should not add more calls." | Prepping removes calls: one `read_chunk` replaces a search that returns a summary; one batched edit replaces three serialised ones. |
+| "The ticket says it works this way." | A ticket is a **claim set**, not a fact. Worked case: `common-universe-ids.ts` builds its containment registry in a **`private static`** block of 9 hard-coded roots and never reads universe objects — so a ticket that says "resolve containment with `getAllDescendants()`" (local-time#89, AC#2) **cannot be satisfied** by declaring `parentUniverses`; it needs a core edit. One `read_chunk` settles it. A `refuted` presumption is a **gate**, not a footnote. |
 
 ## The counter-scripts
 
@@ -57,6 +60,9 @@ When you feel the pull to slow down, do the opposite of the symptom:
   result is a pointer; take the `chunk_id`. Never fall back to `grep`.
 - **Trust the hash.** `index_kb.py` will not re-embed unchanged docs. Don't pre-verify what
   the manifest already guards.
+- **Falsify the ticket.** A ticket is a claim set. Extract its presumptions and settle each with
+  one `read_chunk` — the code graph is cheap pre-research. A `refuted` one stops the step that
+  depends on it.
 - **Parallelise independent calls.** Probe + repo list + a symbol search do not depend on each
   other; issue them together.
 - **Say it.** "This is agent anxiety." Then make the call you were avoiding — it will come

@@ -1,6 +1,6 @@
 ---
 name: 42i-prep
-description: Use before a multi-step refactor, before creating or adding a universe in local-time, or before any KB/plane work. 42i prep loads any durable gated plan for the task from Qdrant memory, classifies the task shape (research, one edit, ten, refactor, universe-create), probes the unknown facts (cwd, git remote, branch, node, Synapse repo_id, KB root), and warms the three caches that hold them: the Qdrant `kb` plane/42i vector, Qdrant memory, and the Synapse code graph. For a universe it hands over a ready-to-fill starting builder (the scaffold) so the agent starts writing, not deciding. It records the block/chunk ids, hands them down so downstream agents read by id instead of re-searching, and calibrates expectations: Synapse search returns addressed chunks, not grep output. Also load when an agent serialises edits, re-reads what it already has, misreads a thin Synapse result as "not found", or stalls because it expects a local server to be slow — the failure mode this skill calls agent anxiety.
+description: Use before a multi-step refactor, before creating or adding a universe in local-time (or processing one of its implementation tickets), or before any KB/plane work. 42i prep loads any durable gated plan for the task from Qdrant memory, classifies the task shape (research, one edit, ten, refactor, universe-create, ticket), probes the unknown facts (cwd, git remote, branch, node, Synapse repo_id, KB root), and warms three caches: the Qdrant `kb` plane/42i vector, Qdrant memory, and the Synapse code graph. For a universe it hands over a ready-to-fill scaffold so the agent starts writing, not deciding; for a ticket it falsifies the ticket's presumptions first. It records the block/chunk ids and hands them down so downstream agents read by id; Synapse returns addressed chunks, not grep output. Also load when an agent serialises edits, re-reads its own output, misreads a thin result as "not found", or stalls expecting a local server to be slow — the failure mode this skill calls agent anxiety.
 ---
 
 # 42i prep — warm the caches, then work
@@ -24,6 +24,9 @@ Any of these is a trigger:
 - A refactor touching `local-time/src/core/` or `local-time/src/config/universes/`, or any
   change spanning more than two or three files.
 - Creating or adding a universe — run this **alongside** the `local-time-universe` skill.
+- **Processing an implementation ticket** — `process <repo>/issues/<N>`. That string is the
+  **GitHub issue** `<N>` in `<repo>` (`<repo>/issues/` is not a path and does not exist), and a
+  ticket is a set of **presumptions** — so the prep is to falsify them (Step 1).
 - A KB edit that will flow through `local-time/scripts/sync-lore.sh`.
 - Plane / 42i / embedding work.
 - Any task you expect to outlive one context compaction.
@@ -60,6 +63,7 @@ Classify first — the shape sets the prep budget and the handoff.
 | **refactor** | structural, many files, or `src/core/` | full graph, dead-code, tests, `change_review` at the end |
 | **universe-create** | a new universe (KB or TS) | KB payload + registration surfaces + a sibling to copy |
 | **universe-derive** | a new universe **from an existing one** | the **lever** universe's full fact set (see below) |
+| **ticket** | `process <repo>/issues/<N>` — an implementation ticket | the ticket's **presumptions**, falsified (see below) |
 | **plane / 42i** | embedding / plane work | the whole charge graph, not one compendium |
 
 Say the shape out loud before you start. If you cannot classify it, you are in **research** —
@@ -86,6 +90,21 @@ the narrative, not deciding the shape. Rule of thumb: the scaffold is a **`liter
 has a lever (the builder cannot emit `connections.natural.parentUniverses`), a **`builder`**
 otherwise. Both templates, plus the store/load schema:
 [references/universe-scaffold.md](references/universe-scaffold.md).
+
+### A ticket is a presumption set — falsify it before you build
+
+A ticket (`process <repo>/issues/<N>`) is not a fact about the codebase; it is a set of
+**presumptions** — claims about how the system works — written by someone who may have been
+wrong, or right about a design that has since moved. The prep is to **extract them and settle
+each against the code graph** — one Synapse `read_chunk` per claim, from ids you already
+cached — *before* anything depends on them. A verified presumption is a fact you hand down; an
+unverified one is the defect you ship.
+
+A **`refuted`** presumption with dependents already in the plan is a **gate, not a footnote**:
+stop, record it with its evidence, and get a decision before building the thing that depends on
+it. Worked example — issue #89's containment presumption fails, so its acceptance criterion
+needs a core edit the ticket never mentions:
+[references/presumption-ledger.md](references/presumption-ledger.md).
 
 ## Step 2 — the environment probe (the "skill-reset")
 
@@ -167,6 +186,8 @@ what makes "batch edits across a long task" safe.
 5. `synapse_explore_graph` (`callers`/`callees`, depth 2) — the reachable set.
 6. `synapse_codebase_insights` (`dead_code`) — **before** deleting anything.
 7. `synapse_test_quality` (`find_tests`) — the tests that guard the change.
+8. **Falsify the ticket's presumptions** — one `read_chunk` each, from the ids above; the code
+   graph is the pre-research engine ([references/presumption-ledger.md](references/presumption-ledger.md)).
 
 Keep every `chunk_id`. A `chunk_id` is how you (and any subagent) read the block **whole**
 later — `synapse_inspect_files` (`read_chunk`) returns `raw_source`. A search result is only
@@ -201,7 +222,7 @@ the next agent inherits the plan rather than the ambiguity:
 
 ```text
 42i-prep handoff
-shape:       <research | one-edit | multi-edit | refactor | universe-create | plane>
+shape:       <research | one-edit | multi-edit | refactor | universe-create | universe-derive | ticket | plane>
 goal:        <one line — what "done" is>
 
 env:         cwd=<abs>   repo=<path>   remote=<owner/repo | NO-REMOTE>
@@ -213,6 +234,7 @@ synapse:     chunk_id=<id>  (<symbol> @ path:line)
 qdrant kb:   point=<id>  universe_id=<id>  epoch_id=<id>
              plane_charge=+1  zero_status=established  presupposes=[<ids>]
 memory:      qdrant point=<id>  (the cached plan + decisions)
+presumptions: P1=<status>  P2=<status>  (<N> refuted ⇒ gate — the ticket ledger)
 
 constraints: <id validity / closed unions / the registration step / do-not-touch files>
 next:        step 1 — read_chunk <id>        (exactly this; not a search)
@@ -246,6 +268,8 @@ Name it, then do the opposite of it.
 - **stalls on facts it could have probed once** — where is `node`, which repo am I in, what is
   the `repo_id` — instead of running the probe;
 - **cannot say the task shape**, so it oscillates between too-small and too-large steps;
+- **trusts the ticket** — starts writing against a mechanism that is named in the ticket but is
+  designed, not wired, and finds out sixty files later;
 - declines to spawn parallel calls because "the server might be slow";
 - fronts the plan with hedges about latency it has not observed.
 
@@ -263,6 +287,9 @@ Name it, then do the opposite of it.
   hash already guards.
 - **Read by id.** `read_chunk(<chunk_id>)`, `qdrant-find(point=<id>)`. A known block is one
   cheap call, never a search.
+- **Falsify the ticket's presumptions.** A ticket is a claim set, not a fact. One `read_chunk`
+  per presumption settles it — and a `refuted` one is a gate, not a footnote
+  ([references/presumption-ledger.md](references/presumption-ledger.md)).
 - **Say the name.** "This is agent anxiety" — naming the pattern is usually enough to break
   it, because the premise (a slow server, an unknown environment) was never observed.
 
@@ -295,6 +322,9 @@ Name it, then do the opposite of it.
 - [references/universe-scaffold.md](references/universe-scaffold.md) — the **starting builder**:
   the compiling skeleton (builder- and literal-mode templates), the registration checklist, and
   how to store/load it in Qdrant so the next agent starts writing instead of deciding.
+- [references/presumption-ledger.md](references/presumption-ledger.md) — **falsify the ticket**:
+  extract what a ticket/plan/guide *assumes* about the codebase, settle each with one Synapse
+  read, and treat a `refuted` one as a gate — worked through issue #89.
 - [references/cache-matrix.md](references/cache-matrix.md) — the exact cache targets, key by
   key, per task type.
 - [references/handoff.md](references/handoff.md) — the id-handoff protocol, per-shape

@@ -116,6 +116,22 @@ Prefer this over a blank file: find the lever, cache its facts, then assemble. S
 target path, the mode (builder|literal), the lever, and the registration checklist — so the
 working agent starts mid-file instead of deciding the shape.
 
+### Processing an implementation ticket (`<repo>/issues/<N>`)
+
+A ticket is a **claim set**, not a fact. Warm its presumptions and settle each with one read.
+
+| Target | Warm |
+| --- | --- |
+| The ticket | `gh issue view <N> --repo <owner/repo> --json number,title,state,labels,body` — the full body, saved, not skimmed |
+| Synapse | **one `read_chunk` per presumption** — the mechanism it names (`symbol`/`regex` → `chunk_id` → `read_chunk`): does it exist, is it public, will it accept your value? |
+| Synapse | the surfaces its acceptance criteria name (`allUniverses`, the registry, the guard tests) |
+| Qdrant memory | the **presumption ledger** (`P1..Pn` + status + evidence) and the plan |
+| Qdrant kb | only if the ticket defines universes — then also warm the lever row below |
+
+**Output →** a presumption ledger (`presumption-ledger.md`) and a plan whose gates are the
+`refuted` rows. A `refuted` presumption with dependents already planned **stops the row** — a
+ticket that assumes an un-wired mechanism is a blocking gate, not a footnote.
+
 ### Plane / 42i / embedding work
 
 | Target | Warm |
