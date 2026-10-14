@@ -42,6 +42,7 @@ import {apollo13FilmUniverse} from "./films/apollo13-film"
 import {hillaryClintonUniverses} from "./people/hillary-clinton"
 import {hillaryClintonConspiracyTheoriesUniverses} from "./people/clinton-conspiracy-theories"
 import {hillaryClintonConspiracyRebuttalsUniverses} from "./people/clinton-conspiracy-rebuttals"
+import {scotusUniverses} from "./scotus-ot2025"
 export const allUniverses = [
     ...filmUniverses,
   ...pixarFilmUniverses,
@@ -90,6 +91,7 @@ export const allUniverses = [
   ...hillaryClintonUniverses,
   ...hillaryClintonConspiracyTheoriesUniverses,
   ...hillaryClintonConspiracyRebuttalsUniverses,
+  ...scotusUniverses,
 ];
 
 export const allNetworks = [
