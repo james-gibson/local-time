@@ -45,6 +45,50 @@ export interface PixarFilmMetadata {
 const PIXAR_COPYRIGHT_HOLDERS = ['The Walt Disney Company', 'Pixar Animation Studios'];
 
 /**
+ * Runtime keyframes for the original Toy Story trilogy.
+ *
+ * These were recovered from `../films/toy-story.ts`, whose `pixar:toy_story*` universes
+ * duplicated the ids created here. Rather than register the same id twice, the duplicate
+ * definitions were removed and their moments carried onto the canonical universes as
+ * keyframes (james-gibson/local-time#67). Keyed by the film-slug used in `filmData`;
+ * each entry is `[startMinute, durationMinutes, keyframeId, significance, tags]`.
+ *
+ * `toy_story` keeps its Star Wars-homage keyframes added in `createPixarFilmUniverse`.
+ */
+const TOY_STORY_RUNTIME_KEYFRAMES: Record<
+  string,
+  Array<[number, number, string, number, string[]]>
+> = {
+  toy_story: [
+    [5, 22, 'buzz_arrival', 0.9, ['character_introduction', 'inciting_incident']],
+    [18, 45, 'window_incident', 0.95, ['conflict', 'turning_point', 'rivalry']],
+    [35, 10, 'pizza_planet', 0.8, ['new_world', 'adventure']],
+    [42, 5, 'captured_by_sid', 0.9, ['antagonist', 'danger', 'imprisonment']],
+    [63, 15, 'sids_toys_revolt', 1.0, ['climax', 'teamwork', 'resolution']],
+    [72, 30, 'falling_with_style', 1.0, ['climax', 'character_arc', 'friendship']],
+    [77, 15, 'reunion_with_andy', 0.9, ['resolution', 'homecoming']],
+  ],
+  toy_story_2: [
+    [10, 50, 'woody_stolen', 0.95, ['inciting_incident', 'kidnapping']],
+    [21, 30, 'meet_the_roundup_gang', 0.9, ['character_introduction', 'lore_expansion']],
+    [35, 15, 'rescue_mission_begins', 0.85, ['adventure', 'teamwork']],
+    [48, 55, 'jessies_song', 1.0, ['emotional_core', 'backstory', 'montage']],
+    [60, 20, 'als_toy_barn', 0.8, ['new_world', 'exploration']],
+    [75, 40, 'airport_chase', 1.0, ['climax', 'action', 'rescue']],
+    [86, 5, 'welcome_home', 0.9, ['resolution', 'new_family']],
+  ],
+  toy_story_3: [
+    [12, 25, 'donated_to_sunnyside', 0.95, ['inciting_incident', 'new_world', 'abandonment']],
+    [28, 10, 'meet_lotso', 0.9, ['antagonist_introduction', 'deception']],
+    [45, 30, 'buzz_demo_mode', 0.85, ['conflict', 'character_change']],
+    [70, 15, 'the_great_escape', 0.9, ['action', 'teamwork', 'climax_rising']],
+    [86, 20, 'incinerator_scene', 1.0, ['climax', 'mortality', 'acceptance', 'unity']],
+    [92, 45, 'andy_gives_toys_to_bonnie', 1.0, ['resolution', 'letting_go', 'new_beginning']],
+    [98, 50, 'so_long_partner', 1.0, ['emotional_climax', 'farewell']],
+  ],
+};
+
+/**
  * Creates a complete Universe object for a Pixar feature film.
  *
  * `Toy Story` (1995) also carries the Star Wars-homage references and runtime
@@ -107,6 +151,13 @@ export const createPixarFilmUniverse = (id: string, data: PixarFilmMetadata): Un
       })
       .addRuntimeKeyframe(23, 5, 'tie_fighter_sound', 0.8, ['audio_reference', 'star_wars_reference', 'sound_design'])
       .addRuntimeKeyframe(57, 18, 'strange_new_planet', 0.85, ['dialogue_reference', 'star_wars_reference', 'buzz_lightyear']);
+  }
+
+  // Plot keyframes for the original Toy Story trilogy, folded in from the duplicate
+  // definitions in `../films/toy-story.ts` (james-gibson/local-time#67).
+  for (const [start, duration, keyframeId, significance, tags] of
+    TOY_STORY_RUNTIME_KEYFRAMES[id] ?? []) {
+    builder.addRuntimeKeyframe(start, duration, keyframeId, significance, tags);
   }
 
   // 'Elio' has no confirmed runtime yet (0), so no runtime epoch is modelled. It still needs
