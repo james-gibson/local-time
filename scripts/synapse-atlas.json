@@ -1,0 +1,58 @@
+{
+  "repo_id": "local-time",
+  "collection": "digital-twins-mcp",
+  "slug": "synapse-chunk-atlas",
+  "topics": ["synapse", "atlas", "retrieval", "registration", "builder", "ids"],
+  "issues": [38, 45, 50, 67, 70, 74, 75, 77, 82],
+  "groups": [
+    {
+      "name": "REGISTRATION & REGISTRY",
+      "chunks": [
+        { "path": "src/config/universes/index.ts", "symbol": "allUniverses" },
+        { "path": "src/config/universe-registry.ts", "symbol": "UniverseRegistry__part1" },
+        { "path": "src/config/universe-registry.ts", "symbol": "UniverseRegistry__part2", "note": "registerUniverse / loadBuiltInUniverses skip-and-warn" }
+      ]
+    },
+    {
+      "name": "IDS & VALIDATION (#50, #51, #70)",
+      "chunks": [
+        { "path": "src/core/universe-ids.ts", "symbol": "UNIVERSE_ID_PATTERNS", "note": "incl. ANY_YEAR_TERMINATED" },
+        { "path": "src/core/universe-ids.ts", "symbol": "isValidUniverseId" },
+        { "path": "src/core/universe-ids.ts", "symbol": "isHistoricalUniverseId" }
+      ]
+    },
+    {
+      "name": "BUILDER (#45, #70, #77)",
+      "chunks": [
+        { "path": "src/core/universe-builder.ts", "symbol": "UniverseBuilder__part1", "note": "historical() slug + validate" },
+        { "path": "src/core/universe-builder.ts", "symbol": "UniverseBuilder__part4", "note": "addKeyframe options / addRuntimeKeyframe" },
+        { "path": "src/core/universe-builder.ts", "symbol": "UniverseBuilder__part5", "note": "build / validate" }
+      ]
+    },
+    {
+      "name": "TYPES & DESIGN (#74, #75)",
+      "chunks": [
+        { "path": "src/core/types.ts", "symbol": "TemporalLayer", "note": "subuniverses / reality_correspondence" },
+        { "path": "src/core/types.ts", "symbol": "Universe" },
+        { "path": "src/core/types.ts", "symbol": "RealityRelation" },
+        { "path": "src/core/types.ts", "symbol": "RealityAnchor" },
+        { "path": "src/core/types.ts", "symbol": "TemporalKeyframe" }
+      ]
+    },
+    {
+      "name": "ADDRESSING (#38) & WINDOWS (#82)",
+      "chunks": [
+        { "path": "src/addressing/zero-reference-addressing.ts", "symbol": "ZeroReferenceAddressing" },
+        { "path": "src/query/window-search.ts", "symbol": "WindowSearch" }
+      ]
+    },
+    {
+      "name": "DESIGN PROVENANCE & GENERATOR",
+      "chunks": [
+        { "path": "explorations/README.md", "symbol": "explorations_index_and_provenance", "optional": true, "note": "lands with PR #83" },
+        { "path": "kagi.md", "symbol": "registration_a_universe_that_is_not_in_alluniverses_is_not_a_universe" },
+        { "path": "kagi.md", "symbol": "validation_checklist" }
+      ]
+    }
+  ]
+}
