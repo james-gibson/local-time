@@ -63,6 +63,9 @@ export const allUniverses = [
   usNativeAmericanPolicyUniverse,
   electricTelegraphUniverse,
   readyPlayerOneUniverse, toyStory2RecoveryMissionUniverse, spaceballsUniverse,
+  // Imported since it was written but never placed in this array — so it built, validated
+  // and was discarded, and its id was invalid besides (james-gibson/local-time#70).
+  disneyPixarAcquisition2006Universe,
   september11AttacksUniverse,
   penicillinDiscoveryUniverse, tulsaMassacreMediaCoverageUniverse, tulsaRaceMassacre1921Universe, transistorInventionUniverse, worldWideWebUniverse
   , theBeatlesHistoricalUniverse,

@@ -5,6 +5,7 @@ import {
     createMissionBuilder,
 } from '../universe-builder';
 import { UniverseType, TimePrecision } from '../types';
+import { isValidUniverseId, isHistoricalUniverseId } from '../universe-ids';
 import { allUniverses } from '../../config/universes';
 
 /**
@@ -218,6 +219,95 @@ describe('UniverseBuilder — metadata extraction', () => {
  * That is exactly what happened on the first run of #45: `ed-sheeran.ts` and
  * `pixar/films.ts` failed, and four unrelated suites went with them.
  */
+describe('UniverseBuilder — keyframe fidelity', () => {
+    /**
+     * james-gibson/local-time#77. `addRuntimeKeyframe` took a `description` and dropped it,
+     * because `TemporalKeyframe` had no field for it — so every builder-built keyframe lost
+     * the one sentence worth retrieving, and the loss was invisible.
+     */
+    test('a runtime keyframe keeps the description it was given', () => {
+        const universe = new UniverseBuilder()
+            .film('film', 'movie', 2023)
+            .withRuntime(120)
+            .withRealityRelation('pure_fiction', 1.0)
+            .withPublicDomain(['Test'])
+            .addRuntimeKeyframe(5, 30, 'arrival', 1.0, ['iconic'], 'The T-800 arrives from the future.')
+            .build();
+
+        const keyframe = universe.temporalStructure!.keyframes.find(k => k.id === 'arrival')!;
+        expect(keyframe.description).toBe('The T-800 arrives from the future.');
+        // 5m30s, not 5 minutes 30 of anything else.
+        expect(keyframe.timestamp).toBe(BigInt(5 * 60 + 30) * 1_000_000_000n);
+    });
+
+    test('omitting the description leaves the field absent, not undefined-valued', () => {
+        const universe = new UniverseBuilder()
+            .film('film', 'movie', 2023)
+            .withRuntime(120)
+            .withRealityRelation('pure_fiction', 1.0)
+            .withPublicDomain(['Test'])
+            .addRuntimeKeyframe(1, 0, 'plain', 0.5, ['x'])
+            .build();
+
+        const keyframe = universe.temporalStructure!.keyframes.find(k => k.id === 'plain')!;
+        expect('description' in keyframe).toBe(false);
+    });
+});
+
+describe('UniverseBuilder — historical ids', () => {
+    /**
+     * james-gibson/local-time#70. `historical()` slugified with only whitespace replaced, so
+     * punctuation leaked into the id and the registry then skipped the universe with a
+     * warning. A title with an apostrophe must now yield a valid, canonical id.
+     */
+    test('a title with punctuation yields a valid canonical id', () => {
+        const universe = new UniverseBuilder()
+            .historical("Ed Sheeran 'Thinking Out Loud' Copyright Trial", 2023, 2023)
+            .withRealityRelation('documentary', 0.0)
+            .withPublicDomain(['Records'])
+            .addDateKeyframe('2023-05-04', 'verdict', 1.0, ['verdict'], TimePrecision.DAY)
+            .build();
+
+        expect(universe.universeId).toBe(
+            'history:ed_sheeran_thinking_out_loud_copyright_trial:2023-2023',
+        );
+        expect(isHistoricalUniverseId(universe.universeId as string)).toBe(true);
+        expect(isValidUniverseId(universe.universeId as string)).toBe(true);
+    });
+
+    /** The normalisation must not move an id that was already valid. */
+    test('a clean slug is left exactly as it was', () => {
+        const universe = createHistoricalBuilder()
+            .historicalEvent('a_specific_event', 1999)
+            .withDateRange(1999, 1, 1, 1999, 12, 31, TimePrecision.DAY)
+            .withRealityRelation('documentary', 0.0)
+            .withPublicDomain(['Records'])
+            .build();
+        expect(universe.universeId).toBe('history:a_specific_event:1999');
+    });
+
+    /** Dots are legal in the grammar and must survive. */
+    test('legal punctuation in the slug is preserved', () => {
+        const universe = new UniverseBuilder()
+            .historical('Major Changes in U.S. Copyright Law', 1790)
+            .withRealityRelation('documentary', 0.0)
+            .withPublicDomain(['Records'])
+            .withDateRange(1790, 1, 1, 1790, 12, 31, TimePrecision.DAY)
+            .build();
+        expect(universe.universeId).toBe('history:major_changes_in_u.s._copyright_law:1790');
+    });
+
+    /**
+     * A malformed *year* is the other half of #70: two callers passed a title where a year
+     * belongs. That must fail here, loudly, rather than be dropped by the registry later.
+     */
+    test('a malformed year range throws and names the event', () => {
+        expect(() =>
+            new UniverseBuilder().historical('an_event', 'not a year').build(),
+        ).toThrow(/Invalid historical universe ID.*an_event/s);
+    });
+});
+
 describe('every registered universe survives validation', () => {
     test('allUniverses imports without throwing', () => {
         expect(Array.isArray(allUniverses)).toBe(true);
