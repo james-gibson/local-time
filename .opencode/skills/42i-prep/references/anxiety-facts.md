@@ -46,6 +46,8 @@ When you feel the pull to slow down, do the opposite of the symptom:
 
 - **Classify the shape.** "One edit" and "refactor" are different tasks; naming the shape
   tells you how much to read before you write, and stops the oscillation.
+- **Load the plan.** If a `42i-plan` exists for this task, its steps, env, and next move are
+  already written down — resume instead of relearning.
 - **Probe once.** Run the environment probe up front; cache `cwd`/`repo_id`/`node`. An agent
   that already knows these never stalls to find them.
 - **Batch.** One `write_safely` per file, reviewed, applied. Not one per field.

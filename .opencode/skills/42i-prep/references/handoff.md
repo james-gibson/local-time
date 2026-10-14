@@ -140,3 +140,6 @@ you fill it before the expensive agent arrives.*
    budget; `read_chunk` returns the block whole.
 6. **Keep the handoff in the cache, not just the prompt.** The prompt dies at compaction; the
    Qdrant memory note does not.
+7. **The durable form of this handoff is the gated plan.** Store the steps as a `42i-plan` with
+   `status` + `evidence` per step (`plan-store.md`); then this handoff's `next:` is simply the
+   plan's first `pending` step, and the next agent resumes instead of relearning.

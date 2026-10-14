@@ -1,6 +1,6 @@
 ---
 name: 42i-prep
-description: Use before a multi-step refactor, before creating or adding a universe in local-time, or before any KB/plane work. 42i prep first classifies the task shape (research, one edit, ten, refactor, universe-create) and probes the facts the task needs but does not know by default — cwd, git remote, branch, where node is, the Synapse repo_id, the KB root — then warms the three caches that hold them: the Qdrant `kb` plane/42i vector, Qdrant memory, and the Synapse code graph. It records the block/chunk ids, hands them down with instructions so downstream agents read by id instead of re-searching, and calibrates expectations, because Synapse search returns addressed chunks, not grep output. Also load when an agent serialises edits, re-reads what it already has, misreads a thin Synapse result as "not found", or stalls because it expects a local server to be slow — the failure mode this skill calls agent anxiety.
+description: Use before a multi-step refactor, before creating or adding a universe in local-time, or before any KB/plane work. 42i prep first loads any durable gated plan for the task from Qdrant memory, classifies the task shape (research, one edit, ten, refactor, universe-create) and probes the facts the task needs but does not know by default — cwd, git remote, branch, where node is, the Synapse repo_id, the KB root — then warms the three caches that hold them: the Qdrant `kb` plane/42i vector, Qdrant memory, and the Synapse code graph. It records the block/chunk ids, hands them down with instructions so downstream agents read by id instead of re-searching, and calibrates expectations, because Synapse search returns addressed chunks, not grep output. Also load when an agent serialises edits, re-reads what it already has, misreads a thin Synapse result as "not found", or stalls because it expects a local server to be slow — the failure mode this skill calls agent anxiety.
 ---
 
 # 42i prep — warm the caches, then work
@@ -31,7 +31,23 @@ Any of these is a trigger:
 A single-file, single-lookup question can skip the *content* prep. The probe should always
 cost less than the re-searching it removes.
 
-## Step 0 — know the task shape
+## Step 0 — load the plan (if one exists)
+
+Before shape and probe, ask Qdrant whether this task already has a **gated plan** from a prior
+iteration:
+
+```text
+qdrant-find   "<task description>"        # or filter metadata.kind = "42i-plan"
+```
+
+If one comes back, **adopt it** — its `env:` answers the probe, its `steps[].evidence` are the
+block ids and PR numbers, its `next:` is your first move. Do **not** re-derive any of it. If
+nothing comes back, you are the first iteration: do the steps below, then **write the plan**
+("this task is opening three PRs, in `james-gibson/local-time` and `…`") so the next agent
+resumes instead of relearning. Gated outcomes — a step is done only when its gate holds. Schema,
+load/advance discipline, and why it kills anxiety: [references/plan-store.md](references/plan-store.md).
+
+## Step 1 — know the task shape
 
 Anxiety thrives on an unclassified task: *"I don't know how big this is"* **is** the fear.
 Classify first — the shape sets the prep budget and the handoff.
@@ -62,7 +78,7 @@ fast. The lever registry is `CommonUniverseIds`; the attach points are
 `connections.natural.parentUniverses` and `connections.references[]`. Full pattern and real
 worked examples: [references/universe-levers.md](references/universe-levers.md).
 
-## Step 1 — the environment probe (the "skill-reset")
+## Step 2 — the environment probe (the "skill-reset")
 
 Every task depends on facts that are **not known by default** and have to be discovered: the
 cwd, which repo and remote you are in, the branch, *where `node` is*, the Synapse `repo_id`,
@@ -259,6 +275,8 @@ Name it, then do the opposite of it.
 
 ## References
 
+- [references/plan-store.md](references/plan-store.md) — the **gated plan** in Qdrant memory: a
+  durable, cross-iteration step list so the next agent resumes instead of relearning.
 - [references/environment-probe.md](references/environment-probe.md) — the "skill-reset"
   checklist: every fact to discover up front (cwd, repo, remote, branch, node, `repo_id`, KB
   root, index state) and the exact commands that answer it.

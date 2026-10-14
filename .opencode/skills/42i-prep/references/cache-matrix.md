@@ -3,9 +3,10 @@
 One row per task type; each cell is a concrete call. Do the whole row before the first edit.
 The ids you collect here are what you hand down (see `handoff.md`).
 
-Two things happen **before** any row below: classify the **shape** (see `SKILL.md` → *Step 0*)
-and run the **environment probe** (see `environment-probe.md`). The probe is identical for
-every shape; only the content caches below scale with it.
+Three things happen **before** any row below: load the **plan** (see `plan-store.md`), classify
+the **shape** (see `SKILL.md` → *Step 1*), then run the **environment probe** (see
+`environment-probe.md`). The probe is identical for every shape; only the content caches below
+scale with it.
 
 ## The three targets
 
