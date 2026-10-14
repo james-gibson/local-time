@@ -102,9 +102,10 @@ function isoToMs(iso) {
  * Mirrors `Temporal42i.parseNominalOffset` so the derived view agrees with the
  * library instead of inventing its own dialect — a divergence here silently
  * zeroes the very offsets the lift exists to compare:
- *   - `…:T+HH:MM:SS` (and an optional `.mmm`) — a precise label.
- *   - `…:T+<n>day(s)ish` / `…:T+<n>d` — a fuzzy label; the trailing `ish` marks
- *     the offset as approximate.
+ *   - `…:T±HH:MM:SS` (and an optional `.mmm`) — a precise label.
+ *   - `…:T±<n><unit>` — a labelled offset; `unit` is `day(s)`/`d`, `week(s)`/`w`,
+ *     `month(s)`/`mo` or `year(s)`/`yr(s)`/`y`, and a trailing `ish` marks the
+ *     offset as approximate.
  * Returns `null` when the address carries no parseable offset — never a guessed
  * zero, so callers can tell "no offset" from "offset of zero".
  */
@@ -116,20 +117,64 @@ function parseNominalOffset(address) {
     const ms = (+hms[2] * 3600 + +hms[3] * 60 + +hms[4]) * 1000 + +(hms[5] ?? 0);
     return { ms: sign * ms, approximate: false };
   }
-  const days = a.match(/([+-])(\d+(?:\.\d+)?)\s*(?:d|day|days)(ish)?\s*$/i);
-  if (days) {
-    const sign = days[1] === '-' ? -1 : 1;
+  const unit = a.match(
+    /([+-])(\d+(?:\.\d+)?)\s*(days?|weeks?|months?|years?|yrs?|d|w|mo|y)(ish)?\s*$/i,
+  );
+  if (unit) {
+    const sign = unit[1] === '-' ? -1 : 1;
     return {
-      ms: sign * Math.round(Number(days[2]) * 86_400_000),
-      approximate: Boolean(days[3]),
+      ms: sign * Math.round(Number(unit[2]) * unitFactorMs(unit[3])),
+      approximate: Boolean(unit[4]),
     };
   }
   return null;
 }
 
+/**
+ * The nominal length of one labelled unit, in milliseconds. Mirrors the library's
+ * `unitFactorMs`: day/week literal, month/year from `TimePrecision` (the KB's
+ * canonical month and year), so a `T+120 months` label compares with the rest.
+ */
+function unitFactorMs(unit) {
+  const u = String(unit).toLowerCase();
+  if (u === 'w' || u.startsWith('week')) return 7 * 86_400_000;
+  if (u === 'mo' || u.startsWith('month')) return 2_629_746_000; // TimePrecision.MONTH
+  if (u === 'y' || u.startsWith('year') || u.startsWith('yr')) return 31_536_000_000; // TimePrecision.YEAR
+  return 86_400_000; // d | day | days
+}
+
 /** Nominal offset of an epoch-relative address in milliseconds, or null. */
 function nominalMs(address) {
   return parseNominalOffset(address)?.ms ?? null;
+}
+
+/**
+ * The sort key for a declared keyframe: its offset from the zero in milliseconds,
+ * taking the anchored (real) value when a timestamp exists and the nominal label
+ * otherwise. `null` means neither is available, so the keyframe keeps its declared
+ * position. A sort is an *order*, not arithmetic — the T± label is read as a rank
+ * (james-gibson/local-time#35), never converted to a wall-clock date.
+ */
+function keyOrderMs(kf, zeroMs) {
+  const real = isoToMs(kf.timestamp);
+  if (real !== null) return real - (zeroMs ?? 0);
+  return nominalMs(kf.address);
+}
+
+/**
+ * Order keyframes by {@link keyOrderMs}. Stable: equal keys keep their declared
+ * order, so a doc already in clock order is emitted unchanged, and a keyframe that
+ * cannot be keyed sorts last rather than being dropped.
+ */
+function sortKeyframes(kfs, zeroMs) {
+  return kfs
+    .map((kf, index) => ({ kf, index, key: keyOrderMs(kf, zeroMs) }))
+    .sort((a, b) => {
+      const ka = a.key === null ? Infinity : a.key;
+      const kb = b.key === null ? Infinity : b.key;
+      return ka - kb || a.index - b.index;
+    })
+    .map(({ kf }) => kf);
 }
 
 /**
@@ -251,11 +296,25 @@ function normalise(mdPath, content, zeroIndex) {
   const zero = deriveZero(zr, fm, keyframes, zeroIndex);
   const { lift, condition } = liftTo42i(keyframes, zero.zeroPoint);
 
-  // Attach the 42i coordinate to each keyframe (a derived view, never authority).
-  const keyframesOut = keyframes.map((kf) => {
-    const l = lift?.get(kf);
-    return l ? { ...kf, '42i': l } : kf;
-  });
+  // Attach the derived views to each keyframe (never authority): the 42i
+  // coordinate, and the nominal offset of its label so a consumer can order
+  // keyframes without re-parsing the address. Then order them by the best
+  // available offset from the zero — the anchored timestamp where one exists, the
+  // label otherwise. The label is read as a *rank*, never converted to a clock
+  // (james-gibson/local-time#35).
+  const zeroMs = isoToMs(zero.zeroPoint);
+  const keyframesOut = sortKeyframes(
+    keyframes.map((kf) => {
+      const l = lift?.get(kf);
+      const nom = nominalMs(kf.address);
+      return {
+        ...kf,
+        ...(nom !== null ? { nominalMs: nom } : {}),
+        ...(l ? { '42i': l } : {}),
+      };
+    }),
+    zeroMs,
+  );
 
   return {
     // --- provenance ---

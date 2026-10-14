@@ -1,4 +1,4 @@
-import { ZeroReferenceEpoch } from '../core/types';
+import { TimePrecision, ZeroReferenceEpoch } from '../core/types';
 
 /**
  * The 42i temporal lift.
@@ -35,10 +35,15 @@ export class Temporal42i {
   /**
    * Parse a nominal offset out of an epoch-relative address.
    *
-   * Accepts the two shapes the KB actually uses:
-   *   - `…:T+HH:MM:SS` (and an optional `.mmm`) — a precise label.
-   *   - `…:T+<n>day(s)ish` / `…:T+<n>d` — a fuzzy label; the trailing `ish` is
-   *     load-bearing and marks the offset as approximate.
+   * Accepts every shape the KB uses:
+   *   - `…:T±HH:MM:SS` (and an optional `.mmm`) — a precise label, the nominal clock.
+   *   - `…:T±<n><unit>` — a labelled offset, where `<unit>` is `day(s)`/`d`,
+   *     `week(s)`/`w`, `month(s)`/`mo` or `year(s)`/`yr(s)`/`y`. A trailing `ish`
+   *     is load-bearing and marks the offset as approximate.
+   *
+   * The unit lengths are *nominal*: a month is {@link TimePrecision.MONTH}, a year
+   * {@link TimePrecision.YEAR}, so the label can be compared with other labels
+   * without pretending it is a clock (that disagreement is what `tension` measures).
    *
    * Returns `null` when the address carries no parseable offset (rather than
    * guessing zero), so callers can tell "no offset" from "offset of zero".
@@ -57,16 +62,48 @@ export class Temporal42i {
       return { ms: sign * ms, approximate: false };
     }
 
-    const days = address.match(/([+-])(\d+(?:\.\d+)?)\s*(?:d|day|days)(ish)?\s*$/i);
-    if (days) {
-      const sign = days[1] === '-' ? -1 : 1;
+    const unit = address.match(
+      /([+-])(\d+(?:\.\d+)?)\s*(days?|weeks?|months?|years?|yrs?|d|w|mo|y)(ish)?\s*$/i,
+    );
+    if (unit) {
+      const sign = unit[1] === '-' ? -1 : 1;
       return {
-        ms: sign * Math.round(Number(days[2]) * 86_400_000),
-        approximate: Boolean(days[3]),
+        ms: sign * Math.round(Number(unit[2]) * unitFactorMs(unit[3])),
+        approximate: Boolean(unit[4]),
       };
     }
 
     return null;
+  }
+
+  /**
+   * The sort key for a lifted keyframe: its offset from the zero in milliseconds,
+   * anchored (real) when there is one and nominal (the label) otherwise.
+   *
+   * This is the ordering {@link Temporal42i.compare} cannot express — `compare`
+   * refuses to put an unanchored point on the number line at all, but two labels
+   * still have an order. Preferring the real axis keeps a doc whose labels are not
+   * monotonic with the clock (they are ordinal, not arithmetic) in clock order.
+   */
+  static orderKeyMs(point: Pick<LiftedKeyframe42i, 're' | 'nominalMs'>): number {
+    return point.re !== null ? nsToMs(point.re) : point.nominalMs;
+  }
+
+  /**
+   * Order lifted keyframes by {@link Temporal42i.orderKeyMs}. Stable: keys that
+   * compare equal keep their declared order, so a doc already in clock order is
+   * emitted unchanged.
+   */
+  static sortByOrder<T extends Pick<LiftedKeyframe42i, 're' | 'nominalMs'>>(
+    items: readonly T[]
+  ): T[] {
+    return items
+      .map((item, index) => ({ item, index }))
+      .sort(
+        (a, b) =>
+          Temporal42i.orderKeyMs(a.item) - Temporal42i.orderKeyMs(b.item) || a.index - b.index
+      )
+      .map(({ item }) => item);
   }
 
   /**
@@ -388,7 +425,27 @@ export type Comparison42i =
   | { kind: 'branch'; reason: string; left: ZeroStatus; right: ZeroStatus };
 
 const NS_PER_MS = 1_000_000n;
+const DAY_MS = 86_400_000;
 
 function nsToMs(ns: bigint): number {
   return Number(ns / NS_PER_MS);
+}
+
+/**
+ * The nominal length of one labelled unit, in milliseconds.
+ *
+ * Day and week are literal; month and year reuse {@link TimePrecision}'s lengths,
+ * which are the repository's canonical month (30.44d) and year (365d) — so a
+ * `T+120 months` label is comparable with the rest of the KB rather than with an
+ * invented length. This is a *label* conversion, not a claim that the label is a
+ * clock: `tension` is what reports the difference.
+ */
+function unitFactorMs(unit: string): number {
+  const u = unit.toLowerCase();
+  if (u === 'w' || u.startsWith('week')) return 7 * DAY_MS;
+  if (u === 'mo' || u.startsWith('month')) return Number(TimePrecision.MONTH) / 1_000_000;
+  if (u === 'y' || u.startsWith('year') || u.startsWith('yr')) {
+    return Number(TimePrecision.YEAR) / 1_000_000;
+  }
+  return DAY_MS; // d | day | days
 }
