@@ -198,18 +198,24 @@ One `universeId` has one registration. Do **not** define the same id twice to pl
 
 The same definition is the retrieval schema. There are three projections of one source — registry (what exists), composition (#75), retrieval (this) — and a fact that must be *duplicated* to be *registered* will also be double-embedded and skew retrieval (james-gibson/local-time#76).
 
-**Derive charges, never hand-set them.** `RealityGradientAnalyzer.analyzeUniverse` (`src/utils/reality-gradient.ts:27`) computes `level` (0.0 pure reality → 1.0 pure fiction), `category`, `confidence` and `evidence` from `realityRelation`, `realityAnchors`, historical consultants and accuracy claims. That is the charge and the confidence weight.
+**Charge and weight are two different slots — do not merge them (#76, #90).** `plane_charge` is the **charge**: a binary sector label, `+1` (non-fiction) or `-1` (fiction). `RealityGradientAnalyzer.analyzeUniverse` (`src/utils/reality-gradient.ts:27`) computes `level` (0.0 pure reality → 1.0 pure fiction), `category`, `confidence` and `evidence` from `realityRelation`, `realityAnchors`, historical consultants and accuracy claims — that is the continuous **weight / normaliser**, never the charge. A fractional or graded charge cannot enter the admissibility graph: the edge tensor is equivariant only when the phases cancel, `q_a + q_b == 0`, and `0` is not a value (absence is a compendium with *no plane at all* — `plane gen --charges "1,-1,0"` fails with `charge graph is disconnected`).
 
-| Definition | → corpus | → weight | → charge |
+- **Derive the charge, and keep it ±1.** Map `realityRelation.type` / `fictionalizationDegree` **by tier to a sign** — a documentary/historical work is `+1`, a fiction is `-1`. Never hand-set it, never grade it. A `contradicts` edge **flips the sign**; it does not grade it.
+- **Derive the weight from the gradient.** `RealityGradient.level` is the graded weight, folded with `cultural_significance` (universe), keyframe `significance`, `certainty`, and anchor `confidence` / `evidence`. It ranks the corpus; it is not a polarity.
+
+| Definition | → corpus | → weight | → charge (±1) |
 | --- | --- | --- | --- |
-| `metadata.description` / canonical name | text | `cultural_significance` | from `realityRelation` |
+| `metadata.description` / canonical name | text | `cultural_significance` | from `realityRelation.type`, tiered to a sign |
 | keyframe `id` + description + `tags` | text | keyframe `significance` | inherits universe |
-| keyframe `certainty`, anchor `confidence` | — | confidence | pulls charge toward reality |
-| `realityRelation.fictionalizationDegree` | — | — | **charge** via `RealityGradient.level` |
+| keyframe `certainty`, anchor `confidence` | — | confidence | — (weight, not charge) |
+| `realityRelation.fictionalizationDegree` + `.type` | — | — | **charge** — tiered to ±1 |
+| `RealityGradient.level` (derived) | — | **graded weight / normaliser** | — (never the charge) |
 | `TemporalLayer.type` (`primary`/`recreation`/`subjective`/`meta`) | plane | — | plane charge |
 | `connections[].type` = `contradicts` | edge | edge weight | **flips sign** |
 | `parentUniverses` / `contains` | — | — | edges (partition, not corpus) |
 | `epochId` | — | — | `zero_status`, `epoch_id` |
+
+Two measured caveats from the plane work (`isotope/docs/lore-plane-mapping.md`): the normaliser feeds **retrieval ranking, not `plane sort`** — `sort` is weight-invariant (it reads charges and the probe, never the tensor), so the gradient level orders the embedding corpus and does not order planes; and the raw gradient must be **tier-mapped before it enters `encoder.real`** — writing `level` literally into the real slot goes degenerate (`1.0 → real: 1` gives `|c| ≈ 1`, `phase ≈ 0`).
 
 The knowledge base already indexes this shape — `universe_id`, `epoch_id`, `plane_charge` (+1 non-fiction / −1 fiction), `plane_presupposes[]`, `zero_status` (`established | presumed | unestablished`), `keyframe_types[]`, `time_start`, `time_end` — so the definitions should *emit* it rather than have it supplied by another path. Keep a `contradicts` pair retrievable as a pair so a claim and its refutation surface together.
 
@@ -547,6 +553,7 @@ Always document discovered connections:
 | #75 | Composition: overlay layers with `reality_correspondence`; record collisions |
 | #76 | Projections: corpus / weights / charges derived from the definitions |
 | #77 | `addRuntimeKeyframe`'s `description` is discarded (`TemporalKeyframe` has no field) |
+| #90 | `plane_charge` is binary ±1; the gradient `level` is the weight, never the charge |
 
 **Design rationale.** The pre-implementation transcripts these rules derive from are indexed in
 [`explorations/README.md`](explorations/README.md) — including the constructs designed but never
