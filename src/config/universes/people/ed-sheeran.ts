@@ -10,6 +10,10 @@ import { UniverseBuilder, TimePrecision } from '../../../index';
  */
 export const edSheeranCopyrightTrial2023Universe = new UniverseBuilder()
     .historical("Ed Sheeran 'Thinking Out Loud' Copyright Trial", 2023, 2023)
+    // `historical()` now normalises punctuation away (james-gibson/local-time#70), but its
+    // derived slug would be `history:ed_sheeran_thinking_out_loud_copyright_trial:2023-2023`.
+    // This file's `@universeId` documents the shorter form, so pin it explicitly.
+    .withId('history:ed_sheeran_copyright_trial:2023')
     // The universe describes a real, documented legal proceeding.
     .withRealityRelation('documentary', 0.0)
     // The facts of the court case are public record.

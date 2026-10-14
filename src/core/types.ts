@@ -532,6 +532,13 @@ export interface TemporalKeyframe {
   timestamp: bigint;
   significance: number;
   tags: string[];
+  /**
+   * Human-readable prose for the moment. This is the sentence a reader (or an
+   * embedding) wants; the tags are not. It was previously absent, so the builder
+   * accepted a `description` it had nowhere to put and silently dropped it
+   * (james-gibson/local-time#77).
+   */
+  description?: string;
   certainty?: number; // 0.0-1.0 for uncertain dates
   dateRange?: {
     earliest: bigint;
