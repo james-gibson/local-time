@@ -54,10 +54,15 @@ describe('Pixar filmography universes (james-gibson/local-time#1)', () => {
     const toyStory = pixarFilmUniverses.find((u) => u.universeId === 'pixar:toy_story:1995') as any;
     const targets = toyStory.metadata.connections.map((c: any) => c.targetUniverseId);
     expect(targets).toContain('film:star_wars_a_new_hope:*');
-    expect(toyStory.temporalStructure.keyframes.map((k: any) => k.id)).toEqual([
-      'tie_fighter_sound',
-      'strange_new_planet',
-    ]);
+
+    const keyframeIds = toyStory.temporalStructure.keyframes.map((k: any) => k.id);
+    // The Star Wars-homage moments this test exists for ...
+    expect(keyframeIds).toContain('tie_fighter_sound');
+    expect(keyframeIds).toContain('strange_new_planet');
+    // ... plus the plot keyframes folded in from the former `films/toy-story.ts`
+    // duplicate (james-gibson/local-time#67).
+    expect(keyframeIds).toContain('buzz_arrival');
+    expect(keyframeIds).toContain('reunion_with_andy');
   });
 
   test('registers every film universe without throwing', () => {

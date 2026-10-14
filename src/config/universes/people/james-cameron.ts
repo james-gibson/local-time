@@ -213,6 +213,26 @@ export const jamesCameronFilmography: Universe[] = [
             0.99,
             'A monumental box office and cultural phenomenon that merged a historical epic with a blockbuster romance, setting new standards for visual effects and global reach.'
         )
+        // Runtime keyframes recovered from `films/20th/releases.ts`, whose duplicate
+        // `20th_century_fox:titanic:1997` universe was folded into this one
+        // (james-gibson/local-time#67). Same id, so the moments are carried here rather
+        // than registered twice.
+        .addRuntimeKeyframe(
+            75,
+            10,
+            'im_flying',
+            1.0,
+            ['iconic_moment', 'romance', 'cinematic_shot'],
+            "Jack and Rose's iconic moment on the bow of the Titanic, which became the film's signature image."
+        )
+        .addRuntimeKeyframe(
+            137,
+            50,
+            'ship_sinking',
+            0.95,
+            ['climax', 'historical_event', 'visual_effects'],
+            'The meticulously recreated and terrifying sequence of the Titanic breaking apart and sinking.'
+        )
         .build(),
 
     /**
@@ -235,6 +255,17 @@ export const jamesCameronFilmography: Universe[] = [
         .withCulturalSignificance(
             0.96,
             'A landmark in filmmaking technology that mainstreamed modern 3D cinema and set a new benchmark for visual effects and immersive world-building.'
+        )
+        // Runtime keyframe recovered from `films/20th/releases.ts`, whose duplicate
+        // `20th_century_fox:avatar:2009` universe was folded into this one
+        // (james-gibson/local-time#67).
+        .addRuntimeKeyframe(
+            61,
+            25,
+            'first_flight',
+            0.9,
+            ['visual_effects_milestone', 'character_development', 'world_building'],
+            'Jake Sully, in his avatar body, successfully bonds with and rides a mountain banshee (Ikran) for the first time.'
         )
         .build(),
 
