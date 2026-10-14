@@ -103,26 +103,31 @@ epoch-relative bound instead.
   fields a builder-authored one cannot.
 - An `unestablished` zero emits **no** zero epoch; the importer never fabricates a zeroth.
 
-## After the pipeline — registration is still on you
+## After the pipeline — registration is automatic
 
-The pipeline does not make the universe live.
+The pipeline does not edit any committed file; the registry loads the generated tree itself.
 
-- `imported/` is **git-ignored** (`.gitignore`), so the modules are local-only.
-- `src/config/universes/index.ts` does **not** import `./imported` and its barrel is not
-  spread into `allUniverses`. A synced universe is therefore built and then discarded
-  (james-gibson/local-time#98 — the #27/#67 defect class).
+- `imported/` is **git-ignored** (`.gitignore`): its modules carry a private KB's lore
+  and this repo is public, so they are never committed.
+- `UniverseRegistry.initialize()` calls `loadGeneratedUniverses()`, which dynamically
+  imports the barrel when `src/config/universes/imported/index.ts` exists and registers
+  its `importedUniverses` array through the same path as every other universe — so a
+  synced universe is live with **no** edit to `src/config/universes/index.ts`
+  (james-gibson/local-time#98). The import is guarded, so a clean checkout without the
+  directory still builds and runs.
+- `src/config/__tests__/generated-registration.test.ts` covers the loader, and the
+  tree-dependent assertions run only when the tree is present.
 
-To make it queryable:
+Two consequences worth knowing:
 
-1. Import the generated module(s) in `src/config/universes/index.ts`.
-2. Spread them into `allUniverses` (spread a collection, never nest it — #68).
-3. Extend a registration test to cover them, or add one, per `SKILL.md` →
-   *Registration*.
+- The generated universe is registered but **not** in `allUniverses`. The `#27`/`#67`
+  "spread into `allUniverses`" rule applies to committed universes only; generated ones
+  reach the registry through the loader.
+- If the same id exists as a committed universe (for example `us:constitution:1787`),
+  the committed one is registered first and the generated duplicate is ignored.
 
-Because `imported/` is git-ignored, think before wiring it into committed files: an import
-of `./imported` breaks a fresh checkout, where the directory does not exist. The durable
-route is to move a synced universe out of `imported/` into a committed namespace module
-(hand-author it, or copy the generated literal), then register that.
+To make a *committed* universe, hand-author it (or copy the generated literal into a
+namespace module) under `src/config/universes/` and register it per *Path B*.
 
 ## Verifying a sync
 

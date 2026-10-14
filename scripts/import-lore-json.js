@@ -472,12 +472,23 @@ if (notEnrolled.length) {
   console.log(`Not enrolled (${notEnrolled.length}): ${notEnrolled.join(', ')}`);
 }
 
-if (exports.length) {
-  const barrel = exports
-    .map((e) => `export { ${e.id} } from './${e.moduleName}';`)
-    .join('\n');
-  writeFileSync(join(outputDir, 'index.ts'), barrel + '\n');
-  console.log(`  index.ts -> ${exports.length} export(s)`);
+// The barrel is always written — even with zero enrolled documents — so the
+// registry has a stable module to load at runtime (james-gibson/local-time#98).
+// `importedUniverses` is the single array the loader registers; the named
+// re-exports stay for direct local addressing.
+const barrelLines = exports.map((e) => `export { ${e.id} } from './${e.moduleName}.js';`);
+barrelLines.push('');
+barrelLines.push("import type { Universe } from '../../../core/types.js';");
+for (const e of exports) {
+  barrelLines.push(`import { ${e.id} } from './${e.moduleName}.js';`);
 }
+barrelLines.push('');
+barrelLines.push('export const importedUniverses: Universe[] = [');
+for (const e of exports) {
+  barrelLines.push(`  ${e.id},`);
+}
+barrelLines.push('];');
+writeFileSync(join(outputDir, 'index.ts'), barrelLines.join('\n') + '\n');
+console.log(`  index.ts -> ${exports.length} export(s)`);
 
 console.log('Done.');

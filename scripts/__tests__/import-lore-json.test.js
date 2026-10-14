@@ -77,3 +77,21 @@ test('an unresolved epoch-relative bound fails loudly and writes nothing', () =>
   assert.match(res.stderr, /local-time#35/);
   assert.deepEqual(readdirSync(outDir), []);
 });
+
+test('the barrel exposes importedUniverses so the registry can load the tree', () => {
+  // james-gibson/local-time#98: the registry imports the barrel's `importedUniverses`
+  // at runtime. Without that array the generated universes can never be registered.
+  const { res, outDir } = run(baseDoc('test:T+00:00:00'));
+  assert.equal(res.status, 0, res.stderr);
+  const barrel = readFileSync(join(outDir, 'index.ts'), 'utf-8');
+  assert.match(barrel, /export const importedUniverses: Universe\[\]/);
+  assert.match(barrel, /testFilm2000Universe/);
+});
+
+test('the barrel is written even when no document is enrolled', () => {
+  // A stable barrel keeps the registry's runtime import deterministic (#98).
+  const { res, outDir } = run({ universeId: 'test:film:2000', title: 'skip', type: 'film' });
+  assert.equal(res.status, 0, res.stderr);
+  const barrel = readFileSync(join(outDir, 'index.ts'), 'utf-8');
+  assert.match(barrel, /export const importedUniverses: Universe\[\] = \[/);
+});

@@ -74,9 +74,10 @@ directly or via a spread collection.
    ```
 
    It writes `src/config/universes/imported/<id>.ts` plus an `index.ts` barrel.
-3. **Wire it in.** `imported/` is git-ignored and its barrel is **not** imported into
-   `allUniverses`, so a synced universe is built and then discarded until you spread it
-   (#98). Add the import and the spread, then extend a registration test to cover it.
+3. **No wiring needed.** `imported/` is git-ignored (the compendia are private), but
+   `UniverseRegistry` loads that barrel at runtime when it is present — the synced
+   universe is registered through the normal path, with no edit to committed files
+   (#98). `src/config/__tests__/generated-registration.test.ts` guards the wiring.
 
 The pipeline's own hard error — every segment bound must resolve to a declared keyframe or
 an absolute ISO timestamp, or the run exits without emitting anything — is covered in
