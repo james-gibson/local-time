@@ -36,6 +36,16 @@ const TYPE_MAP = {
 };
 
 const WINDOW_STRATEGIES = new Set(['scene_based', 'time_based', 'phase_based', 'countdown_based']);
+
+/**
+ * KB window strategies that have a defensible equivalent in the TypeScript model.
+ *
+ * A point in time is a *degenerate phase*: smeared it is a stretch, zoomed in it has width.
+ * `phase_based` is therefore the honest representation of `point_in_time`, not a downgrade
+ * (james-gibson/local-time#79). Naming it here makes that a mapping rather than a typo the
+ * default silently absorbed — anything in neither set now warns.
+ */
+const WINDOW_STRATEGY_ALIASES = { point_in_time: 'phase_based' };
 const SEGMENT_TYPES = new Set([
   'sequence', 'act', 'scene', 'phase', 'countdown', 'mission_phase',
   'life_period', 'education', 'career', 'public_service', 'legal_period',
@@ -278,9 +288,18 @@ function emitUniverse(json) {
     zeroEpochLines.push('      },');
   }
 
-  const windowStrategy = WINDOW_STRATEGIES.has(zr.windows?.strategy)
-    ? zr.windows.strategy
-    : 'phase_based';
+  // `point_in_time` is an alias, not a loss (see WINDOW_STRATEGY_ALIASES). Anything in
+  // neither set is a real unknown and is called out instead of being defaulted in silence.
+  const rawStrategy = zr.windows?.strategy;
+  let windowStrategy =
+    WINDOW_STRATEGY_ALIASES[rawStrategy] ??
+    (WINDOW_STRATEGIES.has(rawStrategy) ? rawStrategy : null);
+  if (rawStrategy != null && windowStrategy === null) {
+    console.warn(
+      `! windows.strategy "${rawStrategy}" is not a known strategy; defaulting to phase_based`,
+    );
+  }
+  windowStrategy = windowStrategy ?? 'phase_based';
 
   const realityType = realityRelationType(declaredType, degree);
   const { lines: segmentLines, unresolved: unresolvedSegments } = emitSegments(segments, keyframes);
@@ -384,6 +403,7 @@ console.log(`Importing ${jsonPaths.length} lore document(s) from ${jsonDir} -> $
 
 const exports = [];
 const notEnrolled = [];
+
 // Rendered modules are held back until every document has been checked: one
 // unresolved segment bound fails the whole run instead of emitting a tree where
 // some segments silently collapsed onto their first/last keyframe.
@@ -446,6 +466,10 @@ for (const r of rendered) {
   writeFileSync(r.tsPath, r.code);
   exports.push({ moduleName: r.moduleName, id: r.id });
   console.log(`  ${r.rel} -> ${basename(r.tsPath)}`);
+  const tsPath = join(outputDir, `${moduleName}.ts`);
+  writeFileSync(tsPath, emitUniverse(json));
+  exports.push({ moduleName, id: toIdentifier(json.universeId) });
+  console.log(`  ${relative(jsonDir, jsonPath)} -> ${basename(tsPath)}`);
 }
 
 if (notEnrolled.length) {

@@ -1,4 +1,3 @@
-import { createHistoricalUniverseId } from '../../../core/universe-ids';
 import { UniverseBuilder, TimePrecision } from '../../../core';
 
 /**
@@ -9,10 +8,11 @@ import { UniverseBuilder, TimePrecision } from '../../../core';
  * @significance The 2001 AUMF is a document of immense historical and legal significance (1.0). It fundamentally reshaped the legal architecture of U.S. military action in the 21st century, authorizing operations in at least 22 countries and sparking a long-running debate over war powers between the executive and legislative branches.【1】
  */
 export const aumf2001UsageUniverse = new UniverseBuilder()
-    .historical(
-        createHistoricalUniverseId('us_gov', 'aumf_2001_usage', '2001-present'),
-        'Presidential Usage of the 2001 AUMF'
-    )
+    // Was `.historical(createHistoricalUniverseId(...), 'Presidential Usage of the 2001 AUMF')`,
+    // which passed a whole id as the *event* and a title as the *year*, producing an id no
+    // validator accepts — so the registry dropped this universe with a warning
+    // (james-gibson/local-time#70). The intended id is the one the factory already built.
+    .historical('us_gov:aumf_2001_usage', '2001-present')
     .withDescription('A documentation of the 2001 Authorization for Use of Military Force and its application by U.S. Presidents.')
     .withRealityRelation('documentary', 0.0)
     // Source: Based on public law texts, Congressional Research Service reports (e.g., "The 2001 AUMF: A Brief Overview"), and White House/DOD statements.

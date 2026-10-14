@@ -126,85 +126,15 @@ export const twentiethCenturyFoxMajorReleases: Universe[] = [
             ['montage', 'slapstick', 'turning_point'],
             'Kevin McCallister prepares his house with a series of elaborate booby traps to defend his home from the Wet Bandits.'
         )
-        .build(),
+        .build(),];
 
-    /**
-     * Titanic (1997)
-     *
-     * Cultural Significance: 0.99 - A global cultural event and cinematic juggernaut. It was the first film to gross over $1 billion and held the record as the highest-grossing film of all time for 12 years. Its blend of historical disaster, epic romance, and groundbreaking visual effects captivated audiences worldwide and had a profound impact on the film industry. 【10】【11】
-     * Research Sources:
-     * - Wikipedia, "Titanic (1997 film)". 【11】
-     * - "Cultural legacy of the Titanic" - Wikipedia. 【12】
-     * - Academy of Motion Picture Arts and Sciences Archives.
-     */
-    new UniverseBuilder()
-        .film('20th_century_fox', 'titanic', 1997)
-        .withRuntime(195)
-        .withRealityRelation('depicts', 0.4, [
-            {
-                anchorId: 'rms_titanic_sinking',
-                realWorldEntity: 'Sinking of the RMS Titanic (1912)',
-                description: 'The film is centered around the real historical disaster.',
-                confidence: 1.0,
-                evidence: ['Historical records', 'survivor testimonies'],
-            },
-        ])
-        .withCopyright(['20th Century Fox', 'Paramount Pictures', 'Lightstorm Entertainment'], 1997, 'active')
-        .withCreators({
-            director: ['James Cameron'],
-            writer: ['James Cameron'],
-        })
-        .withCulturalSignificance(
-            0.99,
-            'A monumental box office and cultural phenomenon that merged a historical epic with a blockbuster romance, setting new standards for visual effects and global reach.'
-        )
-        .addRuntimeKeyframe(
-            75,
-            10,
-            'im_flying',
-            1.0,
-            ['iconic_moment', 'romance', 'cinematic_shot'],
-            'Jack and Rose\'s iconic moment on the bow of the Titanic, which became the film\'s signature image.'
-        )
-        .addRuntimeKeyframe(
-            137,
-            50,
-            'ship_sinking',
-            0.95,
-            ['climax', 'historical_event', 'visual_effects'],
-            'The meticulously recreated and terrifying sequence of the Titanic breaking apart and sinking.'
-        )
-        .build(),
-
-    /**
-     * Avatar (2009)
-     *
-     * Cultural Significance: 0.96 - A technological milestone that revolutionized 3D cinema and became the highest-grossing film of all time, surpassing 'Titanic'. Its pioneering use of motion capture technology and immersive world-building created a cinematic experience unlike any before, sparking a global boom in 3D film production. 【13】【14】
-     * Research Sources:
-     * - Wikipedia, "Avatar (2009 film)". 【13】
-     * - "The Cultural Impact of Avatar" - Paste Magazine. 【14】
-     * - Visual Effects Society (VES) records.
-     */
-    new UniverseBuilder()
-        .film('20th_century_fox', 'avatar', 2009)
-        .withRuntime(162)
-        .withRealityRelation('pure_fiction', 1.0)
-        .withCopyright(['20th Century Fox', 'Lightstorm Entertainment'], 2009, 'active')
-        .withCreators({
-            director: ['James Cameron'],
-            writer: ['James Cameron'],
-        })
-        .withCulturalSignificance(
-            0.96,
-            'A landmark in filmmaking technology that mainstreamed modern 3D cinema and set a new benchmark for visual effects and immersive world-building.'
-        )
-        .addRuntimeKeyframe(
-            61,
-            25,
-            'first_flight',
-            0.9,
-            ['visual_effects_milestone', 'character_development', 'world_building'],
-            'Jake Sully, in his avatar body, successfully bonds with and rides a mountain banshee (Ikran) for the first time.'
-        )
-        .build(),
-];
+/**
+ * The two 20th Century Fox films in this collection that duplicate an id owned by another
+ * collection — `20th_century_fox:titanic:1997` and `20th_century_fox:avatar:2009`, both of
+ * which are registered through the James Cameron filmography (`../people/james-cameron`) —
+ * have been removed from this array. Their runtime keyframes were carried onto the
+ * canonical universes so nothing was lost (james-gibson/local-time#67).
+ *
+ * Kept as a note rather than a silent deletion because the overlap is a data-model fact,
+ * not a typo: this collection and the filmography cover the same two films.
+ */
