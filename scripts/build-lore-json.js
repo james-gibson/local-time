@@ -278,8 +278,16 @@ function normalise(mdPath, content, zeroIndex) {
     title: fm.title ?? null,
     description: fm.description ?? null,
     realityGradient: fm['reality-gradient'] ?? null,
-    identifiers: fm.identifiers ?? null,
-    parentUniverses: fm['parent-universes'] ?? [],
+    // Optional explicit relation type: the KB carries only a scalar gradient
+    // (losing interpretation/metafiction/etc.), so let a doc declare the precise
+    // `RealityRelation` member. Null => importer falls back to banding the degree.
+    realityRelationType:
+      fm['reality-relation'] ??
+      fm['reality-relation-type'] ??
+      fm['realityRelation'] ??
+      fm['realityRelationType'] ??
+      null,
+    identifiers: fm.identifiers ?? null,    parentUniverses: fm['parent-universes'] ?? [],
     aliases: fm.identifiers?.aliases ?? [],
 
     // --- attribution / reality ---
