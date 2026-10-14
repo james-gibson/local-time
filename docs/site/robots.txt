@@ -1,3 +1,3 @@
 User-agent: *
 Disallow: /admin/
-Sitemap: /sitemap-index.xml
+Sitemap: https://james-gibson.github.io/sitemap-index.xml
