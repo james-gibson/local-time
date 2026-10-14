@@ -238,3 +238,58 @@ test('a document with no declared connections emits no connections block', () =>
   const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
   assert.doesNotMatch(code, /connections:/);
 });
+
+// --- body prose is carried through (james-gibson/local-time#96) ---------------
+//
+// The YAML guides the builder, and the builder must carry a clean example a
+// developer can follow to rebuild the YAML. The markdown body is that example.
+
+/** Pull the emitted "Source narrative" block back out of a generated module. */
+function emittedNarrative(code) {
+  const start = code.indexOf('--- Source narrative (from lore)');
+  if (start === -1) return null;
+  const after = code.slice(start).split('\n');
+  const out = [];
+  for (const line of after.slice(2)) {
+    // every body line is ` * <text>`; the closing ` */` ends the block
+    if (line === ' */' || !line.startsWith(' *')) break;
+    // undo the `*\/` neutralisation so the result round-trips to the JSON body
+    out.push(line === ' *' ? '' : line.slice(3).replace(/\*\\\//g, '*/'));
+  }
+  return out.join('\n');
+}
+
+test('the generated module carries the lore body as a readable example', () => {
+  const body = '# Test Film\n\n## Overview\n\nA short paragraph.\n\n- one\n- two';
+  const { res, outDir } = run({ ...baseDoc('test:T+00:00:00'), body });
+  assert.equal(res.status, 0, res.stderr);
+  const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
+  assert.match(code, /--- Source narrative \(from lore\)/);
+  // It survives verbatim (modulo the JSDoc ` * ` gutter).
+  assert.equal(emittedNarrative(code), body);
+});
+
+test('the emitted example cannot silently drift from the JSON body', () => {
+  const body = 'Line A\n\nLine B';
+  const { res, outDir } = run({ ...baseDoc('test:T+00:00:00'), body });
+  assert.equal(res.status, 0, res.stderr);
+  const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
+  assert.equal(emittedNarrative(code), body);
+  // And a change to the authority must show up in the builder.
+  assert.notEqual(emittedNarrative(code), `${body} (stale)`);
+});
+
+test('a body containing a comment terminator does not break the generated module', () => {
+  const body = 'before */ after';
+  const { res, outDir } = run({ ...baseDoc('test:T+00:00:00'), body });
+  assert.equal(res.status, 0, res.stderr);
+  const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
+  // The header block comment still closes exactly once before the export...
+  const header = code.slice(0, code.indexOf('export const'));
+  assert.equal((header.match(/\*\//g) || []).length, 1);
+  // ...and the body's literal terminator is neutralised to `*\/` in the source,
+  // while round-tripping back to `*/` when read out.
+  assert.match(header, /before \*\\\/ after/);
+  assert.equal(emittedNarrative(code), body);
+  assert.match(code, /export const /);
+});
