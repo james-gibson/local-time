@@ -44,8 +44,14 @@ import {hillaryClintonConspiracyTheoriesUniverses} from "./people/clinton-conspi
 import {hillaryClintonConspiracyRebuttalsUniverses} from "./people/clinton-conspiracy-rebuttals"
 import {scotus2013Universes} from "./scotus-ot2013"
 import {scotus2025Universes} from "./scotus-ot2025"
+// The `film_studio:` container universes. They were defined but never spread into
+// `allUniverses`, so the registry never registered them: the studio containers had no
+// owner, and containment could not transit from a film, through its studio, up to
+// `HOLLYWOOD_SYSTEM` (james-gibson/local-time#111).
+import {filmStudioUniverses} from "./studios"
 export const allUniverses = [
     ...filmUniverses,
+  ...filmStudioUniverses,
   ...pixarFilmUniverses,
   ...missionUniverses,
   ...biographicalUniverses,
