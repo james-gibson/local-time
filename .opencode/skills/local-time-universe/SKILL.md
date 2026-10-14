@@ -222,6 +222,9 @@ full pattern (the lever registry, what to precache, and real worked examples) is
 
 - `references/builder-api.md` — the full, verified builder method list, id factories,
   closed unions and `build()` internals.
+- `42i-prep`'s [`references/universe-scaffold.md`](../42i-prep/references/universe-scaffold.md)
+  — the ready-to-fill **starting builder**: builder- and literal-mode templates, the
+  registration checklist, and how prep stores it in Qdrant so you can start mid-file.
 - `references/pipeline.md` — the KB → TypeScript pipeline end to end.
 - `kagi.md` — the generator prompt; a fuller checklist, but two of its gotchas (#70, #77)
   are fixed in source (james-gibson/local-time#101).
