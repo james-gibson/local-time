@@ -144,6 +144,60 @@ describe('Temporal42i — the 42i temporal lift', () => {
     });
   });
 
+  describe('label units and ordering (#35)', () => {
+    test('parses every unit the KB uses, not just days', () => {
+      expect(Temporal42i.parseNominalOffset('e:T+81 weeks')).toEqual({
+        ms: 81 * 7 * DAY_MS,
+        approximate: false,
+      });
+      expect(Temporal42i.parseNominalOffset('e:T+120 months')?.ms).toBe(120 * 2_629_746_000);
+      expect(Temporal42i.parseNominalOffset('e:T+275 months')?.ms).toBe(275 * 2_629_746_000);
+      expect(Temporal42i.parseNominalOffset('e:T+2 years')?.ms).toBe(2 * 31_536_000_000);
+      expect(Temporal42i.parseNominalOffset('e:T-3 weeksish')).toEqual({
+        ms: -3 * 7 * DAY_MS,
+        approximate: true,
+      });
+      // Still refuses a bare number: a label is a label.
+      expect(Temporal42i.parseNominalOffset('e:T+30')).toBeNull();
+    });
+
+    test('orderKeyMs prefers the anchored value and falls back to the label', () => {
+      expect(Temporal42i.orderKeyMs({ re: ms(5000), nominalMs: 999 })).toBe(5000);
+      expect(Temporal42i.orderKeyMs({ re: null, nominalMs: 999 })).toBe(999);
+    });
+
+    test('sorts by real time where anchored, and by the label when there is none', () => {
+      const anchor: ZeroAnchor42i = { epochId: 'e', zeroStatus: 'established', zeroPoint: 0n };
+      const lifted = Temporal42i.liftAll(
+        [
+          { id: 'later', address: 'e:T+02:00:00', timestamp: ms(2 * HOUR_MS) },
+          { id: 'label-only', address: 'e:T+90:00:00' },
+          { id: 'earlier', address: 'e:T+01:00:00', timestamp: ms(1 * HOUR_MS) },
+        ],
+        anchor
+      );
+      // A label-only point has no real axis, so `compare` cannot place it — but it
+      // still has an order, and this is the only place that order can come from.
+      expect(Temporal42i.sortByOrder(lifted).map((k) => k.id)).toEqual([
+        'earlier',
+        'later',
+        'label-only',
+      ]);
+    });
+
+    test('the sort is stable: a doc already in clock order is unchanged', () => {
+      const anchor: ZeroAnchor42i = { epochId: 'e', zeroStatus: 'established', zeroPoint: 0n };
+      const lifted = Temporal42i.liftAll(
+        [
+          { id: 'a', address: 'e:T+00:00:00', timestamp: 0n },
+          { id: 'b', address: 'e:T+01:00:00', timestamp: ms(HOUR_MS) },
+        ],
+        anchor
+      );
+      expect(Temporal42i.sortByOrder(lifted).map((k) => k.id)).toEqual(['a', 'b']);
+    });
+  });
+
   describe('anchorFromEpoch', () => {
     const epoch: ZeroReferenceEpoch = {
       epochId: 'founding',

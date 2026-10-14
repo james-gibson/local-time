@@ -95,3 +95,34 @@ test('the barrel is written even when no document is enrolled', () => {
   const barrel = readFileSync(join(outDir, 'index.ts'), 'utf-8');
   assert.match(barrel, /export const importedUniverses: Universe\[\] = \[/);
 });
+
+test('keyframes are emitted in offset order, not declaration order (#35)', () => {
+  // Declared deliberately out of order: the emitted keyframes must be ordered by
+  // their offset from the zero (here the anchored `42i.re`), so a hand-edited or
+  // stale JSON cannot leak a non-chronological timeline into the module. Ids are
+  // prefixed so they cannot collide with the segment/epoch ids in the source.
+  const doc = {
+    universeId: 'test:ordered:2000',
+    'local-time-sync': true,
+    title: 'Ordered',
+    type: 'film',
+    realityGradient: 1,
+    zeroReference: {
+      zeroPoint: '2000-01-01T00:00:00Z',
+      zeroStatus: 'established',
+      keyframes: [
+        { id: 'kf_later', address: 'test:T+02:00:00', timestamp: '2000-03-01T00:00:00Z', '42i': { re: 5_184_000_000, im: 0, tension: 0 } },
+        { id: 'kf_earlier', address: 'test:T+01:00:00', timestamp: '2000-02-01T00:00:00Z', '42i': { re: 2_678_400_000, im: 0, tension: 0 } },
+        { id: 'kf_zero', address: 'test:T+00:00:00', timestamp: '2000-01-01T00:00:00Z', '42i': { re: 0, im: 0, tension: 0 } },
+      ],
+      segments: [{ id: 'run', start: 'test:T+00:00:00', end: 'test:T+02:00:00', type: 'phase' }],
+      windows: { strategy: 'phase_based' },
+    },
+  };
+  const { res, outDir } = run(doc);
+  assert.equal(res.status, 0, res.stderr);
+  const code = readFileSync(join(outDir, 'test_ordered_2000.ts'), 'utf-8');
+  const positions = ['kf_zero', 'kf_earlier', 'kf_later'].map((id) => code.indexOf(`id: '${id}'`));
+  assert.ok(positions.every((i) => i >= 0), 'every keyframe must be emitted');
+  assert.deepEqual(positions, [...positions].sort((a, b) => a - b), `out of order: ${positions}`);
+});

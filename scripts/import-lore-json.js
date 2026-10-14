@@ -76,6 +76,48 @@ function ns(iso) {
   return `BigInt(Date.UTC(${+y}, ${+mo - 1}, ${+d}, ${+h}, ${+mi}, ${+s})) * 1000000n`;
 }
 
+/** ISO date/datetime -> epoch milliseconds (UTC), or null. Numeric twin of `ns`. */
+function isoMs(iso) {
+  const m = String(iso ?? '').match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/
+  );
+  if (!m) return null;
+  const [, y, mo, d, h = '0', mi = '0', s = '0'] = m;
+  return Date.UTC(+y, +mo - 1, +d, +h, +mi, +s);
+}
+
+/**
+ * Order the keyframes the module will emit.
+ *
+ * The label on a keyframe (`epoch:T+09:00:00`) is a **rank, not a clock**, so this
+ * never converts it into a date — it keys on the anchored timestamp where one
+ * exists, and on the nominal offset `build-lore-json.js` derived (`nominalMs`)
+ * otherwise. That nominal order is the only one that exists for a timeline with no
+ * real axis, which is exactly the ordering `Temporal42i.compare` refuses to give
+ * (james-gibson/local-time#35).
+ *
+ * Stable: equal keys keep their declared order, so a doc already in clock order is
+ * emitted unchanged, and a keyframe with neither a timestamp nor a label keeps its
+ * declared position rather than being dropped.
+ */
+function sortKeyframes(keyframes, zeroMs) {
+  const keyOf = (kf) => {
+    const lift = kf && kf['42i'];
+    if (lift && Number.isFinite(lift.re)) return lift.re;
+    if (kf && Number.isFinite(kf.nominalMs)) return kf.nominalMs;
+    const real = isoMs(kf && kf.timestamp);
+    return real !== null ? real - (zeroMs ?? 0) : null;
+  };
+  return keyframes
+    .map((kf, index) => ({ kf, index, key: keyOf(kf) }))
+    .sort((a, b) => {
+      const ka = a.key === null ? Infinity : a.key;
+      const kb = b.key === null ? Infinity : b.key;
+      return ka - kb || a.index - b.index;
+    })
+    .map(({ kf }) => kf);
+}
+
 function toIdentifier(universeId) {
   const camel = String(universeId)
     .replace(/[^a-zA-Z0-9]+/g, '_')
@@ -244,7 +286,11 @@ function emitUniverse(json) {
   const degree = json.realityGradient ?? 0;
   const declaredType = json.realityRelationType ?? json.realityRelation?.type ?? null;
   const anchors = json.realityAnchors ?? [];
-  const zr = json.zeroReference ?? {};  const keyframes = zr.keyframes ?? [];
+  const zr = json.zeroReference ?? {};
+  // Ordered before emission: real time where anchored, the T± label otherwise
+  // (james-gibson/local-time#35). Segments keep their declared order; their bounds
+  // are addresses, and only the keyframes carry a time.
+  const keyframes = sortKeyframes(zr.keyframes ?? [], isoMs(zr.zeroPoint));
   const segments = zr.segments ?? [];
   const aliases = json.aliases ?? [];
 
