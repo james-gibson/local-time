@@ -548,6 +548,11 @@ Always document discovered connections:
 | #76 | Projections: corpus / weights / charges derived from the definitions |
 | #77 | `addRuntimeKeyframe`'s `description` is discarded (`TemporalKeyframe` has no field) |
 
+**Design rationale.** The pre-implementation transcripts these rules derive from are indexed in
+[`explorations/README.md`](explorations/README.md) — including the constructs designed but never
+wired (`subuniverses` #74, `reality_correspondence` #75, `WindowAlias` #82), the address-format
+fork behind #38, and the "typesafe universe ids" challenge behind #50/#70.
+
 Generate complete, validated, production-ready TypeScript universe definitions that integrate seamlessly with the Local Time Universe System architecture.
 
 ## Future Model Instructions
