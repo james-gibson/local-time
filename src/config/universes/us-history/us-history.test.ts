@@ -29,6 +29,28 @@ describe('US History universes (james-gibson/local-time#5)', () => {
     expect(billOfRightsUniverse.universeId).toBe('us:bill_of_rights:1791');
   });
 
+  test('zero-references the Constitutional Convention to itself', () => {
+    const epochs = (
+      usConstitutionUniverse as unknown as {
+        layers: Array<{
+          epochs: Record<string, { zeroPoint?: bigint; zeroEvent?: string }>;
+        }>;
+      }
+    ).layers[0].epochs;
+
+    const convention = epochs.convention;
+    expect(convention).toBeDefined();
+    // The frame's own origin is its T+00:00:00: the delegates convening.
+    expect(convention.zeroPoint).toBe(BigInt(Date.UTC(1787, 4, 25, 12)) * 1_000_000n);
+    expect(convention.zeroEvent).toMatch(/convenes/i);
+
+    // Signing is addressed from inside the convention, not as a negative offset
+    // from ratification: 1787-05-25 -> 1787-09-17 is T+115 days.
+    const signing = BigInt(Date.UTC(1787, 8, 17, 12)) * 1_000_000n;
+    const days = Number((signing - convention.zeroPoint!) / (86_400_000n * 1_000_000n));
+    expect(days).toBe(115);
+  });
+
   test('models the 21st amendment as repealing the 18th', () => {
     const repeal = usConstitutionalAmendments.find(
       (u) => u.universeId === 'us:amendment:21:1933',

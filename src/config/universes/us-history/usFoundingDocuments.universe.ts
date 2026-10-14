@@ -1,4 +1,4 @@
-import { Universe, UniverseType } from '../../../core/types';
+import { Universe, UniverseType, TimePrecision, ZeroReferenceEpoch } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**
@@ -56,7 +56,45 @@ export const usConstitutionUniverse: Universe = {
     citations_required: false,
     usage_restrictions: [],
   },
-  layers: [{ layerId: 'primary', type: 'primary', epochs: {} }],
+  layers: [
+    {
+      layerId: 'primary',
+      type: 'primary',
+      epochs: {
+        // Two frames over the same interval, each zero-referenced to itself.
+        //
+        // The Convention is its own origin: `convention:T+00:00:00` is the day
+        // the delegates convened (1787-05-25), so the signing is addressed from
+        // inside the frame rather than as a negative offset from ratification.
+        // A separate `ratification` frame keeps New Hampshire's ninth-state
+        // ratification as `T+00:00:00` for callers that anchor there.
+        convention: {
+          epochId: 'convention',
+          startTime: fromIso('1787-05-25T12:00:00Z'),
+          endTime: fromIso('1787-09-17T12:00:00Z'),
+          precision: TimePrecision.DAY,
+          description: 'Constitutional Convention, addressed from its own opening day.',
+          zeroPoint: fromIso('1787-05-25T12:00:00Z'),
+          zeroEvent: 'Constitutional Convention convenes in Philadelphia',
+          beforePrefix: 'T-',
+          afterPrefix: 'T+',
+          relativeFormat: 'HMS',
+        } as ZeroReferenceEpoch,
+        ratification: {
+          epochId: 'ratification',
+          startTime: fromIso('1787-05-25T12:00:00Z'),
+          endTime: fromIso('1788-06-21T12:00:00Z'),
+          precision: TimePrecision.DAY,
+          description: 'Ratification, zeroed on the ninth state (New Hampshire).',
+          zeroPoint: fromIso('1788-06-21T12:00:00Z'),
+          zeroEvent: 'New Hampshire ratifies as the ninth state, establishing the Constitution',
+          beforePrefix: 'T-',
+          afterPrefix: 'T+',
+          relativeFormat: 'HMS',
+        } as ZeroReferenceEpoch,
+      },
+    },
+  ],
   epochs: {},
   temporalStructure: {
     segments: [
