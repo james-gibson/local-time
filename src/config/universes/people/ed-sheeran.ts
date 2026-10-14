@@ -10,6 +10,12 @@ import { UniverseBuilder, TimePrecision } from '../../../index';
  */
 export const edSheeranCopyrightTrial2023Universe = new UniverseBuilder()
     .historical("Ed Sheeran 'Thinking Out Loud' Copyright Trial", 2023, 2023)
+    // `historical()` slugifies the event with only whitespace replaced, so the title's
+    // apostrophes leaked into the id as
+    // `history:ed_sheeran_'thinking_out_loud'_copyright_trial:2023-2023`, which
+    // `isHistoricalUniverseId` rejects — the registry then dropped the universe with a
+    // warning. Pin the id the file already documents (james-gibson/local-time#27).
+    .withId('history:ed_sheeran_copyright_trial:2023')
     // The universe describes a real, documented legal proceeding.
     .withRealityRelation('documentary', 0.0)
     // The facts of the court case are public record.
