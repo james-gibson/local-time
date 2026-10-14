@@ -84,7 +84,44 @@ function toIdentifier(universeId) {
   return `${camel}Universe`;
 }
 
-function realityRelationType(degree) {
+/**
+ * Resolve the `realityRelation.type` string for an imported universe.
+ *
+ * A document may declare an explicit relation type (carried as
+ * `realityRelationType` in the KB JSON, sourced from the `reality-relation`
+ * frontmatter key). That wins, because the scalar gradient alone cannot
+ * represent interpretation/metafiction/recreation/etc. Otherwise the degree is
+ * banded onto the four coarse members as a fallback.
+ *
+ * Accepts either argument order for convenience:
+ *   realityRelationType(declaredType, degree)  or  realityRelationType(degree, declaredType)
+ * and the legacy single-arg `realityRelationType(degree)`.
+ */
+function realityRelationType(a, b) {
+  let declared = undefined;
+  let degree = undefined;
+  const isNum = (v) =>
+    v !== null && v !== undefined && String(v).trim() !== '' && Number.isFinite(Number(v));
+  if (b === undefined) {
+    if (isNum(a)) {
+      degree = a;
+    } else {
+      declared = a;
+    }
+  } else if (isNum(a) && !isNum(b)) {
+    degree = a;
+    declared = b;
+  } else if (!isNum(a) && isNum(b)) {
+    declared = a;
+    degree = b;
+  } else {
+    // Ambiguous: prefer a string-ish first arg as declared when present.
+    declared = a;
+    degree = b;
+  }
+  if (declared !== null && declared !== undefined && String(declared).trim() !== '') {
+    return String(declared).trim();
+  }
   if (degree === null || degree === undefined) return 'documentary';
   const g = Number(degree);
   if (g <= 0.2) return 'documentary';
@@ -135,44 +172,47 @@ function num(v, fallback) {
 }
 
 function emitSegments(segments, keyframes) {
-  // Resolve a segment endpoint (relative address or keyframe id) to a ns expression.
+  // Resolve a segment endpoint: a keyframe address/id, or a raw ISO timestamp
+  // (lore docs may give absolute bounds rather than epoch-relative addresses).
   const byAddress = new Map();
-  const ordered = [];
   for (const kf of keyframes) {
     const ts = ns(kf.timestamp);
     if (!ts) continue;
-    const entry = { ts, id: kf.id, address: kf.address };
     if (kf.address) byAddress.set(String(kf.address), ts);
     if (kf.id) byAddress.set(String(kf.id), ts);
-    ordered.push(entry);
   }
-  const first = ordered[0]?.ts ?? '0n';
-  const last = ordered[ordered.length - 1]?.ts ?? first;
-  // Resolve a segment endpoint: a keyframe address/id, or a raw ISO timestamp
-  // (lore docs may give absolute bounds rather than epoch-relative addresses).
   const resolveRef = (ref) => (ref && (byAddress.get(String(ref)) || ns(ref))) || null;
-  // Resolve a single bound, warning when it matches neither a keyframe address/id
-  // nor a parseable ISO timestamp. Previously the first/last fallback was silent,
-  // which hid segments (e.g. epoch-relative ranges with no matching keyframe)
-  // collapsing onto the document's first/last keyframe (james-gibson/local-time#24).
-  const resolveBound = (ref, fallback, segId, which) => {
+
+  // Computing `T±` offsets from the document's `zeroReference.zeroPoint` is NOT
+  // an option. The KB's addresses are ordinal labels, not a uniform clock:
+  // `founding:T+09:00:00` is ~3 years in one document and 9 nominal hours in
+  // another, so any arithmetic on them produces nonsense (zero-reference skill,
+  // Rule 2 "addresses are strings, not math"). The sanctioned answer is to
+  // *declare* a keyframe at each epoch-relative bound (zero-reference skill →
+  // "Presumed keyframes").
+  //
+  // An unresolved bound is therefore a hard error rather than a silent collapse
+  // onto the first/last keyframe. Collect every offender so they can be fixed in
+  // one pass (james-gibson/local-time#35).
+  const unresolved = [];
+  const resolveBound = (ref, segId, which) => {
     const resolved = resolveRef(ref);
     if (resolved) return resolved;
-    console.warn(
-      `  ! segment "${segId}" (${which}): bound ${ref ? q(ref) : '(missing)'} matches no ` +
-        `keyframe address/id and is not a parseable ISO timestamp — falling back to the ` +
-        `${which === 'start' ? 'first' : 'last'} keyframe`,
-    );
-    return fallback;
+    unresolved.push({ segId, which, ref: ref ?? null });
+    return null;
   };
 
   const out = [];
   for (const seg of segments) {
-    const start = resolveBound(seg.start, first, seg.id ?? 'segment', 'start');
-    const end = resolveBound(seg.end, last, seg.id ?? 'segment', 'end');
+    const segId = seg.id ?? 'segment';
+    const start = resolveBound(seg.start, segId, 'start');
+    const end = resolveBound(seg.end, segId, 'end');
+    // Skip a segment with an unresolved bound: emitting the first/last keyframe
+    // in its place is exactly the corruption this guards against.
+    if (!start || !end) continue;
     const type = SEGMENT_TYPES.has(seg.type) ? seg.type : 'phase';
     out.push('      {');
-    out.push(`        id: ${q(seg.id ?? 'segment')},`);
+    out.push(`        id: ${q(segId)},`);
     out.push(`        start: ${start},`);
     out.push(`        end: ${end},`);
     out.push(`        type: ${q(type)},`);
@@ -181,7 +221,7 @@ function emitSegments(segments, keyframes) {
     if (seg.description) out.push(`        description: ${q(seg.description)},`);
     out.push('      },');
   }
-  return out;
+  return { lines: out, unresolved };
 }
 
 function emitRealityAnchors(anchors) {
@@ -202,9 +242,9 @@ function emitRealityAnchors(anchors) {
 function emitUniverse(json) {
   const id = json.universeId || basename(json.sourcePath || 'universe', '.md');
   const degree = json.realityGradient ?? 0;
+  const declaredType = json.realityRelationType ?? json.realityRelation?.type ?? null;
   const anchors = json.realityAnchors ?? [];
-  const zr = json.zeroReference ?? {};
-  const keyframes = zr.keyframes ?? [];
+  const zr = json.zeroReference ?? {};  const keyframes = zr.keyframes ?? [];
   const segments = zr.segments ?? [];
   const aliases = json.aliases ?? [];
 
@@ -261,7 +301,8 @@ function emitUniverse(json) {
   }
   windowStrategy = windowStrategy ?? 'phase_based';
 
-  const realityType = realityRelationType(degree);
+  const realityType = realityRelationType(declaredType, degree);
+  const { lines: segmentLines, unresolved: unresolvedSegments } = emitSegments(segments, keyframes);
 
   const lines = [];
   lines.push('/**');
@@ -306,7 +347,7 @@ function emitUniverse(json) {
   lines.push('  ],');
   lines.push('  temporalStructure: {');
   lines.push('    segments: [');
-  lines.push(...emitSegments(segments, keyframes));
+  lines.push(...segmentLines);
   lines.push('    ],');
   lines.push('    keyframes: [');
   lines.push(...emitKeyframes(keyframes));
@@ -330,7 +371,7 @@ function emitUniverse(json) {
   lines.push('  },');
   lines.push('} as unknown as Universe;');
   lines.push('');
-  return lines.join('\n');
+  return { code: lines.join('\n'), unresolved: unresolvedSegments };
 }
 
 // --- driver ----------------------------------------------------------------
@@ -362,6 +403,13 @@ console.log(`Importing ${jsonPaths.length} lore document(s) from ${jsonDir} -> $
 
 const exports = [];
 const notEnrolled = [];
+
+// Rendered modules are held back until every document has been checked: one
+// unresolved segment bound fails the whole run instead of emitting a tree where
+// some segments silently collapsed onto their first/last keyframe.
+const rendered = [];
+const problems = [];
+
 for (const jsonPath of jsonPaths) {
   const json = JSON.parse(readFileSync(jsonPath, 'utf-8'));
   // Enrolment is the contract, and the JSON carries it so this check needs no
@@ -375,7 +423,49 @@ for (const jsonPath of jsonPaths) {
     notEnrolled.push(`${relative(jsonDir, jsonPath)} (enrolled, no universe-id)`);
     continue;
   }
+  const rel = relative(jsonDir, jsonPath);
+  const { code, unresolved } = emitUniverse(json);
   const moduleName = String(json.universeId).replace(/[^a-zA-Z0-9]+/g, '_');
+  if (unresolved.length) {
+    for (const u of unresolved) {
+      problems.push({ doc: rel, universeId: json.universeId, ...u });
+    }
+    continue;
+  }
+  rendered.push({
+    rel,
+    moduleName,
+    id: toIdentifier(json.universeId),
+    tsPath: join(outputDir, `${moduleName}.ts`),
+    code,
+  });
+}
+
+if (problems.length) {
+  const docs = new Set(problems.map((p) => p.doc));
+  console.error(
+    `\n${problems.length} unresolved segment bound(s) across ${docs.size} document(s):\n`,
+  );
+  for (const p of problems) {
+    console.error(
+      `  ✗ ${p.doc} (${p.universeId}) — segment "${p.segId}" (${p.which}): ` +
+        `${p.ref ? q(p.ref) : '(missing)'} matches no declared keyframe address/id ` +
+        `and is not an absolute ISO timestamp`,
+    );
+  }
+  console.error(
+    '\nEvery bound must resolve to a declared keyframe (declare one with that `address`) or to\n' +
+      'an absolute ISO timestamp. Do NOT compute `T±` offsets from the zero point: the addresses\n' +
+      'are ordinal labels, not a clock (zero-reference skill → "Presumed keyframes").\n' +
+      'Refusing to emit segments that would silently collapse (james-gibson/local-time#35).',
+  );
+  process.exit(1);
+}
+
+for (const r of rendered) {
+  writeFileSync(r.tsPath, r.code);
+  exports.push({ moduleName: r.moduleName, id: r.id });
+  console.log(`  ${r.rel} -> ${basename(r.tsPath)}`);
   const tsPath = join(outputDir, `${moduleName}.ts`);
   writeFileSync(tsPath, emitUniverse(json));
   exports.push({ moduleName, id: toIdentifier(json.universeId) });
