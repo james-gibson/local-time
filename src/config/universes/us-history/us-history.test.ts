@@ -41,6 +41,45 @@ describe('US History universes (james-gibson/local-time#5)', () => {
     ).toBe(true);
   });
 
+  test('bounds a repealed amendment by its repealer, not by its own ratification', () => {
+    const prohibition = usConstitutionalAmendments.find(
+      (u) => u.universeId === 'us:amendment:18:1919',
+    ) as unknown as {
+      temporalStructure: {
+        segments: Array<{ id: string; end: bigint; status: string }>;
+        keyframes: Array<{ id: string; timestamp: bigint }>;
+      };
+    };
+    expect(prohibition).toBeDefined();
+
+    const period = prohibition.temporalStructure.segments.find(
+      (s) => s.id === 'ratification_period',
+    );
+    const repeal = prohibition.temporalStructure.keyframes.find((k) => k.id === 'repealed');
+    expect(period).toBeDefined();
+    expect(repeal).toBeDefined();
+    // Forced until the 21st was ratified (1933-12-05), not 1919-01-16.
+    expect(period!.status).toBe('overturned');
+    expect(period!.end).toBe(repeal!.timestamp);
+    expect(period!.end).toBe(BigInt(Date.UTC(1933, 11, 5, 12)) * 1_000_000n);
+  });
+
+  test('a repealed amendment must itself have been ratified (nothing repeals a non-amendment)', () => {
+    const ratifiedIds = new Set(
+      usConstitutionalAmendments.map((u) => u.universeId).filter((id): id is string => Boolean(id)),
+    );
+    for (const universe of usConstitutionalAmendments) {
+      const references = (
+        universe as unknown as {
+          connections?: { references?: Array<{ type: string; targetUniverseId: string }> };
+        }
+      ).connections?.references ?? [];
+      for (const reference of references.filter((r) => r.type === 'REPEALS')) {
+        expect(ratifiedIds.has(reference.targetUniverseId)).toBe(true);
+      }
+    }
+  });
+
   test('records admission, secession and readmission keyframes where applicable', () => {
     const georgia = usStatehoodHistory.find(
       (u) => u.universeId === 'history:georgia:1788',

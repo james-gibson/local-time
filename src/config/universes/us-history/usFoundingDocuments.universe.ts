@@ -125,8 +125,7 @@ export const billOfRightsUniverse: Universe = {
   type: UniverseType.HISTORICAL_EVENT,
   identifiers: {
     primary: 'us:bill_of_rights:1791',
-    aliases: ['Bill of Rights', 'First Ten Amendments'],
-  },
+    aliases: ['Bill of Rights', 'First Ten Amendments', 'us:amendments:1791'],  },
   realityRelation: {
     type: 'documentary',
     fictionalizationDegree: 0.0,
