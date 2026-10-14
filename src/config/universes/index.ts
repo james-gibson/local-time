@@ -16,7 +16,7 @@ import {
   recurringElectionIssueUniverses,
   usCopyrightLawChangesUniverse
 } from './us-gov';
-import {pokemonUniverses} from './games/pokemon';
+import {gamesUniverses, pokemonUniverses} from './games';
 import {historicalUniverses} from './historical/jfk';
 import {
   usMilitaryOperationsUniverse,
@@ -56,7 +56,7 @@ export const allUniverses = [
   edSheeranCopyrightTrial2023Universe,
   trumpAssassinationAttemptUniverse,
   ...legalUniverses,
-  ...pokemonUniverses,
+  ...gamesUniverses,
   ...historicalUniverses,
   ...allCybersecurityUniverses,
   usMilitaryOperationsUniverse,

@@ -56,9 +56,22 @@ export class CommonUniverseIds {
   static readonly PIXAR_STUDIO = createHistoricalUniverseId('pixar', 1986);
   static readonly MARVEL_COMICS = createHistoricalUniverseId('marvel', 1939);
   static readonly MARVEL_STUDIOS = createHistoricalUniverseId('marvel_studios', 2008);
-  // Franchise umbrella universes (founding-film years).
+  // Franchise umbrella universes (founding-film years, or a release span).
   static readonly TOY_STORY_FRANCHISE = createHistoricalUniverseId('toy_story_franchise', 1995);
   static readonly CARS_FRANCHISE = createHistoricalUniverseId('cars_franchise', 2006);
+
+  // Games industry — the `game:` namespace's franchise containers.
+  //
+  // The container uses the HISTORICAL vocabulary like every other franchise
+  // umbrella (a span, not a release year), so it carries the run rather than one
+  // title's date. `createGameUniverseId` requires a `\d{4}` release year, which a
+  // 1996–2026 container cannot express.
+  //
+  // There is deliberately no `games_industry` / `blizzard_entertainment` parent
+  // yet: no such universe is authored anywhere, and inventing an id would be a
+  // dangling anchor (james-gibson/local-time#112 §11.5). The franchise universe
+  // below is the only games lever that currently exists.
+  static readonly DIABLO_FRANCHISE = createHistoricalUniverseId('diablo_franchise', 1996, '1996-2026');
   
   // Technology Industry
   static readonly SILICON_VALLEY = createHistoricalUniverseId('silicon_valley', 1956);
