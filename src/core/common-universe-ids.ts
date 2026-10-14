@@ -11,7 +11,14 @@ import {
 } from './universe-ids';
 
 export interface UniverseHierarchy {
+  /**
+   * The primary parent. Kept for back-compat with the single-parent callers;
+   * `parents` is the source of truth and may hold more than one entry (a case
+   * can belong to a term *and* to its docket — see james-gibson/local-time#106).
+   */
   parent?: UniverseId;
+  /** Every declared parent. Supersedes `parent`; both are kept in sync. */
+  parents?: Set<UniverseId>;
   children: Set<UniverseId>;
   level: 'global' | 'national' | 'regional' | 'local' | 'specific';
   jurisdiction?: string;
@@ -165,14 +172,75 @@ export class CommonUniverseIds {
     });
   }
   
+  /**
+   * Return the hierarchy entry for `id`, creating an empty one when absent.
+   *
+   * Entries used to be created only by the explicit `addHierarchy` calls in
+   * `initializeHierarchies`, so an id that appeared solely as a *parent* (or
+   * solely as a *child*) had no entry. That made the containment queries
+   * disagree with each other: `NASA_OPERATIONS` declares `parent:
+   * US_GOVERNMENT`, but `US_GOVERNMENT` had no entry, so `getChildren(US_GOVERNMENT)`
+   * was empty while `contains(US_GOVERNMENT, NASA_OPERATIONS)` was true
+   * (james-gibson/local-time#106). Every id named in an edge now gets an entry.
+   */
+  private static entryFor(id: UniverseId): UniverseHierarchy {
+    let entry = this.hierarchies.get(id);
+    if (!entry) {
+      entry = { children: new Set(), parents: new Set(), level: 'specific' };
+      this.hierarchies.set(id, entry);
+    }
+    if (!entry.parents) {
+      entry.parents = new Set(entry.parent ? [entry.parent] : []);
+    }
+    return entry;
+  }
+
+  /**
+   * Record one containment edge — `parent` contains `child` — **on both sides**:
+   * the parent gains the child and the child gains the parent. Idempotent.
+   *
+   * This is the only place edges are written, so `getChildren` and
+   * `getParentChain` can never disagree about the same edge.
+   */
+  private static link(parent: UniverseId, child: UniverseId): void {
+    this.entryFor(parent).children.add(child);
+    const childEntry = this.entryFor(child);
+    childEntry.parents!.add(parent);
+    if (!childEntry.parent) childEntry.parent = parent;
+  }
+
+  /**
+   * Extend the containment graph from outside this file.
+   *
+   * `CommonUniverseIds` used to be closed: `initializeHierarchies` is a private
+   * static block of hard-coded roots and `addHierarchy` is private, so a new
+   * collection could never become a descendant of a new container no matter what
+   * `connections.natural.parentUniverses` a universe declared. This is the public
+   * injection point (james-gibson/local-time#106); `UniverseRegistry` calls it
+   * from `registerUniverse`, deriving the edges from the universe's declared
+   * parents. Idempotent, and safe to call before or after the parent is declared.
+   */
+  static registerUniverseLinks(child: UniverseId, parents: readonly UniverseId[]): void {
+    for (const parent of parents) {
+      this.link(parent, child);
+    }
+    this.entryFor(child);
+  }
+
   private static addHierarchy(id: UniverseId, hierarchy: UniverseHierarchy) {
-    this.hierarchies.set(id, hierarchy);
-    
-    // Add this as child to parent
-    if (hierarchy.parent) {
-      const parentHierarchy = this.hierarchies.get(hierarchy.parent);
-      if (parentHierarchy) {
-        parentHierarchy.children.add(id);
+    const entry = this.entryFor(id);
+    entry.level = hierarchy.level ?? entry.level;
+    if (hierarchy.jurisdiction !== undefined) entry.jurisdiction = hierarchy.jurisdiction;
+    if (hierarchy.timespan !== undefined) entry.timespan = hierarchy.timespan;
+
+    if (hierarchy.parent) this.link(hierarchy.parent, id);
+    for (const parent of hierarchy.parents ?? []) this.link(parent, id);
+
+    for (const child of hierarchy.children) {
+      this.link(id, child);
+      const childEntry = this.entryFor(child);
+      if (!childEntry.level || childEntry.level === 'specific') {
+        childEntry.level = hierarchy.level ?? childEntry.level;
       }
     }
   }
@@ -180,18 +248,37 @@ export class CommonUniverseIds {
   // === UTILITY METHODS ===
   
   /**
-   * Get all parent universes for a given universe ID
+   * Get all parent universes for a given universe ID.
+   *
+   * Transitive over **every** declared parent (a universe can have more than one
+   * — see `link`), breadth-first so direct parents precede grandparents, and
+   * cycle-safe. The old version followed the single `parent` field, so a
+   * multi-parent child was invisible to any parent but its first.
    */
   static getParentChain(universeId: UniverseId): UniverseId[] {
     const chain: UniverseId[] = [];
-    let current = this.hierarchies.get(universeId)?.parent;
-    
-    while (current) {
-      chain.push(current);
-      current = this.hierarchies.get(current)?.parent;
+    const seen = new Set<UniverseId>([universeId]);
+    let frontier = this.parentsOf(universeId);
+
+    while (frontier.length > 0) {
+      const next: UniverseId[] = [];
+      for (const parent of frontier) {
+        if (seen.has(parent)) continue;
+        seen.add(parent);
+        chain.push(parent);
+        next.push(...this.parentsOf(parent));
+      }
+      frontier = next;
     }
-    
+
     return chain;
+  }
+
+  /** Every parent declared for `id`; multi-parent aware. */
+  private static parentsOf(id: UniverseId): UniverseId[] {
+    const entry = this.hierarchies.get(id);
+    if (!entry) return [];
+    return entry.parents ? Array.from(entry.parents) : entry.parent ? [entry.parent] : [];
   }
   
   /**

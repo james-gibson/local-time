@@ -1,5 +1,6 @@
 import {TemporalEpoch, Universe, UniverseNetwork} from '../core/types';
 import { UniverseId, isValidUniverseId, createUniverseId } from '../core/universe-ids';
+import { CommonUniverseIds } from '../core/common-universe-ids';
 import { ConfigLoader } from './config-loader';
 
 export class UniverseRegistry {
@@ -118,12 +119,46 @@ export class UniverseRegistry {
 
     // console.trace(universe.epochs);
     !this.universes.has(universeId) && this.universes.set(universeId, universe);
-    
+
+    this.registerDeclaredContainment(universeId, universe);
+
     if (universe.identifiers?.aliases) {
       for (const alias of universe.identifiers.aliases) {
         this.aliases.set(alias, universeId);
       }
     }
+  }
+
+  /**
+   * Make the containment convention real: a universe that declares
+   * `connections.natural.parentUniverses` becomes a member of those parents in
+   * `CommonUniverseIds`, so `contains()` / `getChildren()` / `getAllDescendants()`
+   * see it.
+   *
+   * Until james-gibson/local-time#106 the registry was closed — the declared
+   * convention ~20 universes already used was read by nobody, so declaring a
+   * parent did not make a universe a descendant of it. The registry is the right
+   * place to derive the edges: it is the one code path every universe passes
+   * through, and `src/core` cannot see `src/config` (where the universes live).
+   *
+   * `Universe` has no `connections` field (the object form is attached with a
+   * cast by the hand-authored literals), so this reads it defensively and
+   * ignores the builder's array form and any malformed entry.
+   */
+  private registerDeclaredContainment(id: UniverseId, universe: Universe): void {
+    const connections = (universe as { connections?: unknown }).connections;
+    if (!connections || typeof connections !== 'object' || Array.isArray(connections)) return;
+
+    const natural = (connections as { natural?: { parentUniverses?: unknown } }).natural;
+    const parents = natural?.parentUniverses;
+    if (!Array.isArray(parents)) return;
+
+    const validParents = parents.filter(
+      (parent): parent is UniverseId => typeof parent === 'string' && isValidUniverseId(parent),
+    );
+    if (validParents.length === 0) return;
+
+    CommonUniverseIds.registerUniverseLinks(id, validParents);
   }
   
   getUniverse(idOrAlias: string): Universe | undefined {
