@@ -41,8 +41,12 @@ export const marvel_phase_one_notables = {
     /**
      * The Incredible Hulk (2008)
      * A reboot that established the Hulk within the MCU.
+     *
+     * Keyed `incredible_hulk`, the slug the film universe's id uses
+     * (`marvel_studios:incredible_hulk:2008`), not the title's `the_`. The two must agree
+     * for {@link getMarvelFilmNotables} to match them up.
      */
-    "marvel:the_incredible_hulk:2008": {
+    "marvel:incredible_hulk:2008": {
         director: "Louis Leterrier",
         writers: ["Zak Penn"],
         cast: [
@@ -306,3 +310,46 @@ export const marvel_phase_four_notables = {
   // Black Panther: Wakanda Forever (2022)
 };
 */
+
+// --- Notables lookup -------------------------------------------------------
+//
+// These objects are *not* universes: they carry no `universeId` and cannot be spread
+// into `allUniverses`. Until james-gibson/local-time#27 they were exported from the
+// barrel and read by nothing, so the definition looked complete while the data went
+// unused. They are now consumed by `../../films/marvel`, which attaches the entry for
+// each film it defines to that universe's metadata.
+//
+// The film universes themselves are still unreachable — `./films.ts` shadows
+// `./films/index.ts`, so the whole directory never loads (james-gibson/local-time#67) —
+// but the reference is real, so the data is no longer a dead export.
+
+/** A single film's documented notables: the credited people, plus commentary insights. */
+export interface MarvelFilmNotable {
+    director?: string;
+    directors?: string[];
+    writers?: string[];
+    cast?: Array<{ name: string; role: string }>;
+    commentary_insights?: string[];
+}
+
+/**
+ * Every film we have notables for, merged across the documented phases. Keyed by the
+ * notables' own `marvel:<slug>:<year>` form; see {@link getMarvelFilmNotables} for how a
+ * film universe's id maps onto it.
+ */
+export const marvelFilmNotables: Record<string, MarvelFilmNotable> = {
+    ...marvel_phase_one_notables,
+    ...marvel_phase_two_notables,
+};
+
+/**
+ * The notables for a Marvel film universe, or `undefined` when none are documented for it
+ * (the later-phase films have none yet).
+ *
+ * A film universe id is `marvel_studios:<slug>:<year>` — `marvel_studios:iron_man:2008`,
+ * say — while the notables above are keyed `marvel:<slug>:<year>`, so the lookup swaps the
+ * studio segment for the notables' namespace.
+ */
+export function getMarvelFilmNotables(universeId: string): MarvelFilmNotable | undefined {
+    return marvelFilmNotables[universeId.replace(/^[^:]+:/, 'marvel:')];
+}

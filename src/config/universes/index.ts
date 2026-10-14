@@ -1,7 +1,13 @@
 
 import {missionUniverses} from './apollo-eleven/missions';
 import {universeNetworks, readyPlayerOneUniverse, toyStory2RecoveryMissionUniverse, spaceballsUniverse,disneyNetwork, disneyPixarAcquisition2006Universe} from './disney';
-import {biographicalUniverses, robinWilliamsFilmography} from './people';
+import {
+  biographicalUniverses,
+  robinWilliamsFilmography,
+  jamesCameronFilmography,
+  edSheeranCopyrightTrial2023Universe,
+  trumpAssassinationAttemptUniverse,
+} from './people';
 import {
   zirpUsEconomyUniverse,
   damImpactTimelineUniverse,
@@ -42,6 +48,13 @@ export const allUniverses = [
   ...missionUniverses,
   ...biographicalUniverses,
   ...robinWilliamsFilmography,
+  // The rest of the `people` namespace. These build at module scope and used to be
+  // exported from the barrel but spread into nothing, so they were constructed,
+  // validated and then discarded (james-gibson/local-time#27). A test in
+  // `people/people-registration.test.ts` now fails if a new one is not wired here.
+  ...jamesCameronFilmography,
+  edSheeranCopyrightTrial2023Universe,
+  trumpAssassinationAttemptUniverse,
   ...legalUniverses,
   ...pokemonUniverses,
   ...historicalUniverses,
@@ -98,5 +111,8 @@ export {
   gamestopUniverses,
   costcoUniverses,
   idiocracyUniverse,
-  robinWilliamsFilmography
+  robinWilliamsFilmography,
+  jamesCameronFilmography,
+  edSheeranCopyrightTrial2023Universe,
+  trumpAssassinationAttemptUniverse
 };

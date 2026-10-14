@@ -1,4 +1,5 @@
 import { UniverseBuilder,  } from '../../../index';
+import { getMarvelFilmNotables } from '../people/marvel';
 // Assuming the existence of enums and types from the core system.
 // When implementing, ensure these paths are correct.
 // import { TimePrecision, UniverseType, RealityRelationType } from '../../../temporal-system';
@@ -522,3 +523,50 @@ export const wandaVision2021Universe = new UniverseBuilder()
  *
  * // Now the registry can be used to query temporal data and connections for these universes.
  */
+
+// --- Notables attachment ---------------------------------------------------
+
+/**
+ * Every film/series universe defined in this module, in phase order.
+ *
+ * The documented notables (director / writers / cast / commentary) for these films live in
+ * `../../people/marvel`; attaching them below is what consumes that data instead of
+ * leaving it a dead export (james-gibson/local-time#27). Films in phases we have no
+ * notables for yet simply get none.
+ *
+ * Note: this module is not reachable from `allUniverses` today — `./films.ts` shadows
+ * `./films/index.ts`, so the whole directory never loads (james-gibson/local-time#67).
+ */
+export const marvelFilmUniverses = [
+  ironMan2008Universe,
+  incredibleHulk2008Universe,
+  ironMan2_2010Universe,
+  thor2011Universe,
+  captainAmericaFirstAvenger2011Universe,
+  avengers2012Universe,
+  ironMan3_2013Universe,
+  thorDarkWorld2013Universe,
+  captainAmericaWinterSoldier2014Universe,
+  guardiansOfTheGalaxy2014Universe,
+  avengersAgeOfUltron2015Universe,
+  antMan2015Universe,
+  captainAmericaCivilWar2016Universe,
+  doctorStrange2016Universe,
+  guardiansOfTheGalaxyVol2_2017Universe,
+  spiderManHomecoming2017Universe,
+  thorRagnarok2017Universe,
+  blackPanther2018Universe,
+  avengersInfinityWar2018Universe,
+  antManAndTheWasp2018Universe,
+  captainMarvel2019Universe,
+  avengersEndgame2019Universe,
+  spiderManFarFromHome2019Universe,
+  wandaVision2021Universe,
+];
+
+for (const universe of marvelFilmUniverses) {
+  const notables = getMarvelFilmNotables(universe.universeId as string);
+  if (notables) {
+    universe.metadata = { ...universe.metadata, notables } as typeof universe.metadata;
+  }
+}
