@@ -77,6 +77,24 @@ A search hit is a **summary**; the `chunk_id` is the block.
 Then batch: `synapse_modify_files` (`write_safely`) per file, review the preview, apply;
 finish with `synapse_change_review` (`impact`).
 
+### C++ / native codebase (any repo)
+
+C++ is a **`regex`-first** repo, and its source is often a **vendored submodule**. Two facts
+change the whole row: `symbol` does not resolve a class by its base name (there is no
+`js:canonical:` alias for C++ — see `SKILL.md` → *Gotchas*), and the `repo_id` is the
+**wrapper** repo while the code sits under a submodule prefix (e.g. `code/OpenTTD/`).
+
+| Target | Warm |
+| --- | --- |
+| Synapse | `regex "<Base>"` → collect the `cid`s (**not** `symbol "<Base>"` → `count 0`); a part can be named only `__partN`, so match the base string rather than guessing `__part1` |
+| Synapse | `read_chunk` each `cid` → `src` is the block whole; the declaration (`.h`) and the definition (`.cpp`) may be **different files**, and a header-only template (e.g. `tcp_listen.h`) has no `.cpp` at all |
+| Synapse | scope every call with `path: code/<submodule>/...`; `context:edit` the `.h`/`.cpp` in scope, `explore_graph` on each symbol, `find_tests` for the guard |
+| Qdrant memory | the wrapper `repo_id`, the **submodule prefix**, the **upstream** remote (what public source URLs cite), and the `cid` list |
+
+Then batch: `synapse_modify_files` (`write_safely`) per file; finish with
+`synapse_change_review` (`impact`). Public source citations use the **upstream** blob URL at
+the pinned commit, not the wrapper remote.
+
 ### New universe — Path A (from the KB)
 
 | Target | Warm |
