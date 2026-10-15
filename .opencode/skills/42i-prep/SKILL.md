@@ -183,7 +183,9 @@ what makes "batch edits across a long task" safe.
 
 1. `synapse_indexer_control` (`health`) — is the server up, and is the repo ready?
 2. `synapse_manage_repos` (`list`) — copy the exact `repo_id` (verbatim, slug included).
-3. `synapse_search_codebase` (`symbol` / `regex`) — collect the `chunk_id`s.
+3. `synapse_search_codebase` (`symbol` / `regex`) — collect the `chunk_id`s. Use **`regex`**
+   for C++ and any large class: `symbol` misses part-split symbols (`Name__partN`) by base name
+   (*Gotchas*).
    *While `embeddings_partial: true`, do not use `semantic`/`find` — they return zero rows.*
 4. `synapse_get_context` (`edit`) — the pre-edit safety pack for files you will touch.
 5. `synapse_explore_graph` (`callers`/`callees`, depth 2) — the reachable set.
@@ -309,6 +311,19 @@ Name it, then do the opposite of it.
   scratch vault clobbers the production manifest's bookkeeping.
 - **Synapse does not re-index on re-registration under the same `repo_id`.** Verify with a
   search; do not trust a `complete`/`idle` status during a rebuild.
+- **`symbol` misses every part-split symbol — including large C++ classes.** Synapse chunks a
+  big symbol into `<Name>__partN`; the base name is never stored as a queryable symbol, so
+  `symbol: "<Name>"` returns `count 0` (`empty_recoverable`). For C++ there is **no
+  `js:canonical:` alias** to fall back on, and a part can be named only `__partN` (base
+  dropped). Look it up with **`regex "<Name>"` → `chunk_id` → `read_chunk`** — Synapse's own
+  `_synapse.suggested_retry` says the same. (TS alias fix:
+  `kb/public/proposals/0001-resolve-part-split-symbols.md`.)
+- **A non-TS `repo_id` is often a wrapper around a vendored submodule.** `OpenTTD` roots at the
+  tool repo `gibsunas/openttd`, but the source is `code/OpenTTD/` — scope every `path` with the
+  prefix, and keep the **wrapper** remote distinct from the **upstream** (`OpenTTD/OpenTTD`)
+  that public source URLs cite.
+- **`read_files` `ranges` are `"start-end"` strings.** Pass `ranges: ["140-175"]`; an array of
+  two-element arrays is rejected.
 - **OpenKnowledge's cwd is sticky.** Always pass `cwd` to `exec`/`edit`/`write`; a bare
   relative path can resolve against a different project.
 

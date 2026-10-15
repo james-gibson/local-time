@@ -14,6 +14,7 @@ session (re)entry, after any reset, and before the first write.
 | --- | --- | --- | --- |
 | **cwd** | where am I? | `pwd -P` | an absolute path |
 | **repo root** | what's the git toplevel? | `git -C <dir> rev-parse --show-toplevel` | an absolute path, or "not-a-repo" |
+| **code root** | is the code a vendored submodule? | `git -C <dir> submodule status`; `ls <repo>/code` | a submodule path (e.g. `code/OpenTTD/`) — the Synapse `path` prefix |
 | **remote** | is there a GitHub? | `git -C <dir> remote get-url origin` | `owner/repo`, or `NO-REMOTE` |
 | **branch / worktree** | what am I on? | `git -C <dir> branch --show-current` | a branch name (or empty = detached) |
 | **node** | is the pipeline runnable? | `command -v node` | a path, or **empty (nvm not sourced)** |

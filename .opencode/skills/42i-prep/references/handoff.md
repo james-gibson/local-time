@@ -21,8 +21,11 @@ The rule in one line:
 | keyframe id | the universe / the KB doc | `read_chunk` on the module |
 | env facts | the environment probe | the handoff `env:` block (below) |
 
-Two address spaces, never crossed: **Synapse addresses code** (`.ts`, `.py`, …),
-**OpenKnowledge addresses in-scope markdown** (`.md`/`.mdx` under an OK project).
+Two address spaces, never crossed: **Synapse addresses code** (`.ts`, `.py`, `.cpp`, `.h`, …)
+— for a vendored submodule the `repo_id` is the **wrapper** and every `path` carries the
+submodule prefix (`code/<name>/`) — and **OpenKnowledge addresses in-scope markdown**
+(`.md`/`.mdx` under an OK project). Identifier note: for C++ (and any large symbol) look a
+symbol up with `regex`, **not** `symbol` — see `SKILL.md` → *Gotchas*.
 
 ## Template — the standard handoff
 
