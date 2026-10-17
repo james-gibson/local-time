@@ -109,7 +109,7 @@ export class RealityGradientAnalyzer {
     let level: number;
     let category: RealityCategory;
     const evidence: string[] = [];
-    let confidence = Math.min(sourceGradient.confidence, targetGradient.confidence);
+    const confidence = Math.min(sourceGradient.confidence, targetGradient.confidence);
 
     // Calculate reference reality level based on type
     switch (referenceType) {

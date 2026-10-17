@@ -70,44 +70,40 @@ export class UniverseMCPClient {
   }
 
   private async handleDirectRequest(request: MCPRequest): Promise<any> {
-    try {
-      let result: any;
+    let result: any;
 
-      switch (request.method) {
-        case 'tools/list':
-          result = { tools: await this.server.listTools() };
-          break;
-        case 'resources/list':
-          result = { resources: await this.server.listResources() };
-          break;
-        case 'prompts/list':
-          result = { prompts: await this.server.listPrompts() };
-          break;
-        case 'tools/call':
-          result = await this.server.callTool(request.params.name, request.params.arguments);
-          break;
-        case 'resources/read':
-          result = await this.server.readResource(request.params.uri);
-          break;
-        case 'prompts/get':
-          result = { 
-            messages: [{ 
-              role: 'user', 
-              content: { 
-                type: 'text', 
-                text: await this.server.getPrompt(request.params.name, request.params.arguments) 
-              } 
-            }] 
-          };
-          break;
-        default:
-          throw new Error(`Unknown method: ${request.method}`);
-      }
-
-      return result;
-    } catch (error) {
-      throw error;
+    switch (request.method) {
+      case 'tools/list':
+        result = { tools: await this.server.listTools() };
+        break;
+      case 'resources/list':
+        result = { resources: await this.server.listResources() };
+        break;
+      case 'prompts/list':
+        result = { prompts: await this.server.listPrompts() };
+        break;
+      case 'tools/call':
+        result = await this.server.callTool(request.params.name, request.params.arguments);
+        break;
+      case 'resources/read':
+        result = await this.server.readResource(request.params.uri);
+        break;
+      case 'prompts/get':
+        result = { 
+          messages: [{ 
+            role: 'user', 
+            content: { 
+              type: 'text', 
+              text: await this.server.getPrompt(request.params.name, request.params.arguments) 
+            } 
+          }] 
+        };
+        break;
+      default:
+        throw new Error(`Unknown method: ${request.method}`);
     }
+
+    return result;
   }
 
   // High-level API methods

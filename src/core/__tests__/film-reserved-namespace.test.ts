@@ -28,7 +28,7 @@ import {
  * and an alternation of literals (`^(nasa|esa|spacex|military):`).
  */
 function leadingTokens(source: string): string[] {
-    let s = source.replace(/^\^/, '');
+    const s = source.replace(/^\^/, '');
 
     const alternation = s.match(/^\(([a-z0-9_|]+)\)/);
     if (alternation) {
