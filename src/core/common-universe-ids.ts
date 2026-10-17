@@ -7,7 +7,9 @@ import {
   createLegalUniverseId,
   createBiographyUniverseId,
   createGameUniverseId,
-  createCyberSecurityUniverseId
+  createCyberSecurityUniverseId,
+  createUniverseId,
+  isValidUniverseId
 } from './universe-ids';
 
 export interface UniverseHierarchy {
@@ -81,7 +83,24 @@ export class CommonUniverseIds {
   // Software engineering / version control
   static readonly SOFTWARE_ENGINEERING = createHistoricalUniverseId('software_engineering', '*');
   static readonly VERSION_CONTROL = createHistoricalUniverseId('version_control', '*');
-  
+
+  // Containers the KB's frontmatter already declares.
+  //
+  // The lore template writes `parent-universes:` as symbolic names
+  // (`HOLLYWOOD_SYSTEM`, not `history:hollywood:1913`), and 14 distinct names are
+  // in use across the compendia. Nine already had a member here; these five did
+  // not, so every edge naming one was dropped (james-gibson/local-time#133).
+  //
+  // These are *not* invented ids. Unlike the `games_industry` case above, the
+  // names are already referenced by declared compendia — creating the container is
+  // what makes an existing declaration resolvable rather than a dangling anchor.
+  static readonly US_ECONOMIC_HISTORY = createHistoricalUniverseId('us_economic_history', '*');
+  static readonly US_GOVERNANCE = createHistoricalUniverseId('us_governance', '*');
+  static readonly US_POLITICAL_PARTIES = createHistoricalUniverseId('us_political_parties', '*');
+  static readonly US_ELECTION_CYCLE = createHistoricalUniverseId('us_election_cycle', '*');
+  static readonly DOCUMENTATION_SYSTEMS = createHistoricalUniverseId('documentation_systems', '*');
+  static readonly PERSONAL_PROJECTS = createHistoricalUniverseId('personal_projects', '*');
+
   // Space Industry
   static readonly NASA_OPERATIONS = createMissionUniverseId('nasa', 'comprehensive_missions', 1958);
   static readonly APOLLO_PROGRAM = createMissionUniverseId('nasa', 'apollo_program', 1961);
@@ -183,6 +202,54 @@ export class CommonUniverseIds {
       level: 'global',
       timespan: { start: 1972, end: new Date().getFullYear() }
     });
+
+    // Placement for the containers the KB already declares (see the statics).
+    // Each is a domain umbrella, so it hangs off the closest existing root rather
+    // than becoming a second root of its own.
+    this.addHierarchy(this.US_ECONOMIC_HISTORY, {
+      parent: this.US_HISTORY,
+      children: new Set(),
+      level: 'national',
+      jurisdiction: 'United States'
+    });
+
+    this.addHierarchy(this.US_GOVERNANCE, {
+      parent: this.US_GOVERNMENT,
+      children: new Set(),
+      level: 'national',
+      jurisdiction: 'United States'
+    });
+
+    this.addHierarchy(this.US_POLITICAL_PARTIES, {
+      parent: this.US_GOVERNMENT,
+      children: new Set(),
+      level: 'national',
+      jurisdiction: 'United States'
+    });
+
+    // The election-issue universes (`history:election_issue_*`, hand-authored in
+    // `us-history/`) already declare this parent, so it is a container in use, not
+    // a new one.
+    this.addHierarchy(this.US_ELECTION_CYCLE, {
+      parent: this.US_GOVERNMENT,
+      children: new Set(),
+      level: 'national',
+      jurisdiction: 'United States'
+    });
+
+    this.addHierarchy(this.DOCUMENTATION_SYSTEMS, {
+      parent: this.SOFTWARE_ENGINEERING,
+      children: new Set(),
+      level: 'global'
+    });
+
+    // The personal umbrella has no parent: it is the root the personal universes
+    // (the lab, local-time, the docs site, cocoindex) already declare against.
+    this.addHierarchy(this.PERSONAL_PROJECTS, {
+      parent: undefined,
+      children: new Set(),
+      level: 'global'
+    });
   }
   
   /**
@@ -238,6 +305,54 @@ export class CommonUniverseIds {
       this.link(parent, child);
     }
     this.entryFor(child);
+  }
+
+  /**
+   * Resolve a *declared parent name* to the `UniverseId` it denotes.
+   *
+   * The KB's `parent-universes` frontmatter is written as symbolic names — the
+   * canonical template says `HOLLYWOOD_SYSTEM`, and 14 distinct names are in use
+   * across the compendia — while a `CommonUniverseIds` member carries the real id
+   * (`history:hollywood:1913`). Nothing bridged the two, so a declared edge naming
+   * a container was filtered out by `UniverseRegistry.declaredParentUniverses` and
+   * the universe registered with no parents at all (james-gibson/local-time#133).
+   *
+   * An id is returned for either form, so a compendium may write a name or an id.
+   * `undefined` means the name denotes no known container; the caller reports that
+   * rather than dropping it in silence.
+   */
+  static resolveDeclaredName(name: string): UniverseId | undefined {
+    const trimmed = typeof name === 'string' ? name.trim() : '';
+    if (trimmed === '') return undefined;
+    // Already an id — the two hand-typed ids in the compendia take this path.
+    if (isValidUniverseId(trimmed)) return createUniverseId(trimmed);
+    return this.declaredNameIndex().get(trimmed);
+  }
+
+  /** Cache for {@link declaredNameIndex}; `null` until first use. */
+  private static declaredNameIndexCache: Map<string, UniverseId> | null = null;
+
+  /**
+   * `static member NAME -> UniverseId`, built once by reflecting over the class.
+   *
+   * Reflection keeps the index in step with the declarations above: a container
+   * added as a static is resolvable with no second registration step, which is the
+   * class of omission behind james-gibson/local-time#27 and #67 (defined, never
+   * reachable).
+   */
+  private static declaredNameIndex(): Map<string, UniverseId> {
+    if (this.declaredNameIndexCache) return this.declaredNameIndexCache;
+
+    const index = new Map<string, UniverseId>();
+    for (const [key, value] of Object.entries(this as unknown as Record<string, unknown>)) {
+      // Static members are own enumerable properties; the non-string values
+      // (this cache, the hierarchy Map) fall out on the typeof check.
+      if (typeof value === 'string' && isValidUniverseId(value)) {
+        index.set(key, createUniverseId(value));
+      }
+    }
+    this.declaredNameIndexCache = index;
+    return index;
   }
 
   private static addHierarchy(id: UniverseId, hierarchy: UniverseHierarchy) {
