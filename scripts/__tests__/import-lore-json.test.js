@@ -126,3 +126,115 @@ test('keyframes are emitted in offset order, not declaration order (#35)', () =>
   assert.ok(positions.every((i) => i >= 0), 'every keyframe must be emitted');
   assert.deepEqual(positions, [...positions].sort((a, b) => a - b), `out of order: ${positions}`);
 });
+
+/**
+ * The KB's declared connection edges reaching the module.
+ *
+ * Two fields were carried into the JSON by build-lore-json.js and then never read
+ * here, so both were dropped in silence: `parent-universes` (local-time#133) and
+ * `cross-references` (local-time#136). `cross-references` is declared *required*
+ * for every lore doc, and `lab.md` declares three sibling links that have never
+ * existed in the model.
+ *
+ * Two shapes, and the rule between them (also stated in the KB's contract):
+ *   - a *frame* is declared on the keyframe (`target-universe-id`) and names an
+ *     occurrence in another universe — deferred resolution, so it is valid before
+ *     the target records it;
+ *   - a *reference* is declared at the top level (`cross-references`) and names the
+ *     framing relationship between the two universes.
+ */
+test('parent-universes and cross-references are emitted as connection edges (#133, #136)', () => {
+  const doc = {
+    ...baseDoc('test:T+00:00:00'),
+    parentUniverses: ['SOFTWARE_ENGINEERING', 'PERSONAL_PROJECTS'],
+    crossReferences: ['history:costco:1983'],
+  };
+  const { res, outDir } = run(doc);
+  assert.equal(res.status, 0, res.stderr);
+  const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
+
+  assert.match(code, /connections: \{/);
+  // Emitted verbatim: the symbolic name is resolved downstream by
+  // CommonUniverseIds.resolveDeclaredName, so the module stays faithful to the KB.
+  assert.match(code, /parentUniverses: \['SOFTWARE_ENGINEERING', 'PERSONAL_PROJECTS'\]/);
+  assert.match(code, /references: \[/);
+  // A bare id asserts the edge and nothing more.
+  assert.match(code, /type: 'THEMATICALLY_LINKED'/);
+  assert.match(code, /targetUniverseId: 'history:costco:1983'/);
+});
+
+test('a rich cross-reference carries its type, confidence and description (#136)', () => {
+  const doc = {
+    ...baseDoc('test:T+00:00:00'),
+    crossReferences: [
+      {
+        'universe-id': 'technology:isotope:2026',
+        type: 'DEPENDS_ON',
+        confidence: 0.9,
+        description: 'isotope is the shared rung every link registers against',
+      },
+    ],
+  };
+  const { res, outDir } = run(doc);
+  assert.equal(res.status, 0, res.stderr);
+  const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
+
+  assert.match(code, /type: 'DEPENDS_ON'/);
+  assert.match(code, /targetUniverseId: 'technology:isotope:2026'/);
+  assert.match(code, /confidence: 0\.9/);
+  assert.match(code, /description: 'isotope is the shared rung every link registers against'/);
+});
+
+test('a frame link is emitted on the keyframe, carrying its target (#136)', () => {
+  const doc = baseDoc('test:T+00:00:00');
+  doc.zeroReference.keyframes = [
+    {
+      id: 'release',
+      address: 'test:T+00:00:00',
+      timestamp: '2000-01-01T00:00:00Z',
+      'target-universe-id': 'technology:smoke_alarm:2026',
+      'target-keyframe-type': 'release',
+      'target-keyframe-id': 'v0.11.0',
+    },
+  ];
+  const { res, outDir } = run(doc);
+  assert.equal(res.status, 0, res.stderr);
+  const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
+
+  assert.match(code, /targetUniverseId: 'technology:smoke_alarm:2026'/);
+  assert.match(code, /targetKeyframeType: 'release'/);
+  assert.match(code, /targetKeyframeId: 'v0\.11\.0'/);
+});
+
+test('a cross-reference naming an occurrence is reported, not flattened (#136)', () => {
+  // `epoch-id`/`address` point at a *frame*, so they belong on the keyframe. Emitting
+  // the entry as a plain reference would keep the edge and lose the one thing it says,
+  // so it is called out — the same "never defaulted in silence" rule as windows.strategy.
+  const doc = {
+    ...baseDoc('test:T+00:00:00'),
+    crossReferences: [
+      {
+        'universe-id': 'technology:tuner:2026',
+        'epoch-id': 'tuner-origin',
+        address: 'tuner-origin:T+00:00:00',
+        type: 'DEPENDS_ON',
+      },
+    ],
+  };
+  const { res, outDir } = run(doc);
+  assert.equal(res.status, 0, res.stderr);
+  assert.match(res.stderr, /carries epoch-id\/address/);
+
+  const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
+  assert.match(code, /targetUniverseId: 'technology:tuner:2026'/);
+  assert.doesNotMatch(code, /tuner-origin/, 'the occurrence must not leak as a flattened edge');
+});
+
+test('a document with no declared connections emits no connections block', () => {
+  // The block is additive: 23 compendia predate it, and a bare universe must not
+  // grow an empty `connections: {}` that asserts nothing.
+  const { res, outDir } = run(baseDoc('test:T+00:00:00'));
+  assert.equal(res.status, 0, res.stderr);
+  const code = readFileSync(join(outDir, 'test_film_2000.ts'), 'utf-8');
+  assert.doesNotMatch(code, /connections:/);
+});
