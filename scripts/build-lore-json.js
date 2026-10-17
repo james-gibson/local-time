@@ -328,7 +328,14 @@ function normalise(mdPath, content, zeroIndex) {
     universeId: fm['universe-id'] ?? null,
     // Carried through so the importer can refuse a stale or un-enrolled JSON
     // without re-reading the markdown. `null` means the flag was absent.
-    'local-time-sync': fm['local-time-sync'] ?? null,
+    //
+    // Canonicalised to a real boolean rather than passed through, because a
+    // pass-through preserves YAML's `local-time-sync: "true"` (quoted) as a
+    // string — which this script's `isEnrolled` accepts and the importer's
+    // strict `!== true` refused. The two scripts read one key and disagreed on
+    // it, so a document was built into JSON and then dropped in silence: two
+    // enrolled compendia were never registered (james-gibson/local-time#138).
+    'local-time-sync': isEnrolled(fm) ? true : null,
     // Explicit permission to publish this universe as public documentation.
     // Deliberately separate from the KB's root-derived `visibility`: a doc can
     // live in a private root and still be publishable, but only on purpose.

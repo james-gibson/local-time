@@ -577,6 +577,18 @@ console.log(`Importing ${jsonPaths.length} lore document(s) from ${jsonDir} -> $
 const exports = [];
 const notEnrolled = [];
 
+/**
+ * Enrolment, on the same terms `build-lore-json.js` uses it.
+ *
+ * The two scripts read one key and used to disagree on it: that script treated
+ * `local-time-sync: "true"` as enrolled and wrote the string through to the
+ * JSON, and this check's strict `!== true` then refused the same document — so
+ * it was built into JSON and dropped here in silence, costing two enrolled
+ * compendia their registration (james-gibson/local-time#138). Accepting the
+ * same truthy forms closes the gap without depending on which script ran last.
+ */
+const isEnrolled = (value) => value === true || value === 'true' || value === 'yes';
+
 // Rendered modules are held back until every document has been checked: one
 // unresolved segment bound fails the whole run instead of emitting a tree where
 // some segments silently collapsed onto their first/last keyframe.
@@ -588,7 +600,7 @@ for (const jsonPath of jsonPaths) {
   // Enrolment is the contract, and the JSON carries it so this check needs no
   // second read of the markdown. A JSON without the flag is stale or hand-made:
   // skip it rather than quietly inventing a universe.
-  if (json['local-time-sync'] !== true) {
+  if (!isEnrolled(json['local-time-sync'])) {
     notEnrolled.push(relative(jsonDir, jsonPath));
     continue;
   }
