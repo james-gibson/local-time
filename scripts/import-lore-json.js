@@ -174,6 +174,131 @@ function realityRelationType(a, b) {
 
 // --- generators ------------------------------------------------------------
 
+/**
+ * The type a bare-id `cross-references` entry compiles to.
+ *
+ * A bare id asserts that an edge exists without saying what kind, which is
+ * exactly what `THEMATICALLY_LINKED` means ("this edge only asserts that one
+ * exists"). Nothing is minted: the rich form is how an author states the
+ * relation, and the contract prefers it whenever the relation is known.
+ */
+const DEFAULT_CROSS_REFERENCE_TYPE = 'THEMATICALLY_LINKED';
+
+/**
+ * `cross-references` -> `connections.references[]`, the universe-level *framing*
+ * edges (james-gibson/local-time#136).
+ *
+ * Two authored forms are already in the compendia, so both are accepted:
+ *
+ *   cross-references: ['history:costco:1983']                 # bare id
+ *   cross-references:                                         # rich
+ *     - universe-id: technology:isotope:2026
+ *       type: DEPENDS_ON
+ *       confidence: 0.9
+ *       description: ...
+ *
+ * An entry carrying `epoch-id`/`address` is naming an *occurrence* in the target,
+ * which is the frame shape and belongs on the keyframe (`target-universe-id`).
+ * That is reported rather than flattened, because flattening it would lose the
+ * one thing it says.
+ */
+function emitReferences(crossReferences) {
+  const list = Array.isArray(crossReferences) ? crossReferences : [];
+  const out = [];
+
+  for (const entry of list) {
+    if (typeof entry === 'string') {
+      const target = entry.trim();
+      if (!target) continue;
+      out.push('      {');
+      out.push(`        type: ${q(DEFAULT_CROSS_REFERENCE_TYPE)},`);
+      out.push(`        targetUniverseId: ${q(target)},`);
+      out.push('      },');
+      continue;
+    }
+    if (!entry || typeof entry !== 'object') continue;
+
+    const target = entry['universe-id'] ?? entry.universeId ?? null;
+    if (!target) {
+      console.warn(
+        `! cross-reference ${JSON.stringify(entry)} has no universe-id; the edge is dropped`,
+      );
+      continue;
+    }
+    if (entry['epoch-id'] || entry.address) {
+      console.warn(
+        `! cross-reference to "${target}" carries epoch-id/address, which names an occurrence — ` +
+          'declare that on the keyframe as target-universe-id instead',
+      );
+    }
+
+    out.push('      {');
+    out.push(`        type: ${q(entry.type ?? DEFAULT_CROSS_REFERENCE_TYPE)},`);
+    out.push(`        targetUniverseId: ${q(target)},`);
+    if (entry['target-keyframe-id']) {
+      out.push(`        targetKeyframeId: ${q(entry['target-keyframe-id'])},`);
+    }
+    if (entry.description) out.push(`        description: ${q(entry.description)},`);
+    if (entry.confidence !== undefined) {
+      out.push(`        confidence: ${num(entry.confidence, 1)},`);
+    }
+    out.push('      },');
+  }
+  return out;
+}
+
+/**
+ * Containment + references as one `connections` block.
+ *
+ * Both halves were declared in the KB and dropped here (james-gibson/local-time#133
+ * and #136): `parent-universes` and `cross-references` were carried into the JSON
+ * and then never read. A name resolves downstream through
+ * `CommonUniverseIds.resolveDeclaredName`, and an unknown target is reported by
+ * the registry rather than dropped in silence — so a bare symbol is still faithful
+ * to the KB here.
+ */
+function emitConnections(json) {
+  const parents = Array.isArray(json.parentUniverses) ? json.parentUniverses : [];
+  const references = emitReferences(json.crossReferences);
+  if (!parents.length && !references.length) return [];
+
+  const out = ['  connections: {'];
+  if (parents.length) {
+    out.push('    natural: {');
+    out.push(`      parentUniverses: [${parents.map(q).join(', ')}],`);
+    out.push('    },');
+  }
+  if (references.length) {
+    out.push('    references: [');
+    out.push(...references);
+    out.push('    ],');
+  }
+  out.push('  },');
+  return out;
+}
+
+/**
+ * A declared frame link on a keyframe: `target-universe-id` names the universe
+ * whose occurrence this frame *is*, with deferred resolution — the target need
+ * not be recorded yet, and an unresolved target is not a broken link
+ * (`TemporalKeyframe.targetUniverseId`, src/core/types.ts).
+ *
+ * This is the occurrence-level shape; `cross-references` is the framing one.
+ */
+function emitKeyframeTarget(kf) {
+  const out = [];
+  if (kf['target-universe-id']) {
+    out.push(`        targetUniverseId: ${q(kf['target-universe-id'])},`);
+  }
+  if (kf['target-keyframe-id']) {
+    out.push(`        targetKeyframeId: ${q(kf['target-keyframe-id'])},`);
+  }
+  if (kf['target-keyframe-type']) {
+    out.push(`        targetKeyframeType: ${q(kf['target-keyframe-type'])},`);
+  }
+  return out;
+}
+
 function emitKeyframes(keyframes) {
   const out = [];
   for (const kf of keyframes) {
@@ -203,6 +328,7 @@ function emitKeyframes(keyframes) {
       out.push(`        tension: ${num(kf['42i'].tension, 0)},`);
     }
     if (kf.description) out.push(`        description: ${q(kf.description)},`);
+    out.push(...emitKeyframeTarget(kf));
     out.push('      },');
   }
   return out;
@@ -381,6 +507,7 @@ function emitUniverse(json) {
   }
   lines.push(`    citations_required: ${Boolean(json.attribution?.['citations-required'] ?? false)},`);
   lines.push('  },');
+  lines.push(...emitConnections(json));
   lines.push('  epochs: {},');
   lines.push('  layers: [');
   lines.push('    {');
