@@ -6,7 +6,8 @@
  * @date 2025-09-10
  */
 
-// @ts-ignore: Assuming Person and FilmContribution types are defined elsewhere in the project
+// TODO: `Person` and `FilmContribution` are not defined anywhere in this
+// project, so the import below stays commented out rather than resolved.
 // import type { Person, FilmContribution } from './types';
 
 /**

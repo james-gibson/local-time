@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "prebuild": "rm -r dist/",
+    "prebuild": "rm -rf dist",
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "test": "jest",
