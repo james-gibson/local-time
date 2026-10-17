@@ -205,8 +205,12 @@ export class UniverseRegistry {
    *   (`{ type: 'member_of', targetUniverseId }`), which is what
    *   `UniverseBuilder.addConnection` writes.
    *
-   * Only well-formed ids survive; a malformed entry is dropped, never
-   * registered. Duplicates collapse.
+   * A declared parent may be written either as a real id or as the symbolic name
+   * the KB's `parent-universes` frontmatter uses (`SOFTWARE_ENGINEERING`); both are
+   * resolved through `CommonUniverseIds.resolveDeclaredName`. An entry that
+   * resolves to nothing is reported and dropped — never dropped in silence, which
+   * is how 24 declared edges went missing unnoticed (james-gibson/local-time#133).
+   * Duplicates collapse.
    */
   private declaredParentUniverses(universe: Universe): UniverseId[] {
     const declared: unknown[] = [];
@@ -224,10 +228,25 @@ export class UniverseRegistry {
       }
     }
 
-    const valid = declared.filter(
-      (parent): parent is UniverseId => typeof parent === 'string' && isValidUniverseId(parent),
-    );
-    return [...new Set(valid)];
+    const resolved: UniverseId[] = [];
+    for (const parent of declared) {
+      if (typeof parent !== 'string' || parent.trim() === '') continue;
+
+      const id = CommonUniverseIds.resolveDeclaredName(parent);
+      if (id) {
+        resolved.push(id);
+        continue;
+      }
+
+      // Loud, not silent. A declared parent that is neither a universe id nor a
+      // known container name is a KB or pipeline defect — the edge is dropped
+      // either way, but the drop is now visible.
+      console.warn(
+        `UniverseRegistry: universe "${universe.universeId}" declares parent "${parent}", ` +
+          'which is neither a universe id nor a known container name; the edge is dropped.',
+      );
+    }
+    return [...new Set(resolved)];
   }
   
   getUniverse(idOrAlias: string): Universe | undefined {
