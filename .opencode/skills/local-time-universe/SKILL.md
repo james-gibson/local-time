@@ -21,6 +21,13 @@ Three properties define "done":
 3. **Projectable** — the fields are the retrieval schema (corpus, weights, charge), so
    keep them real rather than decorative (#76).
 
+And it must be **a real work or a real event**. Fiction is recorded in
+`realityRelation`, never hidden — but a work that *does not exist* is not a
+universe. A "fictional short that could exist between the films" is an invented
+work, and registering it asserts a false claim about a real company. That is why
+`games/monopoly.ts` was **deleted** rather than registered (#113). An in-universe
+event is a keyframe on the work that contains it, not a universe of its own.
+
 ## Pick a path
 
 | Path | When | Starts in |
@@ -223,6 +230,14 @@ full pattern (the lever registry, what to precache, and real worked examples) is
 
 ## Where else to look
 
+- `local-time-ids` (this repo, `.opencode/skills/local-time-ids/`) — **measure the id
+  before you write the module.** Why `isValidUniverseId` is not a proof, the reserved
+  namespaces, the two slugifiers, and how to prove that an id you *reference* resolves.
+- `local-time-films` (this repo) — the film-specific half: the studio token, containment
+  and `DISTRIBUTED_BY`, runtime keyframes as positions, gapless acts, and the film-ticket
+  presumption ledger.
+- `local-time-verify` (this repo) — the gates, and the traps that make a local run lie
+  (a symlinked `node_modules`, a single-suite pass, a `BigInt` jest message).
 - `references/builder-api.md` — the full, verified builder method list, id factories,
   closed unions and `build()` internals.
 - `42i-prep`'s [`references/universe-scaffold.md`](../42i-prep/references/universe-scaffold.md)
