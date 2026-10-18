@@ -34,7 +34,7 @@ export class ConfigLoader {
         const configData = await readFile(configPath!, 'utf-8');
         const config = JSON.parse(configData) as UniverseConfig;
         configs.push(config);
-      } catch (error) {
+      } catch {
         continue;
       }
     }
@@ -56,7 +56,7 @@ export class ConfigLoader {
         const configModule = await import(packageName);
         const config = configModule.default as UniverseConfig;
         configs.push(config);
-      } catch (error) {
+      } catch {
         continue;
       }
     }

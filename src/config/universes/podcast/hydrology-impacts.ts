@@ -1,7 +1,6 @@
 import { UniverseBuilder } from '../../../index';
-import { Universe, ConnectionRelationship } from '../../../core/types';
+import { Universe } from '../../../core/types';
 import { damImpactTimelineUniverse } from '../us-gov/hydrological'; // Assuming sibling file
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**
  * "The Dammed River: Progress, Problems, and Price Tags" Podcast Episode

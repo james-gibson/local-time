@@ -2,14 +2,12 @@ import { createTechnicalUniverseId } from '../../../core/universe-ids';
 import {
     Universe,
     UniverseType,
-    TimePrecision,
     Keyframe,
     Segment,
     RealityRelationType,
     UsageRestriction,
     CopyrightStatus,
 } from '../../../core/types';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**
  * Custom metadata interface to capture the specific context of this home energy log.

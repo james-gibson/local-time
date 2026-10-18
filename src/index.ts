@@ -7,7 +7,6 @@ export * from './query';
 
 // Import only what's needed to avoid circular dependencies
 import type { UniverseRegistry } from './config/universe-registry';
-import type { ConfigLoader } from './config/config-loader';
 import type { WindowSearch } from './query/window-search';
 
 export class LocalTime {

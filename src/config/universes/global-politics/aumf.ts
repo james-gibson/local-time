@@ -1,4 +1,4 @@
-import { UniverseBuilder, TimePrecision } from '../../../core';
+import { UniverseBuilder } from '../../../core';
 
 /**
  * @universe us_gov:aumf_2001:2001-present

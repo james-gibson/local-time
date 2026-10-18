@@ -1,5 +1,4 @@
 import { Universe, UniverseType, TimePrecision } from '../../../../core/types';
-import { CommonUniverseIds } from '../../../../core/common-universe-ids';
 
 /**
  * Attempted Assassination of Donald Trump (2024)

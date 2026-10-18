@@ -1,4 +1,4 @@
-import { MCPServer, MCPCapabilities, MCPTool, MCPResource, MCPPrompt, UniverseMCPTool, UniverseMCPResource } from './types.js';
+import { MCPServer, MCPCapabilities, MCPPrompt, UniverseMCPTool, UniverseMCPResource } from './types.js';
 import { UniverseType } from '../../core/types';
 import { MCP_PROMPT_TEMPLATES, SPECIAL_MCP_PROMPTS } from '../mcp-prompts';
 
@@ -241,7 +241,7 @@ export class UniverseMCPServer implements MCPServer {
     const prompts: MCPPrompt[] = [];
 
     // Universe type prompts
-    Object.entries(MCP_PROMPT_TEMPLATES).forEach(([universeType, template]) => {
+    Object.entries(MCP_PROMPT_TEMPLATES).forEach(([universeType]) => {
       prompts.push({
         name: `generate_${universeType}_universe`,
         description: `Generate a ${universeType} universe structure`,
@@ -343,7 +343,7 @@ export class UniverseMCPServer implements MCPServer {
     return this.prompts;
   }
 
-  async callTool(name: string, arguments_: any): Promise<any> {
+  async callTool(name: string, _arguments_: any): Promise<any> {
     // Stub implementation - would route to actual tool handlers
     throw new Error(`Tool ${name} not yet implemented`);
   }
@@ -353,7 +353,7 @@ export class UniverseMCPServer implements MCPServer {
     throw new Error(`Resource ${uri} not yet implemented`);
   }
 
-  async getPrompt(name: string, arguments_?: any): Promise<string> {
+  async getPrompt(name: string, _arguments_?: any): Promise<string> {
     // Stub implementation - would generate actual prompts
     const template = Object.values(MCP_PROMPT_TEMPLATES).find(t => 
       `generate_${t.universeType}_universe` === name

@@ -1,6 +1,5 @@
 import { createTechnicalUniverseId } from '../../../core/universe-ids';
-import { Universe, UniverseType, TimePrecision, TemporalReference, RelationshipType } from '../../../core/types';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { Universe, UniverseType, RelationshipType } from '../../../core/types';
 
 /**
  * Secure Ledger System - A collection of universes defining a conceptual, secure,

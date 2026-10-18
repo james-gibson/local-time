@@ -11,7 +11,9 @@
  *
  * Every deviation below is a decision rather than an omission, and each names
  * the number it was measured against so the next reader can re-measure instead
- * of guessing.
+ * of guessing. local-time#140 bumped `@typescript-eslint` v6 -> v8 (and the
+ * `eslint` floor to ^8.57.0, v8's peer requirement) and turned `no-unused-vars`
+ * into an `error` after sweeping every unused import in the tree.
  */
 module.exports = {
   root: true,
@@ -52,20 +54,21 @@ module.exports = {
      * 74 of the baseline's 206 errors, across 43 files — and the split is what
      * matters. Almost all of them are unused *type* imports (`CommonUniverseIds`
      * x14, `TimePrecision` x9, `createHistoricalUniverseId` x6, ...), which are
-     * erased at compile time and change no behaviour; the rest are interface
-     * members that exist to satisfy an implementer. `warn` is the honest setting
-     * here rather than `off`: the rule stays live and the debt stays visible,
-     * but a tree-wide import sweep is its own change, not this one.
+     * erased at compile time and change no behaviour; the rest are value-level
+     * leftovers the rule can actually catch.
      *
-     * The obvious fix — `ignoreTypeImports`, which would silence only the
-     * type-only half — is unavailable: it is a v7+ option, and this repo pins
-     * `@typescript-eslint` v6, whose `no-unused-vars` delegates to the base
-     * ESLint rule and rejects the option outright. Bumping the plugin to gain it
-     * is worth doing; doing it here would fold a dependency upgrade into a PR
-     * about CI.
+     * #140 proposed `ignoreTypeImports: true` here — it does not exist.
+     * Empirically: 0 occurrences in `@typescript-eslint` v8.71.2's dist, and
+     * the schema rejects it outright (same failure as v6, which delegated this
+     * rule to the base ESLint rule). The typescript-eslint docs list only the
+     * base rule's options plus `enableAutofixRemoval`; the option people reach
+     * for lives in `eslint-plugin-unused-imports`, a third-party plugin. Rather
+     * than adopt a dependency to emulate it, the unused imports were swept
+     * (they were genuinely unused — typecheck proves it), so the rule runs at
+     * `error` with nothing suppressed.
      */
     '@typescript-eslint/no-unused-vars': [
-      'warn',
+      'error',
       {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',
@@ -80,11 +83,13 @@ module.exports = {
        * loading — `src/index.ts` resolves its runtime entry points lazily, and
        * the id-factory test compares the CommonJS and ESM copies of the same
        * module, which cannot be done with `import`. Scoped to these two files
-       * so the rule stays live everywhere else.
+       * so the rule stays live everywhere else. (v8's recommended config
+       * renamed the rule this override used to disable: `no-var-requires` is
+       * deprecated in favour of `no-require-imports`.)
        */
       files: ['src/index.ts', 'src/core/__tests__/id-factory-consolidation.test.ts'],
       rules: {
-        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
       },
     },
   ],

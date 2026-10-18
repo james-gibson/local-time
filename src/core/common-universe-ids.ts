@@ -1,12 +1,8 @@
 import { 
   UniverseId, 
-  createFilmUniverseId, 
   createHistoricalUniverseId,
-  createPersonalUniverseId,
   createMissionUniverseId,
   createLegalUniverseId,
-  createBiographyUniverseId,
-  createGameUniverseId,
   createCyberSecurityUniverseId,
   createUniverseId,
   isValidUniverseId

@@ -1,5 +1,4 @@
 import { LocalTime, createUniverseId, isValidUniverseId } from '../../index';
-import { pokemonAnimeUniverse } from '../../config/universes/games/pokemon';
 
 describe('Pokemon Battle Validation', () => {
   let localTime: LocalTime;

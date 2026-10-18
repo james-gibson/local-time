@@ -1,6 +1,5 @@
 import { createHistoricalUniverseId } from '../../../core/universe-ids';
-import { Universe, UniverseType, TimePrecision } from '../../../core/types';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { Universe, UniverseType } from '../../../core/types';
 
 /**
  * The September 11, 2001 Attacks

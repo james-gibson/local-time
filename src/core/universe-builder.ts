@@ -1,4 +1,4 @@
-import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalKeyframe, TemporalSegment, TemporalLayer, RealityRelation, Attribution, TemporalStructure, WindowingStrategy, RealityRelationTypeEnum } from './types';
+import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalSegment, TemporalLayer, RealityRelation, Attribution } from './types';
 import { UniverseId, createFilmUniverseId, isValidUniverseId } from './universe-ids';
 
 /**
@@ -282,7 +282,7 @@ export class UniverseBuilder {
     (this.universe.metadata as any).releaseDate = new Date(date);
     return this;
   }
-  withAttribution(type: string, yearOrDescription?: number | string, status?: string): this {
+  withAttribution(type: string, yearOrDescription?: number | string, _status?: string): this {
     const description = typeof yearOrDescription === 'string' ? yearOrDescription : undefined;
     if (type === 'public_domain') {
       this.universe.attribution = {
@@ -407,7 +407,7 @@ export class UniverseBuilder {
     return this.addSegment(id, startTime, endTime, type, description);
   }
 
-  addSegment(id: string, start: bigint, end: bigint, type: TemporalSegment['type'], description?: string): this {
+  addSegment(id: string, start: bigint, end: bigint, type: TemporalSegment['type'], _description?: string): this {
     if (!this.universe.temporalStructure) {
       this.universe.temporalStructure = {
         segments: [],

@@ -1,4 +1,4 @@
-import { Universe, ZeroReferenceEpoch, TimePrecision, TemporalSegment } from './temporal-system';
+import { Universe, ZeroReferenceEpoch, TimePrecision } from './temporal-system';
 // import { ZeroReferenceAddressing } from './zero-reference-addressing';
 
 // Apollo 11 Mission Universe with T-minus/T-plus timeline
@@ -218,8 +218,6 @@ export const ddayUniverse: Universe = {
 export class ZeroReferenceExamples {
   
   static generateApollo11Addresses() {
-    const launchEpoch = apollo11Universe.epochs.launch as ZeroReferenceEpoch;
-    
     return {
       // T-5:20 (go/no-go poll)
       goNoGo: "nasa:apollo11:1969:launch:T-00:05:20",

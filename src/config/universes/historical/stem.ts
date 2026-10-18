@@ -1,6 +1,4 @@
-import { createHistoricalUniverseId, createTechnologyUniverseId } from '../../../core/universe-ids';
-import { Universe, UniverseType, TimePrecision } from '../../../core/types';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { Universe, UniverseType } from '../../../core/types';
 
 /**
  * Invention of the Electric Telegraph - Revolution in Communication

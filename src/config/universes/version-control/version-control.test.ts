@@ -3,7 +3,7 @@ import { isValidUniverseId } from '../../../core/universe-ids';
 import { ConfigLoader } from '../../config-loader';
 import { UniverseRegistry } from '../../universe-registry';
 import {
-  sccsUniverse,
+  
   rcsUniverse,
   cvsUniverse,
   subversionUniverse,

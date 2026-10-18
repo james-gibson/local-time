@@ -1,4 +1,4 @@
-import { Universe, UniverseType, TimePrecision } from '../core/types';
+import { Universe, UniverseType } from '../core/types';
 import { UniverseRegistry } from '../config/universe-registry';
 
 export interface BiographicalQuery {

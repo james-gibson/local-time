@@ -1,4 +1,4 @@
-import { UniverseBuilder,TimePrecision } from '../../../index';
+import { UniverseBuilder } from '../../../index';
 
 /**
  * Universe definition for 'Monopoly Night', a fictional event within the Toy Story universe.
