@@ -11,6 +11,29 @@ namespace vocabulary that missed `system` (when #47 added it) and `technology`
 was deleted. Nothing caught it, because no film studio is named "System". Read the
 table; do not copy it.
 
+## Why the grammar has to be declared (the design's own challenge)
+
+`explorations/types.md:564-575`, verbatim:
+
+> Universe id's are not plain strings, they have inherent meaning. Therefore our default set of
+> universe id's should actually be typesafe
+
+That is this ticket. The branded types shipped; the *validation* stayed a pass-through
+(`isValidUniverseId` matches the arity-blind catch-all), so the ids had meaning no pattern
+enforced. Declaring a de-facto domain is what turns the type back into a claim.
+
+And the reason to declare **additively** rather than canonicalise (`types.md:583-598`):
+
+> Once we have typesafe universe ids … we should also have a predictable method for prompts to
+> reference future (uncreated) entries … Because of this disparate disconnect we should know the
+> structure of these id's to prevent future data corruption
+
+A deferred reference is only as good as the id it names. Canonicalising an id — collapsing four
+segments to three — **moves it**, and every `targetUniverseId` pointing at the old one becomes a
+dangling marker. So: declare the pattern, keep every id's value, and let the extra segments become
+meaningful rather than be removed. That is why the `US`/`PERSONAL`/`BOOK`/`HISTORICAL` change is
+additive and why nothing in the corpus had to move.
+
 ## The general form
 
 `<namespace>:<subject>[:<sub>]:<year>` — worked examples in
