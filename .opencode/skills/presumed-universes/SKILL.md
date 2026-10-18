@@ -132,6 +132,57 @@ Declare it when the frontier is load-bearing: something derives from it, or the
 presumption is about to be depended on. The claim ledger's rule carries over — a
 presumption you do not settle is the defect you ship.
 
+## Where the traversal stops
+
+The traversal must stop, and the interesting part is *on what*. Two questions get
+confused; only one of them has a grounded figure.
+
+| question | answered by | kind |
+| --- | --- | --- |
+| which missing node **matters** | the distances (`unknown tool +32`, honeypot contact `+16`, boundary violation `+16`) | **priority** |
+| when to **stop** | structure: the charge graph, degree, the Byzantine minority | **terminus** |
+
+`MATH.md` forbids reading the first as the second: the distances are *outputs* of
+closed-form arithmetic ("nothing is searched or learned"), and three unreconciled
+schemes overlap in range and vocabulary. So the stop is structural:
+
+1. **Nothing in the charge graph requires it** — a presumed node has no charges and
+   is therefore off the graph already. `plane gen` refusing a neutral compendium is
+   the same refusal at the other end.
+2. **No agent path reaches it** — *domain-only* (named by a declared compendium's
+   `presupposes`) is a stop; *contacted* (named by a shim, i.e. something an agent
+   can call) is not.
+3. **`presumed ≤ ⌊(N−1)/3⌋`** — the Byzantine minority, the one standard figure in
+   `MATH.md`. Below it the closure certifies itself; above it, no. A ceiling, not a
+   target.
+
+A degree-1, domain-only node that nothing charges is the floor. Stop there
+deliberately, and make the report say so — a stop that is *visible* is different
+from a gap nobody noticed.
+
+## A permissive id space lets an agent be wrong first
+
+`CONVENTIONS.md`: *"every universe-id is valid, and nothing here constrains what an
+id means."* That freedom is the throughput, and it is also the exposure: an agent
+can mint a **well-formed lie** — a valid id that resolves to nothing and collides
+with nothing. `technology:find:1971` was exactly that; it sat in the frontier
+looking correct until research made it `1974`.
+
+Errors differ by class, and the class tells you what will catch them:
+
+| class | caught by | example |
+| --- | --- | --- |
+| malformed | a structural check | `end: null` (`local-time#35`) |
+| invented container | the parent resolver | `SHELLS`, `TERMINALS` |
+| **well-formed but wrong** | **nothing structural — only research, or the math, later** | `find` 1971→1974, `sh` 1971→1977 |
+
+The third is the reason the math matters and the reason it is slow: a well-formed
+id pointing at the wrong thing is indistinguishable from a correct one to every
+resolver, so the collision only surfaces once two ids for one thing reach the plane
+and the charge graph or consensus disagrees. Front-load the cheap structural checks;
+mark an overridden address as a hypothesis that moved; and keep presumed nodes off
+the charge graph so a wrong id cannot pollute it while it is wrong.
+
 ## Verifying a promotion
 
 Declaring is not done when the markdown is written. Four gates, in order:
