@@ -77,19 +77,28 @@ has **two time axes**, and they must not be mixed:
 Do not put a dated keyframe in a runtime timeline: the two axes are not comparable,
 and every relative query on that universe would be nonsense.
 
-## Gate 0 — a film universe is a *released work*
+## Gate 0 — real content: a *real work*, fictional or not
 
-Fiction is recorded in `realityRelation`; it is never hidden. The converse holds too,
-and is easier to get wrong:
+`kagi.md` (§ Automatic Context Discovery) draws the line:
 
-> **Do not create a universe for a work that does not exist.** A "fictional short
-> that could exist between the films" is not a universe — it is an invented work, and
-> registering it asserts a false fact about a real company, with fictional characters
-> in the creator field and a real studio in the copyright field.
+> "Real content" means real events **and real works**. A fictional film is real
+> content — a real work — and its fictionality is recorded in `realityRelation`,
+> never hidden. Do not invent universes for content that does not exist, and never
+> assert a fictional or unsourced claim as fact.
 
-That is why `games/monopoly.ts` was **deleted** rather than registered (#113). If what
-you have is an in-universe *event*, it is a `FilmMoment` on the work that contains it,
-not a universe of its own.
+So the test is **existence**, not fictionality. A fictional film is a real work and
+is modelled with its fiction recorded; a published fan work is also a real work (it
+has an author and a venue) and may be recorded the same way. A "fictional short that
+could exist between the films" is none of those — it is not a work at all.
+
+That is why `games/monopoly.ts` was **deleted** (#113, #142): it invented a 2005 Pixar
+short with no author, venue or publication, and attributed it to a real studio. The
+defect was the fabricated existence and attribution, not the fictional characters — a
+character's in-universe job is fiction data, not a reason to invent the work that
+contains it.
+
+If an event belongs to an existing work's own timeline, it is a `FilmMoment` on that
+work, not a universe of its own.
 
 ## Anchors
 

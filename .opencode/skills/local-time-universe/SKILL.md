@@ -21,12 +21,15 @@ Three properties define "done":
 3. **Projectable** — the fields are the retrieval schema (corpus, weights, charge), so
    keep them real rather than decorative (#76).
 
-And it must be **a real work or a real event**. Fiction is recorded in
-`realityRelation`, never hidden — but a work that *does not exist* is not a
-universe. A "fictional short that could exist between the films" is an invented
-work, and registering it asserts a false claim about a real company. That is why
-`games/monopoly.ts` was **deleted** rather than registered (#113). An in-universe
-event is a keyframe on the work that contains it, not a universe of its own.
+And it must be **real content**: a real event or a real work. "Fiction is modelled,
+not hidden" is the second half of the rule, not an exception to the first — a
+fictional film is real content *because it is a real work*, and its fictionality lives
+in `realityRelation`. An invented work has no existence to model, however fictional
+its characters. `games/monopoly.ts` is the worked example: deleted (#113, #142) because
+it invented a Pixar short with no author, venue or publication. A real, published fan
+work would be recordable; this was not one. See `kagi.md` § Automatic Context
+Discovery. An event that belongs to an existing work's own timeline is a keyframe on
+that work, not a universe of its own.
 
 ## Pick a path
 

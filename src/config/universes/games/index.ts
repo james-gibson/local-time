@@ -11,14 +11,20 @@ import { diabloUniverses } from './diablo/diablo-series';
  * sub-namespace collected here; `pokemon.ts` moves in with it so the namespace has
  * a single entry point.
  *
- * `monopoly.ts` was deleted while resolving james-gibson/local-time#113. Its
- * `toyStoryMonopolyNightUniverse` was never reachable from `allUniverses`, and it
- * should not have been: it asserted a Pixar short that does not exist, with
- * fictional characters as its credited creators and Disney/Pixar as its
- * copyright holders. This library records *real works* and their reality
- * relation; an invented work is not a universe, and registering one would put a
- * false claim about a real company into the graph. The alternative in #113 —
- * register it — was rejected on that basis.
+ * `monopoly.ts` is deliberately **absent**, and deleted rather than merely left
+ * out of this barrel. The test in `kagi.md` (§ Automatic Context Discovery) is
+ * existence, not fictionality:
+ *
+ *   "Real content" means real events **and real works**. A fictional film is real
+ *   content — a real work — and its fictionality is recorded in `realityRelation`,
+ *   never hidden. Do not invent universes for content that does not exist.
+ *
+ * The deleted `toyStoryMonopolyNightUniverse` described a "fictional short that
+ * could exist between the films" — no author, venue or publication — and attributed
+ * it to Pixar with Disney/Pixar as copyright holders. The defect was that invented
+ * existence and real-world attribution, not the fictional characters: a real,
+ * published fan work is a real work and would be recordable. This was not one.
+ * See james-gibson/local-time#113 and #142.
  */
 export const gamesUniverses: Universe[] = [...pokemonUniverses, ...diabloUniverses];
 
