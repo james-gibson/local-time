@@ -53,16 +53,18 @@ drops such a universe with a warning. Pin the id and check it yourself with
 | `withDateEpoch(startISO, endISO, description, precision)` | Adds a `primary`/`date_epoch` epoch |
 | `withZeroReference(y, m, d, h, min, s, event, before, after, durationHours)` | Adds a `zero_reference` primary layer with a `zero_ref` epoch |
 | `withZeroReferenceEpoch(config)` | Same layer, caller-supplied epoch object |
-| `addDateSegment(startISO, endISO, id, type, status?, jurisdiction?, description?)` | `status`/`jurisdiction`/`description` are **dropped** (#100) |
-| `addSegment(id, start, end, type, description?)` | `description` is **dropped** (#100) |
+| `addDateSegment(startISO, endISO, id, type, status?, jurisdiction?, description?)` | all three written through (#100, fixed) |
+| `addSegment(id, start, end, type, description?, status?, jurisdiction?)` | all three written through; each key is omitted unless supplied (#100, fixed) |
 | `addRuntimeSegment(startMin, startSec, endMin, endSec, id, type)` | Runtime-relative segment |
 | `addLayer(layerId \| layer, type?, epochs?)` | Adds a `TemporalLayer` |
 | `addEpoch(layerId, epochId, epoch)` **or** `addEpoch(startISO, endISO, epochId, significance?, tags?, options?)` | Adds/merges an epoch; the 3-arg form stamps `epochId` onto the epoch (local-time#19) |
 | `addKeyframe(timestamp, id, significance, tags, options?)` or `(dateStr, id, …)` | Pushes a keyframe; `options` carries `description`, `certainty`, `dateRange`, `type`, `targetUniverseId`, `targetKeyframeId`, `targetKeyframeType` |
 | `addDateKeyframe(dateStr, id, sig, tags, precision?)` or `(y,m,d,h,min,s,id,sig,tags,options?)` | Date-form keyframe |
 | `addRuntimeKeyframe(minutes, seconds, id, significance, tags, description?)` | `seconds` is seconds **within** the minute; `description` is forwarded (#77) |
-| `withWindowing(strategy, windowSize?)` | Sets `windows`; **does not** set the "was set" guard (#99) |
-| `addConnection(connection)` | Appends to `metadata.connections` |
+| `withWindowing(strategy, windowSize?)` | Sets `windows` **and its guard**, so a factory default no longer overwrites it (#99, fixed) |
+| `addParent(targetUniverseId)` | Appends to the **first-class** `connections.natural.parentUniverses` — the preferred containment call |
+| `addReference(reference)` | Appends a typed edge to **first-class** `connections.references` (a `DISTRIBUTED_BY`, `PARODIES`, `IN_A_PRIOR_KEYFRAME`, …) |
+| `addConnection(connection)` | The legacy path: appends to `metadata.connections`. Still read by the registry (`member_of`) and by `pixar/films.ts` |
 
 Every epoch needs an explicit `epochId`. `addEpoch`'s 3-arg form stamps it; a manual
 literal that omits it makes the registry substitute the layer key and warn, silently
@@ -73,11 +75,13 @@ changing what every reference to that epoch means (#19).
 | Method | Effect |
 | --- | --- |
 | `withRealityRelation(type, degree, anchors?, description?)` | Sets `realityRelation`; **sets the "was set" guard** (survives factory defaults). `description` → `metadata.realityDescription` |
-| `setRealityRelation(relation)` | Overwrites `realityRelation` wholesale; **does not** set the guard (#99) |
+| `setRealityRelation(relation)` | Overwrites `realityRelation` wholesale **and sets the guard**, so a factory default no longer replaces it (#99, fixed) |
 | `withAttribution(type, yearOrDescription?, status?)` | `type === 'public_domain'` sets `public_domain: true`; else a plain source/description |
 | `withCopyright(holders, year, status='active')` | Sets `attribution.copyright` |
 | `withPublicDomain(sources)` | Sets `public_domain: true` + `sources` |
 | `withCreators({ director?, writer?, historical_advisors?, participant?, based_on?, host?, producer?, researcher? })` | `director`/`writer`/`historical_advisors` go in `attribution.creators`; the rest land in `metadata` |
+| `withSources(sources)` | Sets `attribution.sources`, merging rather than replacing — so it composes with `withCopyright` |
+| `withUsageRestrictions(restrictions)` | Sets `attribution.usage_restrictions`, merging |
 | `setAttribution(attribution)` | Overwrites `attribution` wholesale |
 
 ## Metadata
@@ -86,7 +90,9 @@ changing what every reference to that epoch means (#19).
 | --- | --- |
 | `withDescription(text)` | `metadata.description` |
 | `withEpisodeInfo(title, season, episode)` | `metadata.episodeTitle` / `season` / `episode` |
-| `withReleaseDate(dateISO)` | `metadata.releaseDate = new Date(...)` |
+| `withCanonicalName(name)` | Sets the typed `metadata.canonicalName`; otherwise derived from the id slug, which mangles punctuation and any `_`-heavy id |
+| `withReleaseDate(dateISO)` | `metadata.releaseDate = new Date(...)` — the *untyped* extra |
+| `withReleased(date)` | Sets the typed `metadata.released` (`UniverseMetadata`), which `build()` would otherwise derive as `Date(idYear, 0, 1)` |
 | `withCulturalSignificance(n, description?)` | `metadata.cultural_significance`, `metadata.cultural_description` |
 | `withTags(tags)` | `metadata.tags` |
 | `withDefaults(realityRelationType, degree, windowsStrategy)` | Sets the defaults `build()` applies when the guards are unset |
@@ -208,10 +214,14 @@ anchor shapes.
 
 ## Manual literal pattern
 
-Use a manual literal when you need a field the builder cannot set (segment
-`description`/`status`/`jurisdiction`, arbitrary `metadata`, an id the factories reject).
-Cast through `as unknown as Universe` so KB-only or extra fields survive without excess-property
-errors — this is what the importer emits.
+**Try the builder first.** Reach for a literal only for the residue in *What still needs a
+literal* below — and when you do, cast through `as unknown as Universe` so KB-only or extra
+fields survive without excess-property errors. That is what the importer emits.
+
+A literal skips `build()` entirely, so **nothing validates it**. The cast is also silent about
+values the unions reject: three universes shipped an out-of-union `realityRelation.type`, a
+segment `status` and an anchor `relationshipType` behind it (james-gibson/local-time#143).
+Check every closed-union field by hand when you write one.
 
 ```ts
 import { Universe, UniverseType, TimePrecision, KeyframeType } from '../../../core/types';
@@ -306,13 +316,32 @@ them survive, but nothing reads them.
   and some omit `relationshipType` entirely (`us-gov/hydrological.ts` uses
   `id`/`description`). Those are wrong; the canonical `RealityAnchor` is
   `realEventId` / `relationshipType` / `confidence` / `evidence`.
-- **Connections: two author paths, one containment edge.** A hand-authored universe declares
-  containment in a **top-level** `connections: { natural: { parentUniverses: [...] },
-  references: [...] }` object — now a first-class, optional `Universe.connections` field
-  (`UniverseConnections`), no longer an untyped cast extra. A builder declares it with
-  `addConnection({ type: 'member_of', targetUniverseId })`, which appends to
-  **`metadata.connections`** as an *array*. `UniverseRegistry` folds **both** into
-  `CommonUniverseIds` (`getMemberships` / `getParentChain` / `getChildren` /
-  `getAllDescendants` / `contains`), so a universe can be a member of several containers
-  without being registered twice (james-gibson/local-time#74). `metadata.connections` also
-  carries non-containment references (`DISTRIBUTED_BY`, `references`), which are **not** edges.
+- **Connections: one containment edge, reached by three calls.** `connections` is a
+  first-class, optional field on `Universe` (`UniverseConnections`), not an untyped cast extra.
+  The **first-class** shape is `{ natural: { parentUniverses: [...] }, references: [...] }`.
+  - `addParent(id)` — writes `connections.natural.parentUniverses`. **Prefer this.**
+  - `addReference(ref)` — writes `connections.references`; a typed, non-containment edge
+    (`DISTRIBUTED_BY`, `PARODIES`, `IN_A_PRIOR_KEYFRAME`, …).
+  - `addConnection({ type: 'member_of', targetUniverseId })` — the legacy path: appends an
+    *array* to `metadata.connections`. Kept because `pixar/films.ts` and the pixar tests read
+    that location, and because `UniverseRegistry` still folds `member_of` entries from it.
+
+  `UniverseRegistry` folds *both* containment locations into `CommonUniverseIds`
+  (`getMemberships` / `getParentChain` / `getChildren` / `getAllDescendants` / `contains`), so a
+  universe can be a member of several containers without being registered twice
+  (james-gibson/local-time#74). A non-containment entry in `metadata.connections` is **not** an
+  edge — nothing reads it as one, which is why `addReference` exists
+  (james-gibson/local-time#103).
+
+## What still needs a literal
+
+Everything here is a gap, not a preference. Each is a candidate to close, so the pull toward
+hand-authoring keeps shrinking:
+
+| Still literal-only | Why |
+| --- | --- |
+| An `epochId` you choose | `withRuntime`/`withDateRange` stamp their own (`main`); there is no `withEpochId` |
+| `metadata` fields beyond `description`/`tags`/`cultural_significance`/`cultural_description`/`released`/episode info | no generic `withMetadata` |
+| `TemporalLayer.type` other than `primary`, and `reality_correspondence` | `addLayer` takes a full layer object, but nothing derives the correspondence (#75) |
+| Composition — overlaying whole universes | no operator at all; gated by #127 (#75) |
+| An id no factory will mint | e.g. a `SYSTEM`-shaped spec id; use `createUniverseId` + a hand-checked shape (`local-time-ids`) |
