@@ -94,9 +94,11 @@ an absolute ISO timestamp, or the run exits without emitting anything — is cov
 
 1. Choose the namespace directory under `src/config/universes/` (for example `films/`,
    `historical/`, `us-gov/`). One module per path.
-2. Author the universe with `UniverseBuilder` (preferred), or a manual `Universe` literal
-   cast `as unknown as Universe` when you need fields the builder cannot set — segment
-   `description`/`status`/`jurisdiction` (see *Gotchas*), extra `metadata`, custom enums.
+2. Author the universe with `UniverseBuilder` (preferred) — including its containment and
+   reference edges (`addParent` / `addReference`), segment prose, sources and usage
+   restrictions. Fall back to a manual `Universe` literal cast `as unknown as Universe` only
+   for the residue the builder still cannot express; the list is in
+   `references/builder-api.md` → *What still needs a literal*.
 3. Export it, or an array collection that contains it.
 4. Import and **spread** the export from `src/config/universes/index.ts` into
    `allUniverses` (and `allNetworks` for a network).
@@ -192,17 +194,19 @@ full pattern (the lever registry, what to precache, and real worked examples) is
 
 ## Gotchas verified against the current source
 
-- **Convenience-builder defaults clobber explicit calls.**
-  `createFilmBuilder()` / `createHistoricalBuilder()` apply defaults in `build()`, and the
-  guard flags for `withWindowing` and `setRealityRelation` are never set — so both are
-  silently overwritten (james-gibson/local-time#99). Use `new UniverseBuilder()` when you
-  need those, or call `.withRealityRelation(...)` (which *is* tracked). Factory defaults:
+- **Convenience-builder defaults no longer clobber explicit calls.** (Fixed for #99.)
+  `withWindowing` and `setRealityRelation` now set their guard flags, so a factory default is
+  applied only when the caller never set the field. Factory defaults, still:
   `createFilmBuilder` → `pure_fiction` / `1.0` / `scene_based`; `createHistoricalBuilder` →
-  `documentary` / `0.0` / `time_based`.
-- **Segment `status`, `jurisdiction` and `description` are dropped.**
-  `addDateSegment(...)` accepts them and `addSegment(...)` accepts a description, but the
-  pushed segment is only `{ id, start, end, type }` (james-gibson/local-time#100). Set them
-  on a manual literal.
+  `documentary` / `0.0` / `time_based`. Before the fix `setRealityRelation` silently flipped a
+  universe to the factory's type — usually the opposite of what was asked.
+- **Segment `status`, `jurisdiction` and `description` are kept.** (Fixed for #100.)
+  `addSegment(id, start, end, type, description?, status?, jurisdiction?)` and
+  `addDateSegment(startISO, endISO, id, type, status?, jurisdiction?, description?)` both write
+  all three; a field is written only when supplied, so a bare segment keeps the exact shape it
+  had. Fourteen call sites had been passing descriptions that never arrived — nine segments
+  across `copyright.ts`, `beatles.ts`, `ed-sheeran.ts` and `pixar-acquisition.ts` were silent
+  empties until this landed.
 - **`addRuntimeKeyframe(minutes, seconds, ...)`** — `seconds` is seconds *within* the
   minute: `(5, 30)` is 5m30s, not 5m30s-after-5m.
 - **`withRuntime(minutes)` uses `TimePrecision.SECOND`**, not milliseconds as the guide
@@ -219,6 +223,14 @@ full pattern (the lever registry, what to precache, and real worked examples) is
   universe that exists — the shape is advisory, so a wrong id is a dangling anchor, not an
   error. Some older files predate the shape (`realWorldEvent`, or `id`/`description` with no
   `relationshipType`, e.g. `us-gov/hydrological.ts`); do not copy them.
+- **Assemble; do not hand-author.** `addParent` writes the first-class
+  `connections.natural.parentUniverses`, `addReference` writes `connections.references`
+  (a typed `DISTRIBUTED_BY`/`PARODIES`/`IN_A_PRIOR_KEYFRAME` edge), and `withSources` /
+  `withUsageRestrictions` / `withReleased` set the attribution and metadata fields that used
+  to be reachable only from a literal. A film — or any universe — can now be built end to end
+  with no `as unknown as Universe` cast; the proof is
+  `src/core/__tests__/universe-builder-assembly.test.ts`. Reach for a literal only for what is
+  still genuinely unreachable (see the builder-api's *What still needs a literal*).
 - **A manual literal is not a builder call.** Fluent parameters are not fields. There is no
   `options` field on a keyframe — set `description`/`certainty`/`dateRange`/`type` directly,
   with `dateRange` as `{ earliest: bigint, latest: bigint }`. A keyframe `type` is a

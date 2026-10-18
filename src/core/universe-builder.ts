@@ -1,4 +1,4 @@
-import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalSegment, TemporalLayer, RealityRelation, Attribution } from './types';
+import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalSegment, TemporalLayer, RealityRelation, Attribution, UniverseReference } from './types';
 import { UniverseId, createFilmUniverseId, isValidUniverseId } from './universe-ids';
 
 /**
@@ -312,6 +312,62 @@ export class UniverseBuilder {
     return this;
   }
 
+  /**
+   * Set the typed `metadata.canonicalName`.
+   *
+   * `build()` otherwise derives it from the id slug — `_` becomes a space and every word is
+   * title-cased — so a punctuated title comes out wrong (`Dungeons & Dragons: Honor Among
+   * Thieves` becomes `Dungeons And Dragons Honor Among Thieves`) and any slug-based id is
+   * distorted (`history:major_changes_in_u.s._copyright_law:1790`). The human name belongs in
+   * the universe, not in an inference from its id.
+   */
+  withCanonicalName(name: string): this {
+    if (!this.universe.metadata) {
+      this.universe.metadata = {};
+    }
+    this.universe.metadata.canonicalName = name;
+    return this;
+  }
+
+  /**
+   * Set `attribution.sources` without discarding the rest of `attribution`.
+   *
+   * `withCopyright` writes `copyright` and `citations_required` only, so a builder universe
+   * could not carry both a copyright and its research sources — one of the reasons complex
+   * universes were hand-authored (james-gibson/local-time#103).
+   */
+  withSources(sources: string[]): this {
+    this.universe.attribution = {
+      ...(this.universe.attribution ?? { citations_required: true }),
+      sources: [...sources],
+    };
+    return this;
+  }
+
+  /** Set `attribution.usage_restrictions`, merging rather than replacing. */
+  withUsageRestrictions(restrictions: string[]): this {
+    this.universe.attribution = {
+      ...(this.universe.attribution ?? { citations_required: true }),
+      usage_restrictions: [...restrictions],
+    };
+    return this;
+  }
+
+  /**
+   * Set the typed `metadata.released` — the field `UniverseMetadata` declares.
+   *
+   * Not `withReleaseDate`, which sets the older untyped `metadata.releaseDate` extra. Without
+   * this, `build()` derives `released` from the id's trailing year (`Date(y, 0, 1)`), which
+   * loses the month and day a released work is actually known by.
+   */
+  withReleased(date: Date | string): this {
+    if (!this.universe.metadata) {
+      this.universe.metadata = {};
+    }
+    this.universe.metadata.released = new Date(date);
+    return this;
+  }
+
   withAliases(aliases: string[]): this {
     if (!this.universe.identifiers) {
       this.universe.identifiers = {
@@ -400,15 +456,29 @@ export class UniverseBuilder {
   }
 
 
-  addDateSegment(startDate: string, endDate: string, id: string, type: TemporalSegment['type'], status?: string, jurisdiction?: string, description?: string): this {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const startTime = BigInt(start.getTime()) * BigInt(1_000_000);
-    const endTime = BigInt(end.getTime()) * BigInt(1_000_000);
-    return this.addSegment(id, startTime, endTime, type, description);
-  }
-
-  addSegment(id: string, start: bigint, end: bigint, type: TemporalSegment['type'], _description?: string): this {
+  /**
+   * Add a segment.
+   *
+   * `status`, `jurisdiction` and `description` were accepted and then dropped: `addSegment`
+   * pushed `{ id, start, end, type }`, and `addDateSegment` forwarded only `description`,
+   * which `addSegment` discarded in turn (james-gibson/local-time#100). Fourteen call sites in
+   * `src/config` were already passing descriptions that never reached the universe.
+   *
+   * Each optional field is written only when supplied, so a segment given no prose keeps the
+   * exact shape it had before — the convention `addKeyframe` uses for `description` (#77).
+   *
+   * The parameter order is historical: `description` is fifth because it was already there.
+   * `addDateSegment` keeps its own order (status, jurisdiction, description).
+   */
+  addSegment(
+    id: string,
+    start: bigint,
+    end: bigint,
+    type: TemporalSegment['type'],
+    description?: string,
+    status?: TemporalSegment['status'],
+    jurisdiction?: string,
+  ): this {
     if (!this.universe.temporalStructure) {
       this.universe.temporalStructure = {
         segments: [],
@@ -416,14 +486,33 @@ export class UniverseBuilder {
         windows: { strategy: 'time_based' }
       };
     }
-    
+
     this.universe.temporalStructure.segments.push({
       id,
       start,
       end,
-      type
+      type,
+      ...(description !== undefined ? { description } : {}),
+      ...(status !== undefined ? { status } : {}),
+      ...(jurisdiction !== undefined ? { jurisdiction } : {}),
     });
     return this;
+  }
+
+  addDateSegment(
+    startDate: string,
+    endDate: string,
+    id: string,
+    type: TemporalSegment['type'],
+    status?: TemporalSegment['status'],
+    jurisdiction?: string,
+    description?: string,
+  ): this {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const startTime = BigInt(start.getTime()) * BigInt(1_000_000);
+    const endTime = BigInt(end.getTime()) * BigInt(1_000_000);
+    return this.addSegment(id, startTime, endTime, type, description, status, jurisdiction);
   }
 
   addRuntimeSegment(startMinutes: number, startSeconds: number, endMinutes: number, endSeconds: number, id: string, type: TemporalSegment['type']): this {
@@ -432,6 +521,44 @@ export class UniverseBuilder {
     return this.addSegment(id, startTime, endTime, type);
   }
 
+  /**
+   * Declare containment in the **first-class** shape: `connections.natural.parentUniverses`.
+   *
+   * Prefer this to `addConnection({ type: 'member_of', targetUniverseId })` when authoring new
+   * code. `addConnection` is the older path: it appends to `metadata.connections`, which the
+   * registry also reads and folds into `CommonUniverseIds` (#74), so both work — but only this
+   * one writes the field that `containment.test.ts` and the `*registration.test.ts` files read
+   * directly, and it cannot be mistaken for a non-containment entry (james-gibson/local-time#103).
+   */
+  addParent(targetUniverseId: UniverseId | string): this {
+    const connections = (this.universe.connections ??= {});
+    const natural = (connections.natural ??= {});
+    natural.parentUniverses = [
+      ...(natural.parentUniverses ?? []),
+      targetUniverseId as UniverseId,
+    ];
+    return this;
+  }
+
+  /**
+   * Declare a typed, directional edge that is **not** containment — a `DISTRIBUTED_BY`, a
+   * `PARODIES`, an `IN_A_PRIOR_KEYFRAME`.
+   *
+   * `addConnection` cannot express these: it writes an untyped array into `metadata.connections`,
+   * which nothing reads as a reference edge. `connections.references` is on `Universe` and is
+   * what consumers read (james-gibson/local-time#103).
+   */
+  addReference(reference: UniverseReference): this {
+    const connections = (this.universe.connections ??= {});
+    connections.references = [...(connections.references ?? []), reference];
+    return this;
+  }
+
+  /**
+   * The historical containment path. Appends to `metadata.connections`; the registry folds
+   * `{ type: 'member_of', targetUniverseId }` entries into `CommonUniverseIds`. Kept because
+   * `pixar/films.ts` and the pixar tests read that location.
+   */
   addConnection(connection: any): this {
     // Store connections in metadata for now
     if (!this.universe.metadata) {
@@ -451,6 +578,10 @@ export class UniverseBuilder {
 
   setRealityRelation(realityRelation: RealityRelation): this {
     this.universe.realityRelation = realityRelation;
+    // Without this, a convenience factory's default silently replaces it — flipping a
+    // universe from `documentary` to `pure_fiction` at degree 1.0, the opposite of what the
+    // caller asked for (james-gibson/local-time#99).
+    this.realityRelationWasSet = true;
     return this;
   }
 
@@ -652,11 +783,14 @@ export class UniverseBuilder {
         windows: { strategy: 'time_based' }
       };
     }
-    
+
     this.universe.temporalStructure.windows = {
       strategy: strategy as any,
       avgWindowSize: windowSize
     };
+    // The guard, without which `build()` resets this to a convenience factory's default and
+    // silently discards the caller's choice (james-gibson/local-time#99).
+    this.windowsWereSet = true;
     return this;
   }
 
