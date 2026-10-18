@@ -25,6 +25,15 @@ import { diabloUniverses } from './diablo/diablo-series';
  * existence and real-world attribution, not the fictional characters: a real,
  * published fan work is a real work and would be recordable. This was not one.
  * See james-gibson/local-time#113 and #142.
+ *
+ * Deleting the universe does not delete the connection. "The toys played Monopoly
+ * and Woody held a real job in it" is not documented, but it is documentable: at the
+ * 42i plane layer it is a *possible* claim (the required compendium — Toy Story — is
+ * present, and the claim is anchored in it), so it takes a positive `tensor.w` in an
+ * `out == 0` block, with charge -1 and `presupposes: [pixar:toy_story:1995]`. It is
+ * not *unknown* (nothing required is missing) and not *really wrong* (no inverse
+ * compendium is present). A universe is the wrong container for it; a fiction-plane
+ * compendium is the right one. See `isotope/docs/lore-plane-mapping.md` §6.
  */
 export const gamesUniverses: Universe[] = [...pokemonUniverses, ...diabloUniverses];
 
