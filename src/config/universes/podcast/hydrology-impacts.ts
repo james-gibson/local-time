@@ -26,11 +26,19 @@ import { damImpactTimelineUniverse } from '../us-gov/hydrological'; // Assuming 
  *
  * Natural Connections Discovered:
  * - Primary Connection: This universe directly DOCUMENTS the `damImpactTimelineUniverse`.
- * - Parent Context: As a piece of media discussing US history and policy, it exists within the context of
- *   CommonUniverseIds.US_HISTORY and CommonUniverseIds.US_GOVERNMENT.
+ * - Owner: it is one of James Gibson's private notes published as an exemplar, so it declares
+ *   `personal:lab:2026` — the lab universe — as its container. `personal:lab:2026` is itself
+ *   generated from the KB (`lore/lab.md`, `local-time-sync: true`), so on a checkout without the
+ *   git-ignored `imported/` tree the parent resolves as an id but has no owner yet; the edge is
+ *   declared here because containment is always declared by the child (james-gibson/local-time#74).
+ *
+ *   The two parents this header used to claim (`US_HISTORY`, `US_GOVERNMENT`) were never declared
+ *   anywhere — the prose described memberships the builder never wrote. Only the lab is declared
+ *   now; adding the other two is a judgement about the corpus, not a transcription of intent.
  */
 export const damPodcastEpisodeUniverse: Universe = new UniverseBuilder()
     .media('podcast', 'The Dammed River', 2025)
+    .addParent('personal:lab:2026')
     .withEpisodeInfo('Progress, Problems, and Price Tags', 1, 1)
     .withRuntime(28)
     .withDescription(

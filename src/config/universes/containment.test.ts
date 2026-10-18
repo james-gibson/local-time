@@ -105,6 +105,31 @@ describe('containment: one owner, many memberships (james-gibson/local-time#74)'
     }
   });
 
+  /**
+   * The two private notes published as exemplars (james-gibson/local-time#153). They are
+   * the owner's own data, and they attach in different ways on purpose: the podcast is
+   * *contained* by the lab, the energy log is only *referenced* by it.
+   *
+   * The lab (`personal:lab:2026`) is generated from the KB, so on a checkout without the
+   * git-ignored `imported/` tree it has no owner yet. That is fine and is the point of
+   * pinning the *edge* rather than the owner: containment is declared by the child, and
+   * `resolveDeclaredName` resolves an id whether or not its universe is registered.
+   */
+  test('the published private notes attach to the lab', () => {
+    const lab = 'personal:lab:2026';
+    const podcast = 'podcast:the_dammed_river:2025';
+    const energyLog = 'home_energy_monitoring:user_redacted_202509:2026';
+
+    // The podcast is contained: The Dammed River is a member of the lab.
+    expect(registry.getMemberships(podcast).map(String)).toContain(lab);
+    expect(registry.contains(lab, podcast)).toBe(true);
+
+    // The energy log is referenced, not contained — it is the owner's artefact, and the
+    // lab's side of the relationship is a `connections.references` edge, not containment.
+    expect(registry.getMemberships(energyLog).map(String)).not.toContain(lab);
+    expect(registry.contains(lab, energyLog)).toBe(false);
+  });
+
   test('a container is not its own descendant — containment is acyclic', () => {
     for (const container of [
       CommonUniverseIds.HOLLYWOOD_SYSTEM,
