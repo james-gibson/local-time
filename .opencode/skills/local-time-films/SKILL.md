@@ -103,6 +103,15 @@ not *unknown* (nothing required is missing) and not *really wrong* (no inverse
 compendium present). "Not documented" is not "not documentable". See
 `isotope/docs/lore-plane-mapping.md` §6.
 
+The constraint is **scoped to the container**, not to the claim. "A fictional
+character must not appear in the real attribution block" constrains
+`attribution.creators`; it says nothing about the fiction plane, where Woody can be
+a director. 42i encodes the same discipline: an inverse is a negative `tensor.w`
+against a *specific defeated keyframe*, never a general negation of the compendium —
+the Ford's Theatre fire defeats one Lincoln keyframe, not "Lincoln was assassinated".
+Drop the scope and the rule swallows the claim it was meant to bound: the fiction gets
+deleted, or it gets promoted to real attribution.
+
 If an event belongs to an existing work's own timeline, it is a `FilmMoment` on that
 work, not a universe of its own.
 

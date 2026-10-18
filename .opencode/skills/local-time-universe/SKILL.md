@@ -30,8 +30,11 @@ it invented a Pixar short with no author, venue or publication. A real, publishe
 work would be recordable; this was not one. See `kagi.md` § Automatic Context
 Discovery. Deleting the universe does not delete the connection: a fiction claim about
 a real work is documentable at the 42i plane layer (charge -1, `presupposes` the work,
-positive `tensor.w` — the *possible* rung), not as a universe. An event that belongs to
-an existing work's own timeline is a keyframe on that work, not a universe of its own.
+positive `tensor.w` — the *possible* rung), not as a universe. Keep the constraint
+**scoped to its container**: "no fictional character in real attribution" bounds
+`attribution.creators`, not the fiction plane — and 42i's inverse is keyframe-scoped
+for the same reason. An event that belongs to an existing work's own timeline is a
+keyframe on that work, not a universe of its own.
 
 ## Pick a path
 

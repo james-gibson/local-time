@@ -34,6 +34,10 @@ import { diabloUniverses } from './diablo/diablo-series';
  * not *unknown* (nothing required is missing) and not *really wrong* (no inverse
  * compendium is present). A universe is the wrong container for it; a fiction-plane
  * compendium is the right one. See `isotope/docs/lore-plane-mapping.md` §6.
+ *
+ * The constraint is scoped: "no fictional character in real attribution" bounds
+ * `attribution.creators`, not the fiction plane or the connection. 42i's inverse is
+ * keyframe-scoped for the same reason — a defeat is never a general negation.
  */
 export const gamesUniverses: Universe[] = [...pokemonUniverses, ...diabloUniverses];
 
