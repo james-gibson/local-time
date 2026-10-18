@@ -1,6 +1,5 @@
 import { createHistoricalUniverseId } from '../../../core/universe-ids';
 import { Universe, UniverseType, TimePrecision } from '../../../core/types';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**
  * Gaza: Israel-Hamas War (2023-2025)

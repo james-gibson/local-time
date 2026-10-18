@@ -1,6 +1,4 @@
-import { createHistoricalUniverseId } from '../../../core/universe-ids';
 import { UniverseBuilder, TimePrecision } from '../../../index';
-import {createHistoricalEventOwnerId} from '../../../core/universe-ids';
 
 /**
  * @universe history:us_native_american_policy:1787-present

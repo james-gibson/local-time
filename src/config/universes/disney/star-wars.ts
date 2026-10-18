@@ -1,6 +1,5 @@
 import { createFilmUniverseId } from '../../../core/universe-ids';
 import { UniverseBuilder } from '../../../index';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**
  * Spaceballs (1987) - A Parody of Star Wars and Sci-Fi Tropes

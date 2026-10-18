@@ -164,7 +164,9 @@ export class UniverseRegistry {
     }
 
     // console.trace(universe.epochs);
-    !this.universes.has(universeId) && this.universes.set(universeId, universe);
+    if (!this.universes.has(universeId)) {
+      this.universes.set(universeId, universe);
+    }
 
     this.registerDeclaredContainment(universeId, universe);
 

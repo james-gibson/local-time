@@ -1,14 +1,9 @@
 import {
-  UniverseId,
-  FilmUniverseId,
-  FilmStudioUniverseId,
+  
+  
   FilmStudioSpan,
   FilmStudioSlugOf,
   FilmStudioSpanOf,
-  HistoricalUniverseId,
-  MissionUniverseId,
-  BiographyUniverseId,
-  GameUniverseId,
   isValidUniverseId,
   isFilmUniverseId,
   isFilmStudioUniverseId,
@@ -28,7 +23,7 @@ import {
   getUniverseCategory,
   validateUniverseReference,
   WELL_KNOWN_UNIVERSES,
-  UNIVERSE_ID_PATTERNS, createSparkleFartUniverseId, SparkleFartUniverseId
+  UNIVERSE_ID_PATTERNS
 } from '../universe-ids';
 // import {createGenesis, createSourceString, newTrace, main} from '../sparklefart-ids';
 // import {generateRelationshipDiagram} from '../diagram';

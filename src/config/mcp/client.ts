@@ -1,4 +1,4 @@
-import { MCPRequest, MCPResponse, MCPNotification, MCPError } from './types.js';
+import { MCPRequest, MCPResponse, MCPNotification } from './types.js';
 import { UniverseMCPServer } from './server.js';
 
 export interface MCPTransport {

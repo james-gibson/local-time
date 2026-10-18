@@ -1,11 +1,9 @@
 import {
     Universe,
     UniverseType,
-    TimePrecision,
     TemporalReference,
     ReferenceType,
 } from '../../../core/types';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import {createHistoricalUniverseId, HistoricalUniverseId} from '../../../core/universe-ids';
 
 /**

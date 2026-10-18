@@ -1,5 +1,5 @@
 import { Universe, UniverseType, TimePrecision } from '../../../core/types';
-import { PoliticalParty, ElectionRecord, ElectionIssueData } from './election-types';
+import { PoliticalParty, ElectionRecord } from './election-types';
 import { US_ELECTION_RECORDS } from './elections-data';
 import { ELECTION_ISSUE_DATA } from './election-issues';
 

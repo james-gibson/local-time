@@ -1,4 +1,4 @@
-import { RelativeTimeComponents, TemporalEpoch, ZeroReferenceEpoch } from '../core/types';
+import { RelativeTimeComponents, ZeroReferenceEpoch } from '../core/types';
 
 export class ZeroReferenceAddressing {
   static generateRelativeAddress(

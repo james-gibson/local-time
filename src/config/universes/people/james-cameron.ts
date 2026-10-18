@@ -1,6 +1,5 @@
 import { createFilmUniverseId } from '../../../core/universe-ids';
 import { Universe, UniverseBuilder } from '../../../index';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import { resolveFilmStudio } from '../studios';
 
 /**

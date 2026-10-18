@@ -177,9 +177,7 @@ export const createRobinWilliamsFilmUniverse = (
 
 // --- Film universes referenced by the thematic links below ---
 
-const GOOD_MORNING_VIETNAM = 'touchstone_pictures:good_morning_vietnam:1987';
 const DEAD_POETS_SOCIETY = 'touchstone_pictures:dead_poets_society:1989';
-const MRS_DOUBTFIRE = '20th_century_fox:mrs_doubtfire:1993';
 const THE_BIRDCAGE = 'united_artists:the_birdcage:1996';
 const GOOD_WILL_HUNTING = 'miramax:good_will_hunting:1997';
 

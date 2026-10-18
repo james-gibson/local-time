@@ -1,4 +1,4 @@
-import {Universe, UniverseType, TimePrecision, TemporalEpoch} from '../../../core/types';
+import {Universe, UniverseType, TimePrecision} from '../../../core/types';
 import * as utils from '../../../utils';
 
 export const copyrightActUniverse: Universe = {

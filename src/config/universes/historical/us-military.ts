@@ -1,6 +1,4 @@
-import { createHistoricalUniverseId } from '../../../core/universe-ids';
 import { UniverseBuilder, TimePrecision } from '../../../index';
-import {createHistoricalEventOwnerId} from '../../../core/universe-ids';
 
 /**
  * @universe history:us_gov_military_operations:1870-1989

@@ -1,6 +1,5 @@
 import { createHistoricalUniverseId } from '../../../core/universe-ids';
-import { Universe, UniverseType, TimePrecision } from '../../../core/types';
-import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { Universe, UniverseType } from '../../../core/types';
 
 /**
  * Post-9/11 Evolution of Skyscraper Design and Cinematic Portrayal
