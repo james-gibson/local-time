@@ -8,7 +8,13 @@ import { UniverseBuilder, TimePrecision } from '../../../index';
  * @significance This collection of events holds extremely high cultural and historical significance (0.95), shaping global politics, international relations, and American identity over more than a century.
  */
 export const usMilitaryOperationsUniverse = new UniverseBuilder()
-    .historical("history:us_gov:timeline","1981")
+    // The id this file documents is `history:us_gov_military_operations:1870-1989`, and that is
+    // what the content covers (1871 - Nov 1989). It used to pass an already-namespaced event
+    // (`history:us_gov:timeline`) to `.historical()`, which prefixes the namespace itself, so the
+    // universe registered as `history:history:us_gov:timeline:1981` — a doubled prefix and a year
+    // that matched neither the docblock nor the timeline. Nothing referenced it
+    // (james-gibson/local-time#50, the #70 regression class).
+    .historical('us_gov_military_operations', 1870, 1989)
     .withDescription('A temporal documentation of public U.S. military operations from 1870 to the fall of the Berlin Wall.')
     .withRealityRelation('documentary', 0.0)
     // Source: Based on public records, primarily from the Congressional Research Service report RL30172 and historical timelines.【1】

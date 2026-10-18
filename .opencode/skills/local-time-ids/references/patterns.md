@@ -11,6 +11,24 @@ namespace vocabulary that missed `system` (when #47 added it) and `technology`
 was deleted. Nothing caught it, because no film studio is named "System". Read the
 table; do not copy it.
 
+## The general form
+
+`<namespace>:<subject>[:<sub>]:<year>` — worked examples in
+[`explorations/proposal.md`](../../../../explorations/proposal.md):
+`personal:tolkien:war_experience:1916`, `history:wwi:battle_of_somme:1916`,
+`literature:sassoon:poems:1916`, `film:lawrence_of_arabia:1962`.
+
+The year is not decoration: it is the **shared temporal index**. It is what lets one window query
+(`cal:1916`) gather a personal experience, a battle, a poem and a film without resolving any of
+them. So a namespace carrying the optional middle segment still ends in a year, and a subject whose
+period genuinely runs belongs in its timeline, never in its id.
+
+`SYSTEM`, `US`, `BOOK`, `HISTORICAL` and `PERSONAL` take the optional segment. **`FILM` does not,
+deliberately** — it is the pattern that doubles as the generic fallback, so a third segment would
+make any undeclared four-segment id read as a film (the #57 trap, widened). That is why
+`film:star_wars:a_new_hope:1977` is not a film id, and it is the one remaining id of the form that
+still relies on the catch-all.
+
 ## The shape families
 
 | Family | Namespaces | Arity | Trailing segment |
@@ -19,14 +37,15 @@ table; do not copy it.
 | Film studio | `film_studio` | 3 | `*` \| `founded` \| `YYYY` \| `YYYY-YYYY` \| `YYYY-present` |
 | Film-studio *container* | `film_studio` | 3 | same span vocabulary |
 | Series | `series` \| `tv` \| `netflix` \| `hbo` \| `disney_plus` \| `amazon` | 3 | 4-digit year |
-| Book | `book` \| `literature` \| `publisher` | 3 | 4-digit year |
+| Book | `book` \| `literature` \| `publisher` | 3 or 4 | 4-digit year |
 | Fashion | `fashion` | 3 | `career` \| `founded` \| year \| range |
-| Historical | `history` | 3 | `*` \| `career` \| `founded` \| year \| range |
-| Personal | `personal` | 3 | 4-digit year |
+| Historical | `history` | 3 or 4 | `*` \| `career` \| `founded` \| year \| range |
+| Personal | `personal` | 3 or 4 | 4-digit year |
 | Mission | `nasa` \| `esa` \| `spacex` \| `military` | 3 | 4-digit year |
 | Legal | `legal-<jurisdiction>` | **4** | `*` \| `career` \| `founded` \| year \| range |
 | Biography | `biography` | 3 | `YYYY-YYYY` \| `YYYY-present` |
 | Game | `game` / `games` / `anime` / `animes` | **4** | 4-digit year |
+| US civic | `us` | 3 or 4 | **4-digit year, and nothing else** — the trailing year is what makes a `us:` id sortable and decade-groupable without a lookup |
 | Cybersecurity | `cybersecurity` | anything | anything (`.*`) |
 | Technology | `technology` | 3 | `*` \| year \| range |
 | System | `system` | 3 or 4 | `*` \| `v<N>` \| year \| range |
@@ -39,9 +58,14 @@ Notes that cost someone real time:
   was dropped while `game:<franchise>:<title>:<year>` works.
 - **LEGAL is four segments** and is the one namespace that is not a bare `legal:`
   prefix — it is `legal-<jurisdiction>:`.
-- **SYSTEM is the only pattern with an optional middle segment**, which is how it
-  happens to cover the four-segment `system:<a>:<b>:<span>` shape (#51). Do not
-  read that as licence to invent arity.
+- **SYSTEM and US are the two patterns with an optional middle segment**, which is how
+  they cover a four-segment `<ns>:<a>:<b>:<year|span>` shape (#51, #50). Do not read that
+  as licence to invent arity.
+- **US is deliberately year-terminated**, and that is a feature, not a permissive gap: the
+  trailing year is what lets a `us:` id be ordered and grouped by year and by decade with no
+  lookup, which is what an event that is hard to fit into a finer domain needs. A subject
+  whose period genuinely runs goes in its timeline (epochs/segments), not in its id. See
+  `src/core/__tests__/us-universe-id.test.ts`, which pins the property.
 
 ## The reserved-namespace mechanism, and why `film` is not reserved
 

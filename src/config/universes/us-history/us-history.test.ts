@@ -1,4 +1,4 @@
-import { isValidUniverseId } from '../../../core/universe-ids';
+import { isValidUniverseId, isUSUniverseId } from '../../../core/universe-ids';
 import {
   usConstitutionUniverse,
   billOfRightsUniverse,
@@ -22,6 +22,30 @@ describe('US History universes (james-gibson/local-time#5)', () => {
       expect(isValidUniverseId(id)).toBe(true);
     }
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  /**
+   * james-gibson/local-time#50: these nineteen ids are what made the domain worth declaring.
+   * Before it, each validated only through `ANY_YEAR_TERMINATED` — so the domain that orders
+   * them had no shape, and `us:` read as a film.
+   */
+  test('every us: id is a declared us: universe, not a catch-all accident', () => {
+    const usIds = usHistoryUniverses
+      .map((u) => u.universeId as string)
+      .filter((id) => id.startsWith('us:'));
+    expect(usIds).toHaveLength(19); // constitution + bill of rights + amendments 11-27
+    const offenders = usIds.filter((id) => !isUSUniverseId(id));
+    expect(offenders).toEqual([]);
+  });
+
+  test('every us: id ends in a four-digit year, so year and decade ordering work', () => {
+    // The trailing year is the reason the domain is year-terminated; a later change that
+    // admitted a span or a wildcard would silently take that away.
+    for (const universe of usHistoryUniverses) {
+      const id = universe.universeId as string;
+      if (!id.startsWith('us:')) continue;
+      expect(`${id} -> ${/^us:[a-z0-9_]+(?::[a-z0-9_]+)?:\d{4}$/.test(id)}`).toBe(`${id} -> true`);
+    }
   });
 
   test('anchors the founding documents to their canonical IDs', () => {
