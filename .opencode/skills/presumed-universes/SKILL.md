@@ -160,6 +160,36 @@ A degree-1, domain-only node that nothing charges is the floor. Stop there
 deliberately, and make the report say so — a stop that is *visible* is different
 from a gap nobody noticed.
 
+### A known horizon defers; an unknown horizon leaves a gap
+
+The floor above is one kind of stop. There is a second, and it is the compact case:
+
+> **Any year presumes the year before it.**
+
+1599 existed. Nobody disputes it, no record references it, and your first entry
+entails it — because time does not skip. That is **deferred by the horizon**: not
+absent, not false.
+
+`presumes` and not `presupposes` is the honest verb, and the difference is
+structural. A year *presumes* its predecessor unconditionally (contiguity of the
+frame); it only *probably* presupposes it, because a calendar that restarts (regnal
+years, AUC, the Republican calendar) does not. And `parentUniverses` must resolve to a
+**container** while a predecessor year is a **peer** — so the entailment has no edge
+to ride. Record it in the deferred ledger, not in `presupposes:`.
+
+Two consequences the rule depends on:
+
+- **A law cannot bound itself.** Contiguity generates the chain backwards without end
+  (1599, 1598, 1597 …). The horizon is what makes it finite, and the deferred entry is
+  the **hinge**: the one step the law may assert, plus the record of why not a second.
+- **Naming the horizon is the whole difference.** A record that starts at 1600 *and
+  says so* has deferred 1599; a record that starts at 1600 in silence is
+  indistinguishable from one whose 1599 entry was lost. State the backward edge as
+  explicitly as the forward one (`HORIZON`), or the stop is a gap.
+
+That is `CONVENTIONS.md`'s "absence is not a zero value" one level up — about the
+record's own edge rather than about a value inside it.
+
 ## A permissive id space lets an agent be wrong first
 
 `CONVENTIONS.md`: *"every universe-id is valid, and nothing here constrains what an
@@ -242,13 +272,21 @@ Symmetric failure, same shape. So there are **three states, not two-plus-a-hole*
 | --- | --- | --- |
 | **declared** | a reference demanded it | yes, with charges |
 | **presumed** | referenced, not yet declared | no — `charges: []` |
-| **deferred** | a valid answer that is not the best answer | no, and not stubbed |
+| **deferred** | valid, not carried — ranked below the demanded member, or outside the horizon | no, and not stubbed |
+
+and **`deferred` has two sources, which are not the same mistake**:
+
+| `deferred-because` | case | detector |
+| --- | --- | --- |
+| `rank` | a valid member of an answer set, not the demanded one (`pty`) | rank against demand |
+| `horizon` | entailed and real, but the record starts after it (1599) | nothing — the entailment is true |
 
 Deletion also destroys the **trail**: the deferred set *is* the blast radius of
 whatever raised the id. Delete it and the artifact reads as though the query never
 happened — laundering the failure by subtraction, the mirror of laundering it by
-inventing a plausible edge. So deferrals carry `valid-answer-to`, `not-best-because`
-and `revisit-if`, and they stay: a deferral is reversible, silence is not.
+inventing a plausible edge. So deferrals carry `deferred-because`, `valid-answer-to`,
+`not-best-because` (for `rank`) and `revisit-if`, and they stay: a deferral is
+reversible, silence is not.
 
 Note the limit, and state it rather than hide it: grounding catches the *orphan*
 but not the *plausible assertion*. `tty` is reachable — the chain terminates at
