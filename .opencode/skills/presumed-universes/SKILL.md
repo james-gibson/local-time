@@ -212,6 +212,32 @@ technology:sh:1977    <- shim:lezz-path-shim:2026
 technology:tty:1971   <- technology:sh:1971, sh:1977  (2 asserted, not referenced)
 ```
 
+### And rejection is not absence
+
+The first instinct is to *delete* the orphan — "absence is the honest state". It is
+not, and the reason is worth keeping. Deleting a considered id collapses a
+**determined** absence into an **undetermined** one. An id that was thought of,
+evaluated and judged un-demanded is a *negative fact*; an id that never came up is
+not the same object.
+
+> `CONVENTIONS.md`: **absence is not a zero value** — do not read "unknown" as `0`.
+> The mirror: **a considered absence is not absence** — do not read "rejected" as
+> "never considered".
+
+Symmetric failure, same shape. So there are **three states, not two-plus-a-hole**:
+
+| state | meaning | on the charge graph |
+| --- | --- | --- |
+| **declared** | a reference demanded it | yes, with charges |
+| **presumed** | referenced, not yet declared | no — `charges: []` |
+| **rejected** | considered, determined un-demanded | no, and not stubbed |
+
+Deletion also destroys the **trail**: the rejected set *is* the blast radius of
+whatever raised the id. Delete it and the artifact reads as though the prompt never
+happened — laundering the failure by subtraction, the mirror of laundering it by
+inventing a plausible edge. So rejections carry `reconsider:` / `revisit-if:` and
+stay. A rejection is reversible; silence is not.
+
 Note the limit, and state it rather than hide it: grounding catches the *orphan*
 but not the *plausible assertion*. `tty` is reachable — the chain terminates at
 `sh:1977`, which a shim references — yet the last two hops are edges the model
