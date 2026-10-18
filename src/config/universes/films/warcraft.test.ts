@@ -124,6 +124,35 @@ describe('Warcraft (2016) universe (james-gibson/local-time#115)', () => {
     expect(warcraftFilmUniverse.realityRelation.type).toBe('pure_fiction');
   });
 
+  /**
+   * The universe is now assembled by `createFilmUniverse(spec)` rather than hand-authored, so
+   * these are the fields the shim owns: what a hand-written literal used to carry, and a spec
+   * could silently lose.
+   */
+  test('carries the provenance and metadata the spec declares', () => {
+    const u = warcraftFilmUniverse;
+    expect(u.metadata?.canonicalName).toBe('Warcraft');
+    expect(u.metadata?.released).toEqual(new Date('2016-06-10'));
+    expect(u.metadata?.cultural_significance).toBe(0.8);
+    expect(u.attribution.sources).toHaveLength(3);
+    expect(u.attribution.usage_restrictions).toHaveLength(2);
+    expect((u.metadata as { based_on?: string[] }).based_on).toEqual(['Warcraft by Blizzard Entertainment']);
+    expect(u.temporalStructure?.windows.strategy).toBe('scene_based');
+  });
+
+  test('acts keep their prose (#100) and partition the runtime', () => {
+    const u = warcraftFilmUniverse;
+    const acts = (u.temporalStructure?.segments ?? []) as Array<{
+      id: string;
+      start: bigint;
+      end: bigint;
+      description?: string;
+    }>;
+    expect(acts.every((a) => typeof a.description === 'string' && a.description.length > 0)).toBe(
+      true,
+    );
+  });
+
   test('projects as fiction', () => {
     const gradient = RealityGradientAnalyzer.analyzeUniverse(warcraftFilmUniverse);
     expect(gradient.level).toBeGreaterThanOrEqual(0.7);
