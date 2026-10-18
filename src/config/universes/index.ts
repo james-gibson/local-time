@@ -24,7 +24,7 @@ import {
   electricTelegraphUniverse,
   september11AttacksUniverse,
   penicillinDiscoveryUniverse, tulsaMassacreMediaCoverageUniverse, tulsaRaceMassacre1921Universe, transistorInventionUniverse, worldWideWebUniverse
-, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses} from './historical';
+, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses, pagerankHistoryUniverse} from './historical';
 import {allCybersecurityUniverses} from './cybersecurity';
 import {chuckBerryUniverse} from './chuckBerryUniverse';
 import {calvinKleinHistory} from './calvinKleinHistory';
@@ -92,6 +92,7 @@ export const allUniverses = [
   ...gamestopUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
+  pagerankHistoryUniverse,
   ...nasaUniverses,
   rogersCommissionUniverse,
   apollo13FilmUniverse,
