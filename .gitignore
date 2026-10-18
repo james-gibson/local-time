@@ -15,11 +15,13 @@ build/
 .env.development.local
 .env.test.local
 
-# Generated lore universes (local resolution only — never committed).
-# `import-lore-json.js` writes one module per lore compendium, carrying that
-# compendium's frontmatter (keyframes, epochs, layers, sources, attribution).
-# The compendia live under the kb's private `lore/` root, and this repo is
-# public, so the generated modules local, git-ignored, and never committed.
+# Generated lore universes — never committed.
+# `import-lore-json.js` writes one module per lore compendium (plus an `index.ts`
+# barrel carrying an `importedUniverses` array). The compendia live under the kb's
+# private `lore/` root and this repo is public, so the generated modules stay local
+# and git-ignored. `UniverseRegistry` loads that barrel at runtime when it is
+# present (james-gibson/local-time#98), so a synced universe is registered without
+# ever being committed.
 src/config/universes/imported/
 .env.production.local
 

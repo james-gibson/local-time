@@ -49,7 +49,10 @@ async function main() {
           universeId: universe.universeId,
           contains: layer.contains as any,
           realityCorrespondence: layer.reality_correspondence as any,
-          subuniverses: layer.subuniverses as any,
+          // `TemporalLayer.subuniverses` was retired in favour of first-class
+          // containment (`Universe.connections.natural.parentUniverses`,
+          // james-gibson/local-time#74) and was never populated, so nothing is
+          // written here. The `subuniverses` column is left in the schema for now.
         }
       });
 

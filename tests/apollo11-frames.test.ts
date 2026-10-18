@@ -5,7 +5,9 @@ import { ZeroReferenceEpoch } from '../src/temporal-system';
  * Two zero-reference frames over one real interval.
  *
  * `launch` is zeroed on liftoff (13:32:00Z). `go_no_go` is zeroed on the go/no-go poll
- * five and a half minutes earlier (13:26:30Z). Same absolute span, two origins.
+ * five minutes twenty seconds earlier (13:26:40Z — the Launch Director's "Go" per the
+ * Apollo 11 PAO launch commentary; see james-gibson/local-time#63). Same absolute span,
+ * two origins.
  *
  * This is what "treat a prior keyframe as the zero" means in this model, done without
  * inventing a reference type. `IN_A_PRIOR_KEYFRAME` is deliberately unused here: it is a
@@ -60,8 +62,8 @@ describe('Apollo 11 has two zero-reference frames over one interval', () => {
 
   test('the go/no-go frame puts liftoff five and a half minutes after its zero', () => {
     expect(offsetFrom('go_no_go', 'go_no_go_poll')).toBe('T+00:00:00');
-    expect(offsetFrom('go_no_go', 'liftoff')).toBe('T+00:05:30');
-    expect(offsetFrom('go_no_go', 'first_stage_separation')).toBe('T+00:08:16');
+    expect(offsetFrom('go_no_go', 'liftoff')).toBe('T+00:05:20');
+    expect(offsetFrom('go_no_go', 'first_stage_separation')).toBe('T+00:08:06');
   });
 
   /**
@@ -70,7 +72,7 @@ describe('Apollo 11 has two zero-reference frames over one interval', () => {
    * Re-zeroing makes the pre-launch decision sequence addressable.
    */
   test('the launch frame still expresses the poll as negative time', () => {
-    expect(offsetFrom('launch', 'go_no_go_poll')).toBe('T-00:05:30');
+    expect(offsetFrom('launch', 'go_no_go_poll')).toBe('T-00:05:20');
     expect(offsetFrom('launch', 'liftoff')).toBe('T+00:00:00');
     expect(offsetFrom('launch', 'first_stage_separation')).toBe('T+00:02:46');
   });

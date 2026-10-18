@@ -14,7 +14,12 @@ import { UniverseBuilder, TimePrecision } from '../../../index';
  * - Source: The Walt Disney Company SEC Filings, news reports.【1】【2】
  */
 export const disneyPixarAcquisition2006Universe = new UniverseBuilder()
-    .historical('disney', 'pixar_acquisition', 2006)
+    // Was `.historical('disney', 'pixar_acquisition', 2006)`, which passed a title where
+    // the *year* belongs, so the id came out `history:disney:pixar_acquisition-2006` and no
+    // validator accepts it — the registry dropped this universe with a warning
+    // (james-gibson/local-time#70). The id the usage example below already documents is
+    // `history:disney:pixar_acquisition:2006`.
+    .historical('disney:pixar_acquisition', 2006)
     .withDateEpoch('2006-01-01', '2006-12-31', 'Acquisition Year', TimePrecision.DAY)
     .withRealityRelation('documentary', 0.0)
     .withAttribution('public_domain', 'Publicly announced business transaction.')

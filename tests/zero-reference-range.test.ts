@@ -12,7 +12,7 @@ import { ZeroReferenceEpoch } from '../src/temporal-system';
  * *bounds*, not merely on the fixture.
  *
  * Fixture facts this relies on (apollo11, all already on `main`):
- *   go_no_go_poll           1969-07-16 13:26:30Z   T-00:05:30 in the `launch` frame
+ *   go_no_go_poll           1969-07-16 13:26:40Z   T-00:05:20 in the `launch` frame
  *   liftoff                1969-07-16 13:32:00Z   T+00:00:00
  *   first_stage_separation 1969-07-16 13:34:46Z   T+00:02:46
  */
@@ -84,16 +84,17 @@ describe('findEventsInRelativeRange honours its bounds (#55)', () => {
     });
 
     test('the same relative range means different absolute spans in different frames', async () => {
-        // T-00:05:30..T+00:00:00 straddles the launch zero but sits entirely before the
-        // go/no-go zero. Same query, different epoch, different answer.
+        // The same relative window means different absolute spans in different frames.
+        // In the launch frame T-05:30..T+00:00 is 13:26:30-13:32:00Z, which straddles the
+        // zero and reaches the poll at 13:26:40. In the go_no_go frame T-05:30..T-01:00 is
+        // 13:21:10-13:25:40Z, entirely before the poll, so it misses it. Same query,
+        // different epoch, different answer.
         const inLaunch = await service.findEventsInRelativeRange(
             'nasa:apollo11:1969', 'launch', rel('T-', { minutes: 5, seconds: 30 }), rel('T+'));
         const inGoNoGo = await service.findEventsInRelativeRange(
             'nasa:apollo11:1969', 'go_no_go', rel('T-', { minutes: 5, seconds: 30 }), rel('T-', { minutes: 1 }));
 
         expect(ids(inLaunch)).toContain('go_no_go_poll');
-        // In the go_no_go frame that same window is 13:21:00-13:25:30, entirely before the
-        // poll at 13:26:30, so the query that finds the poll in one frame misses it in the other.
         expect(ids(inGoNoGo)).not.toContain('go_no_go_poll');
         expect(inGoNoGo).toEqual([]);
     });
@@ -152,9 +153,9 @@ describe('relativeToAbsolute applies days (#55 dependency)', () => {
         expect(ZeroReferenceAddressing.relativeToAbsolute(rel('T-'), launchZero)).toBe(launchZero.zeroPoint);
     });
 
-    test('the go/no-go frame is 5:30 earlier, matching the fixture', () => {
+    test('the go/no-go frame is 5:20 earlier, matching the fixture', () => {
         const goNoGo = apollo11Universe.epochs.go_no_go as ZeroReferenceEpoch;
-        expect(NS('1969-07-16T13:26:30Z') - goNoGo.zeroPoint).toBe(0n);
-        expect(NS('1969-07-16T13:32:00Z') - goNoGo.zeroPoint).toBe(330_000_000_000n);
+        expect(NS('1969-07-16T13:26:40Z') - goNoGo.zeroPoint).toBe(0n);
+        expect(NS('1969-07-16T13:32:00Z') - goNoGo.zeroPoint).toBe(320_000_000_000n);
     });
 });

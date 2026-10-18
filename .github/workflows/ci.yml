@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Lint, Typecheck, Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Node 22 is the active LTS. The repo has no `.nvmrc` and no `engines`
+        # field, so this workflow is the first place a Node version is written
+        # down at all — which is also why it is a single version rather than a
+        # range: an untested matrix entry is a claim, not a guarantee.
+        node-version:
+          - 22.x
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # `src/config/universes/imported/` is git-ignored (the compendia are
+      # private), so the generated tree is deliberately absent here and the
+      # tree-dependent assertions in generated-registration.test.ts skip. The
+      # audit of that tree is asserted against synthetic drift instead, so it
+      # still runs in this job — see that file for the split.
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Test the lore pipeline scripts
+        run: npm run test:scripts

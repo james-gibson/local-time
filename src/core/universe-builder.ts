@@ -1,5 +1,5 @@
 import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalKeyframe, TemporalSegment, TemporalLayer, RealityRelation, Attribution, TemporalStructure, WindowingStrategy, RealityRelationTypeEnum } from './types';
-import { UniverseId, createFilmUniverseId } from './universe-ids';
+import { UniverseId, createFilmUniverseId, isValidUniverseId } from './universe-ids';
 
 /**
  * Universe types that are not required to carry a timeline. A specification describes a
@@ -81,7 +81,34 @@ export class UniverseBuilder {
 
   historical(event: string, startYear: number | string, endYear?: number | string): this {
     const yearRange = endYear ? `${startYear}-${endYear}` : startYear.toString();
-    const id = `history:${event.toLowerCase().replace(/\s+/g, '_')}:${yearRange}`;
+    // Normalise the event to the segment grammar the id validators admit, so a title
+    // carrying punctuation cannot produce an id the registry silently drops
+    // (james-gibson/local-time#70). Runs of any disallowed character collapse to a single
+    // underscore; `:` and `.` are preserved so a namespaced event
+    // (`disney:pixar_acquisition`) keeps its documented id. This leaves every
+    // currently-valid id unchanged and repairs the invalid ones.
+    //
+    // Deliberate deferral: a namespaced historical id like this one is 4 segments, which no
+    // *declared* pattern accepts — it validates only through `ANY_YEAR_TERMINATED`, whose
+    // permissiveness is the subject of james-gibson/local-time#50. Preserving it here keeps
+    // the id stable; tightening #50 will mean canonicalising ids of this shape, and this
+    // validator is the permissive one on purpose until that lands.
+    const slug = event
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_:.]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    const id = `history:${slug}:${yearRange}`;
+    // Validate the way the registry will, and fail here — loudly, naming the event —
+    // rather than letting `loadBuiltInUniverses` skip the universe with a warning that is
+    // easy to miss. A malformed `yearRange` (a title passed where a year belongs) is
+    // caught by this, which is the point.
+    if (!isValidUniverseId(id)) {
+      throw new Error(
+        `Invalid historical universe ID format: ${id} ` +
+          `(from event ${JSON.stringify(event)}, years ${JSON.stringify(yearRange)})`,
+      );
+    }
     this.universe.universeId = id;
     this.universe.type = UniverseType.HISTORICAL_EVENT;
     if (this.universe.identifiers) {
@@ -562,6 +589,7 @@ export class UniverseBuilder {
       timestamp,
       significance,
       tags,
+      ...(options?.description ? { description: options.description } : {}),
       ...(options?.certainty !== undefined ? { certainty: options.certainty } : {}),
       ...(options?.dateRange ? { dateRange: options.dateRange } : {}),
       ...(options?.type ? { type: options.type } : {}),
@@ -574,7 +602,17 @@ export class UniverseBuilder {
 
   addRuntimeKeyframe(minutes: number, seconds: number, id: string, significance: number, tags: string[], description?: string): this {
     const timestamp = BigInt(minutes) * BigInt(60) * BigInt(1_000_000_000) + BigInt(seconds) * BigInt(1_000_000_000);
-    return this.addKeyframe(id, timestamp, significance, tags);
+    // `description` used to be accepted and dropped, because `TemporalKeyframe` had no
+    // field for it (james-gibson/local-time#77). It is forwarded through the `options`
+    // bag, which is the one channel `addKeyframe` keeps for fields the positional
+    // signature has no room for.
+    return this.addKeyframe(
+      id,
+      timestamp,
+      significance,
+      tags,
+      description !== undefined ? { description } : undefined,
+    );
   }
 
 

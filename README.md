@@ -10,6 +10,27 @@
 
 The Local Time System is a comprehensive TypeScript library for managing temporal universes, cross-universe references, and temporal relationships. It provides a sophisticated framework for tracking time across fictional and real works, with support for zero-reference addressing, temporal paradoxes, and complex reference chains.
 
+## Documentation
+
+This README is the front door. The deeper material:
+
+**Guides and decisions**
+
+- **[Universe creation guide](docs/universe-creation-guide.md)** — the builder patterns, and how to write a universe definition.
+- **[Troubleshooting](docs/troubleshooting.md)**.
+- **[ADR 0001 — timestamp and storage representation for SQLite](docs/adr/0001-sqlite-timestamp-storage.md)** — the first architecture decision record.
+
+**Design rationale**
+
+- **[Design rationale index](explorations/README.md)** — the pre-implementation design transcripts, mapped to what is implemented and what is not. In particular it records the constructs that are designed and typed but **never populated** (`reality_correspondence`, shared window aliases) and the issues that track them: [#74](https://github.com/james-gibson/local-time/issues/74) containment, [#75](https://github.com/james-gibson/local-time/issues/75) composition, [#76](https://github.com/james-gibson/local-time/issues/76) embedding projection, [#82](https://github.com/james-gibson/local-time/issues/82) shared windows.
+- **[Universe generator prompt](kagi.md)** — the instructions a model follows when generating a universe definition, including the registration invariants.
+- **[Exploration transcripts](explorations/)** — `prompt.md`, `types.md`, `proposal.md`, `multi.md`, `example.ts.md`.
+
+**Elsewhere**
+
+- **[Generated documentation site](docs/site/)** — Hugo/Doks, rebuilt on local sync from the docs project.
+- **[Open issues](https://github.com/james-gibson/local-time/issues)** — the live work.
+
 ## Features
 
 ### ✅ Core Features (Complete)

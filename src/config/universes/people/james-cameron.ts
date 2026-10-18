@@ -1,6 +1,32 @@
 import { createFilmUniverseId } from '../../../core/universe-ids';
 import { Universe, UniverseBuilder } from '../../../index';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { resolveFilmStudio } from '../studios';
+
+/**
+ * The `film_studio:` container for Twentieth Century-Fox releases.
+ *
+ * Titanic (1997) and Avatar (2009) are *owned* by this filmography, but each was
+ * also a Twentieth Century-Fox release. `films/20th/releases.ts` used to express
+ * that by defining a second universe with the same id; #73 removed the
+ * duplicates and folded their runtime keyframes here, losing the studio
+ * membership. It is restored below as a containment edge rather than a second
+ * universe — one owner, many memberships (james-gibson/local-time#74).
+ */
+const TWENTIETH_CENTURY_FOX = resolveFilmStudio('20th_century_fox')!.universeId;
+
+/**
+ * Membership of the Twentieth Century-Fox studio container, as the builder's
+ * containment edge (`UniverseRegistry` reads `metadata.connections`
+ * `member_of` entries and folds them into `CommonUniverseIds`).
+ */
+const foxRelease = {
+    targetUniverseId: TWENTIETH_CENTURY_FOX,
+    type: 'member_of',
+    confidence: 1.0,
+    description: 'Released by Twentieth Century-Fox.',
+    evidence: ['Twentieth Century-Fox theatrical release.'],
+} as const;
 
 /**
  * A collection of all feature films directed by James Cameron.
@@ -213,6 +239,30 @@ export const jamesCameronFilmography: Universe[] = [
             0.99,
             'A monumental box office and cultural phenomenon that merged a historical epic with a blockbuster romance, setting new standards for visual effects and global reach.'
         )
+        // The Twentieth Century-Fox studio membership `films/20th/releases.ts` used to
+        // carry as a duplicate `20th_century_fox:titanic:1997` universe, restored as a
+        // containment edge (james-gibson/local-time#74).
+        .addConnection(foxRelease)
+        // Runtime keyframes recovered from `films/20th/releases.ts`, whose duplicate
+        // `20th_century_fox:titanic:1997` universe was folded into this one
+        // (james-gibson/local-time#67). Same id, so the moments are carried here rather
+        // than registered twice.
+        .addRuntimeKeyframe(
+            75,
+            10,
+            'im_flying',
+            1.0,
+            ['iconic_moment', 'romance', 'cinematic_shot'],
+            "Jack and Rose's iconic moment on the bow of the Titanic, which became the film's signature image."
+        )
+        .addRuntimeKeyframe(
+            137,
+            50,
+            'ship_sinking',
+            0.95,
+            ['climax', 'historical_event', 'visual_effects'],
+            'The meticulously recreated and terrifying sequence of the Titanic breaking apart and sinking.'
+        )
         .build(),
 
     /**
@@ -235,6 +285,21 @@ export const jamesCameronFilmography: Universe[] = [
         .withCulturalSignificance(
             0.96,
             'A landmark in filmmaking technology that mainstreamed modern 3D cinema and set a new benchmark for visual effects and immersive world-building.'
+        )
+        // The Twentieth Century-Fox studio membership `films/20th/releases.ts` used to
+        // carry as a duplicate `20th_century_fox:avatar:2009` universe, restored as a
+        // containment edge (james-gibson/local-time#74).
+        .addConnection(foxRelease)
+        // Runtime keyframe recovered from `films/20th/releases.ts`, whose duplicate
+        // `20th_century_fox:avatar:2009` universe was folded into this one
+        // (james-gibson/local-time#67).
+        .addRuntimeKeyframe(
+            61,
+            25,
+            'first_flight',
+            0.9,
+            ['visual_effects_milestone', 'character_development', 'world_building'],
+            'Jake Sully, in his avatar body, successfully bonds with and rides a mountain banshee (Ikran) for the first time.'
         )
         .build(),
 
