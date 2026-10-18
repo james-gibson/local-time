@@ -207,8 +207,7 @@ as work (james-gibson/local-time#158).
 **And one universe was invented outright.** `technology:pty:1983` was declared with
 **zero inbound references** — nothing referenced it; it existed because the
 wildcard made terminals salient. Every gate passed on it: build, import, 22/22
-jest, registered. It was **removed**, not stubbed (a stub is for something
-*referenced*), and `generate.py` now reports grounding so the next orphan is
+jest, registered. `generate.py` now reports grounding so the next orphan is
 visible:
 
 ```
@@ -225,3 +224,12 @@ the assertion depth; it cannot catch a plausible assertion. That is the limit, a
 it is why the rule is about *why* a thing was declared rather than about whether it
 resolves: **a declaration cites the reference that demanded it, or states that it is
 a root — and a `*` is a question, not a reference.**
+
+**The orphan was not deleted.** The first move was to remove `pty` and call absence
+the honest state; that is wrong. Deleting a considered id collapses a *determined*
+absence into an *undetermined* one — the mirror of `CONVENTIONS.md`'s "absence is
+not a zero value". `pty` is now **rejected**: retained, with `demand: none`,
+`provenance` (it came from the wildcard), `rejected-because`, and `revisit-if`.
+Three states, not two-plus-a-hole (declared / presumed / rejected), and the rejected
+entry is also the record of how far the star propagated — delete it and the artifact
+reads as though the star never happened.
