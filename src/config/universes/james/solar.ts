@@ -21,21 +21,26 @@ export interface HomeEnergyMetadata {
         [key: string]: string;
     };
     /**
-     * The scrubbing record. Recorded on the universe itself rather than as a reference
-     * target, so the log carries its own provenance instead of pointing at a document
-     * that describes it from outside.
+     * The scrubbing record — how the usage terms were applied to this data.
      *
-     * The author's statement, and the only fact asserted here: the interval log was
-     * scrubbed before publication, and what is in this universe is the scrubbed form.
-     * Which fields were removed is deliberately not enumerated — the `note` records the
-     * decision, not a reconstruction of the raw data, which is the one thing this
-     * universe is not allowed to leak back in.
+     * The scrubbing rules are the privacy contract the corpus is generated under
+     * (`src/config/mcp-prompts/personal-prompt.ts`): personal information is removed from
+     * personal data unless it is explicitly public, and living individuals are not named in
+     * it. The removal is the *application* of the usage term in
+     * `attribution.usage_restrictions` to the data — it is not a statement about the
+     * holder. The holder is named; the data is anonymised.
+     *
+     * Which fields were removed is deliberately not enumerated: enumerating them would be
+     * the disclosure the scrub exists to prevent, so this records the decision and its
+     * authority, not a reconstruction of the raw capture.
      */
     scrubbing: {
-        /** Always true for this universe: the raw log is not what is published here. */
+        /** Always true for this universe: what is published here is not the raw capture. */
         applied: boolean;
-        /** The restriction in `attribution.usage_restrictions` this satisfies. */
+        /** The usage term this discharges, so the record and the terms cannot drift apart. */
         enforcedBy: string;
+        /** What the scrub acts on — the data, never the attribution. */
+        appliesTo: 'data';
         note: string;
     };
     solarSystem: {
@@ -78,15 +83,18 @@ const mdtToUtcBigInt = (dateString: string): bigint => {
  * Reality Relation: 'documents' with 0.0 fictionalization. This is a direct log of real-world data.
  *
  * Ownership and publication: this is one of the system owner's private notes, published as an
- * exemplar. It is attributed, but anonymously — `attribution.copyright.holders` is
- * `['Anonymous User']` and the id carries the `user_redacted_202509` marker. The lab universe
+ * exemplar, and it is attributed to the person who holds it. The lab universe
  * (`personal:lab:2026`) carries the reference back to it; containment is deliberately not
  * declared, because it is a referenced artefact of the owner rather than a member of the lab.
  *
- * Scrubbing: the published dataset is the scrubbed form of the log, recorded on the universe
- * itself in `metadata.scrubbing` and anchored as `published_form_is_scrubbed`. What was removed
- * is not enumerated here on purpose — enumerating it would be the leak the scrub exists to
- * prevent.
+ * Scrubbing: the dataset is anonymised; the work is not. Personal information was removed from
+ * the log as the usage terms were applied, which is the privacy rule the corpus is generated
+ * under — personal data loses its personal information unless it is explicitly public. So the
+ * attribution names a holder while the data names nobody: what is removed is the personal
+ * information *in the data*, not the identity of the author. Recorded on the universe itself in
+ * `metadata.scrubbing` and anchored in the universe's sole `realityAnchor` evidence. What was
+ * removed is not enumerated here on purpose — enumerating it would be the disclosure the scrub
+ * exists to prevent.
  *
  * Research Sources:
  * - User-provided interval data charts from a utility or monitoring portal, submitted over the course of the conversation.
@@ -161,22 +169,22 @@ export const homeEnergyLogSept2025Universe: Universe = {
     realityRelation: {
         type: RealityRelationType.DOCUMENTS,
         fictionalizationDegree: 0.0,
+        // Both anchors that used to sit here were authored in a shape `RealityAnchor` does
+        // not declare — `{ anchorId, description }` instead of
+        // `{ realEventId, relationshipType }` — so nothing read either of them, and the
+        // `as unknown as Universe` cast below is what let that survive (the same failure as
+        // the attribution fields above). Collapsed into one anchor in the declared shape:
+        // the provenance is one claim, and the scrubbing is recorded where it can be read,
+        // in `metadata.scrubbing`.
         realityAnchors: [
             {
-                anchorId: 'user_provided_data',
-                description: 'The universe is based entirely on interval data charts provided by the system owner.',
-                evidence: ['Conversation thread containing user-uploaded charts for Sep 1-4 and Sep 10, 2025.'],
+                realEventId: 'home_energy_monitoring:user_redacted_202509:2026',
+                relationshipType: 'documents',
                 confidence: 1.0,
-            },
-            {
-                anchorId: 'published_form_is_scrubbed',
-                description:
-                    'What this universe publishes is the scrubbed form of the log, not the raw capture. The scrub is a step between the recording and this universe, so the interval series here is faithful to the data but not complete to it.',
                 evidence: [
-                    'The system owner states the dataset was scrubbed before publication.',
-                    'The universe id carries the `user_redacted_202509` marker, and `attribution.usage_restrictions` requires anonymisation.',
+                    'Interval data charts from a utility or monitoring portal, Sep 1-4 and Sep 10, 2025.',
+                    'The published form is the scrubbed derivative of that capture: personal information is removed as the usage terms are applied — see `metadata.scrubbing`, which names the term it discharges.',
                 ],
-                confidence: 1.0,
             },
         ],
     },
@@ -186,11 +194,16 @@ export const homeEnergyLogSept2025Universe: Universe = {
         // (james-gibson/local-time#153). It carried the retired flat fields —
         // `copyright_holders` / `copyright_year` / `copyright_status` — which nothing
         // reads, so `hasProvenance` was false and the corpus invariant in
-        // `universe-builder-behaviour.test.ts` would not accept it. `status` is `active`
-        // rather than the old `PRIVATE`: the `Attribution` union has no private member,
-        // and the privacy intent is already carried by `usage_restrictions`.
+        // `universe-builder-behaviour.test.ts` would not accept it.
+        //
+        // The holder is the person, not `Anonymous User`. That placeholder read the
+        // privacy rule backwards: the rule anonymises the *data* (personal information is
+        // removed as the usage terms are applied — see `metadata.scrubbing`), and says
+        // nothing about the holder being unknown. `status` is `active` rather than the old
+        // `PRIVATE`, which the `Attribution` union cannot express and which the usage
+        // restriction already carries.
         copyright: {
-            holders: ['Anonymous User'],
+            holders: ['James Gibson'],
             year: 2025,
             status: CopyrightStatus.ACTIVE,
         },
@@ -215,8 +228,9 @@ export const homeEnergyLogSept2025Universe: Universe = {
         scrubbing: {
             applied: true,
             enforcedBy: UsageRestriction.ANONYMIZATION_REQUIRED,
+            appliesTo: 'data',
             note:
-                'The raw interval log was scrubbed before publication. This universe publishes the scrubbed form only; the raw capture is not held here and is not reconstructable from it.',
+                'Personal information was removed from the interval log before publication — that removal is how the usage terms in `attribution.usage_restrictions` are applied to this data. The scrub acts on the data, not on the attribution: the work is not anonymous, the dataset is.',
         },
         solarSystem: {
             installDate: '2023-02-04',
