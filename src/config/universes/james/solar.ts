@@ -20,6 +20,24 @@ export interface HomeEnergyMetadata {
     touSchedule: {
         [key: string]: string;
     };
+    /**
+     * The scrubbing record. Recorded on the universe itself rather than as a reference
+     * target, so the log carries its own provenance instead of pointing at a document
+     * that describes it from outside.
+     *
+     * The author's statement, and the only fact asserted here: the interval log was
+     * scrubbed before publication, and what is in this universe is the scrubbed form.
+     * Which fields were removed is deliberately not enumerated — the `note` records the
+     * decision, not a reconstruction of the raw data, which is the one thing this
+     * universe is not allowed to leak back in.
+     */
+    scrubbing: {
+        /** Always true for this universe: the raw log is not what is published here. */
+        applied: boolean;
+        /** The restriction in `attribution.usage_restrictions` this satisfies. */
+        enforcedBy: string;
+        note: string;
+    };
     solarSystem: {
         installDate: string;
         arrays: SolarArrayDetails[];
@@ -59,6 +77,17 @@ const mdtToUtcBigInt = (dateString: string): bigint => {
  *
  * Reality Relation: 'documents' with 0.0 fictionalization. This is a direct log of real-world data.
  *
+ * Ownership and publication: this is one of the system owner's private notes, published as an
+ * exemplar. It is attributed, but anonymously — `attribution.copyright.holders` is
+ * `['Anonymous User']` and the id carries the `user_redacted_202509` marker. The lab universe
+ * (`personal:lab:2026`) carries the reference back to it; containment is deliberately not
+ * declared, because it is a referenced artefact of the owner rather than a member of the lab.
+ *
+ * Scrubbing: the published dataset is the scrubbed form of the log, recorded on the universe
+ * itself in `metadata.scrubbing` and anchored as `published_form_is_scrubbed`. What was removed
+ * is not enumerated here on purpose — enumerating it would be the leak the scrub exists to
+ * prevent.
+ *
  * Research Sources:
  * - User-provided interval data charts from a utility or monitoring portal, submitted over the course of the conversation.
  * - Contextual information provided by the user regarding solar array orientation, shading, and installation date.
@@ -66,8 +95,11 @@ const mdtToUtcBigInt = (dateString: string): bigint => {
  *
  * Hierarchical Context: This technical log exists within the context of broader energy systems.
  * Natural Connections Discovered:
- * - Parent Context: CommonUniverseIds.ENERGY_GRID_TECHNOLOGY, CommonUniverseIds.RENEWABLE_ENERGY
  * - Sibling Contexts: Other residential DER monitoring datasets.
+ * - The parents this header used to name (`ENERGY_GRID_TECHNOLOGY`, `RENEWABLE_ENERGY`) are not
+ *   `CommonUniverseIds` members at all, so they were never declared and could not have resolved.
+ *   A dangling anchor is worse than an absent one (james-gibson/local-time#112 §11.5), so nothing
+ *   is declared here; a real container should be created first if one is wanted.
  */
 export const homeEnergyLogSept2025Universe: Universe = {
     universeId: createTechnicalUniverseId('home_energy_monitoring', 'user_redacted_202509'),
@@ -136,6 +168,16 @@ export const homeEnergyLogSept2025Universe: Universe = {
                 evidence: ['Conversation thread containing user-uploaded charts for Sep 1-4 and Sep 10, 2025.'],
                 confidence: 1.0,
             },
+            {
+                anchorId: 'published_form_is_scrubbed',
+                description:
+                    'What this universe publishes is the scrubbed form of the log, not the raw capture. The scrub is a step between the recording and this universe, so the interval series here is faithful to the data but not complete to it.',
+                evidence: [
+                    'The system owner states the dataset was scrubbed before publication.',
+                    'The universe id carries the `user_redacted_202509` marker, and `attribution.usage_restrictions` requires anonymisation.',
+                ],
+                confidence: 1.0,
+            },
         ],
     },
 
@@ -169,6 +211,12 @@ export const homeEnergyLogSept2025Universe: Universe = {
             off_peak: 'Before 3:00 PM and after 7:00 PM weekdays, all weekend.',
             on_peak: '3:00 PM to 7:00 PM weekdays.',
             mid_peak: 'Not explicitly defined in user data, but appears between Off-peak and On-peak.',
+        },
+        scrubbing: {
+            applied: true,
+            enforcedBy: UsageRestriction.ANONYMIZATION_REQUIRED,
+            note:
+                'The raw interval log was scrubbed before publication. This universe publishes the scrubbed form only; the raw capture is not held here and is not reconstructable from it.',
         },
         solarSystem: {
             installDate: '2023-02-04',
