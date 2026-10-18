@@ -92,6 +92,17 @@ describe('FILM refuses every declared namespace prefix', () => {
         expect(() => createFilmUniverseId('technology', 'x', 2000)).toThrow();
     });
 
+    /**
+     * `us:` became a declared domain while closing out #50 — nineteen registered universes
+     * (`us:constitution:1787`, `us:amendment:<n>:<year>`) were validating only through the
+     * catch-all, and reading as films. Pinned like `system`/`technology` above.
+     */
+    test('us: is reserved', () => {
+        expect(isFilmUniverseId('us:constitution:1787')).toBe(false);
+        expect(isFilmUniverseId('us:amendment:11:1795')).toBe(false);
+        expect(() => createFilmUniverseId('us', 'x', 2000)).toThrow();
+    });
+
     /** `technical:` was deleted in #49; reserving it was reserving nothing. */
     test('technical: is no longer reserved, because the namespace is gone', () => {
         expect(namespacePrefixes).not.toContain('technical');

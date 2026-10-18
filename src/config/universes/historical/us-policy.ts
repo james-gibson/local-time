@@ -8,7 +8,10 @@ import { UniverseBuilder, TimePrecision } from '../../../index';
  * @significance The relationship between the U.S. government and Native American nations is a foundational and defining aspect of American history, holding the highest possible cultural and historical significance (1.0).
  */
 export const usNativeAmericanPolicyUniverse = new UniverseBuilder()
-    .historical("history:us_gov_native_american","1787")
+    // Documents `history:us_native_american_policy:1787-present`; the code used to pass an
+    // already-namespaced event and so registered `history:history:us_gov_native_american:1787`
+    // (doubled prefix, span dropped). See us-military.ts and james-gibson/local-time#50.
+    .historical('us_native_american_policy', 1787, 'present')
     .withDescription('A temporal documentation of U.S. federal policies concerning Native Americans, from early treaties to the modern era of self-determination.')
     .withRealityRelation('documentary', 0.0)
     // Source: Based on public records from the National Archives, Bureau of Indian Affairs, and historical academic sources.

@@ -88,11 +88,12 @@ export class UniverseBuilder {
     // (`disney:pixar_acquisition`) keeps its documented id. This leaves every
     // currently-valid id unchanged and repairs the invalid ones.
     //
-    // Deliberate deferral: a namespaced historical id like this one is 4 segments, which no
-    // *declared* pattern accepts — it validates only through `ANY_YEAR_TERMINATED`, whose
-    // permissiveness is the subject of james-gibson/local-time#50. Preserving it here keeps
-    // the id stable; tightening #50 will mean canonicalising ids of this shape, and this
-    // validator is the permissive one on purpose until that lands.
+    // The id this produces is the general form — `<ns>:<subject>[:<sub>]:<year>`, the shape
+    // `explorations/proposal.md` works in. HISTORICAL now declares the optional middle segment,
+    // so `history:disney:pixar_acquisition:2006` is a *declared* `history:` id rather than a
+    // catch-all accident (james-gibson/local-time#50). The namespaced event is preserved rather
+    // than canonicalised: the namespace is part of what the event is, and the trailing year is
+    // what makes it findable by window.
     const slug = event
       .trim()
       .toLowerCase()

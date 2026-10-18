@@ -1,5 +1,6 @@
 import { Universe, UniverseType } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { createUSUniverseId } from '../../../core/universe-ids';
 import { usConstitutionUniverse } from './usFoundingDocuments.universe';
 
 /**
@@ -33,8 +34,11 @@ const ordinal = (n: number): string =>
   n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th';
 
 const createAmendmentUniverse = (data: AmendmentData): Universe => {
-  const year = data.ratified.substring(0, 4);
-  const amendmentId = `us:amendment:${data.num}:${year}`;
+  const year = Number(data.ratified.substring(0, 4));
+  // Through the validating factory rather than a template literal: the `us:` domain had no
+  // declared shape, so nothing checked this and the id read as a *film* to
+  // `isFilmUniverseId` (james-gibson/local-time#50).
+  const amendmentId = createUSUniverseId('amendment', year, data.num);
 
   const references: Array<Record<string, unknown>> = [
     {
@@ -47,9 +51,23 @@ const createAmendmentUniverse = (data: AmendmentData): Universe => {
   ];
 
   if (data.repeals) {
+    // Derived from the repealee's own datum rather than a hard-coded year: the target has to
+    // be the id that universe was actually registered under, and `…:1919` was correct only by
+    // coincidence (the 18th happened to be ratified then).
+    const repealed = amendmentData.find((a) => a.num === data.repeals);
+    if (!repealed) {
+      throw new Error(
+        `Amendment ${data.num} declares it repeals ${data.repeals}, ` +
+          'which is not in amendmentData.',
+      );
+    }
     references.push({
       type: 'REPEALS',
-      targetUniverseId: `us:amendment:${data.repeals}:1919`,
+      targetUniverseId: createUSUniverseId(
+        'amendment',
+        Number(repealed.ratified.substring(0, 4)),
+        repealed.num,
+      ),
       description: `The ${data.num}th Amendment repeals the ${data.repeals}th Amendment (Prohibition).`,
       confidence: 1.0,
       evidence: [`Section 1 of the ${data.num}th Amendment`],

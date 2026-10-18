@@ -44,6 +44,7 @@ export type LegalUniverseId = UniverseId & { readonly __legalBrand: true };
 export type BiographyUniverseId = UniverseId & { readonly __biographyBrand: true };
 export type GameUniverseId = UniverseId & { readonly __gameBrand: true };
 export type CyberSecurityUniverseId = UniverseId & { readonly __cyberSecurityBrand: true };
+export type USUniverseId = UniverseId & { readonly __usBrand: true };
 
 /**
  * A technology universe: `technology:<slug>:<span>`.
@@ -121,7 +122,8 @@ export type TypedUniverseId =
   | TechnicalUniverseId
   | FilmStudioUniverseId
   | SystemUniverseId
-  | GameUniverseId;
+  | GameUniverseId
+  | USUniverseId;
 
 /**
  * The generic studio token for a film whose distributor is not a registered
@@ -187,6 +189,7 @@ const RESERVED_STUDIO_TOKENS = [
   'system',
   'technology',
   'tv',
+  'us',
   'us_gov',
 ] as const;
 
@@ -213,22 +216,69 @@ const RESERVED_STUDIO_ALTERNATION = [...RESERVED_STUDIO_TOKENS]
  * exists. Callers that care about the studio must use the config-layer check.
  * See james-gibson/local-time#44.
  */
+/**
+ * ## The general form
+ *
+ * `<namespace>:<subject>[:<sub>]:<year>` — see `explorations/proposal.md`, whose worked examples are
+ * `personal:tolkien:war_experience:1916`, `history:wwi:battle_of_somme:1916`,
+ * `literature:sassoon:poems:1916` and `film:lawrence_of_arabia:1962`.
+ *
+ * The trailing year is not decoration and not just a sort key: it is the **shared temporal index**.
+ * It is what lets `cal:1916` gather a personal experience, a battle, a poem collection and a film
+ * into one query without resolving any of them — the proposal's `findUniversesInWindow`. So a
+ * namespace that carries the optional middle segment still ends in a year, and a subject whose
+ * period genuinely runs belongs in its timeline, never in its id.
+ *
+ * `SYSTEM`, `US`, `BOOK`, `HISTORICAL` and `PERSONAL` declare the optional segment. `FILM`
+ * deliberately does not — see its comment.
+ */
 export const UNIVERSE_ID_PATTERNS = {
+  /**
+   * A film id. **Deliberately not given the optional middle segment**, although
+   * `film:star_wars:a_new_hope:1977` in the corpus is the general form.
+   *
+   * This is the one pattern that doubles as the generic fallback: it is `[a-z0-9_]+` on both
+   * sides of the colon, so a third segment would make *any* undeclared four-segment id read as a
+   * film — which is the #57 trap (`hearing:rogers_commission:1986` validating as a film) widened,
+   * not fixed. Until a film id has a declared studio or series component instead of a generic
+   * token, the film namespace stays three-segment and that one id stays on the catch-all.
+   */
   FILM: new RegExp(
     `^(?!${RESERVED_STUDIO_ALTERNATION}:)[a-z0-9_]+:[a-z0-9_]+:\\d{4}$`,
   ),
   FILM_STUDIO: /^film_studio:[a-z0-9_]+:(\*|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
   SERIES: /^(series|tv|netflix|hbo|disney_plus|amazon):[a-z0-9_]+:\d{4}$/,
-  BOOK: /^(book|literature|publisher):[a-z0-9_]+:\d{4}$/,
+  BOOK: /^(book|literature|publisher):[a-z0-9_]+(?::[a-z0-9_]+)?:\d{4}$/,
   FASHION: /^fashion:[a-z0-9_]+:(career|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
-  HISTORICAL: /^history:[a-z0-9_\\.]+:(\*|career|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
-  PERSONAL: /^personal:[a-z0-9_]+:\d{4}$/,
+  HISTORICAL: /^history:[a-z0-9_\\.]+(?::[a-z0-9_\\.]+)?:(\*|career|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
+  PERSONAL: /^personal:[a-z0-9_]+(?::[a-z0-9_]+)?:\d{4}$/,
   MISSION: /^(nasa|esa|spacex|military):[a-z0-9_]+:\d{4}$/,
   LEGAL: /^legal-[a-z0-9_]+:[a-z0-9_]+:[a-z0-9_]+:(\*|career|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
   // COUNTRY: /^usa:[a-z0-9_]+:\d{4}-(\d{4}|present)$/,
   BIOGRAPHY: /^biography:[a-z0-9_]+:\d{4}-(\d{4}|present)$/,
   GAME: /^(game|anime)[a-z0-9_]?:[a-z0-9_]+:[a-z0-9_]+:\d{4}$/,
   CYBERSECURITY: /^cybersecurity:.*$/,
+
+  /**
+   * U.S. civic universes: `us:<subject>:<year>` and `us:<subject>:<sub>:<year>`.
+   *
+   * `us:` was a de-facto domain before it was a declared one — nineteen registered
+   * universes (`us:constitution:1787`, `us:bill_of_rights:1791`, and amendments 11-27 as
+   * `us:amendment:<n>:<year>`) validated only through `ANY_YEAR_TERMINATED`, so the domain
+   * that orders them had no shape of its own and `us:` read as a *film* to `isFilmUniverseId`.
+   *
+   * The trailing year is deliberate and load-bearing, not an accident of the ids: it is what
+   * makes a `us:` id sortable and groupable — by year, and by decade — without a lookup, which
+   * is exactly what an event that is hard to fit into a finer domain needs — and the year is the
+   * **shared temporal index** of `explorations/proposal.md`, which gathers a personal experience,
+   * a battle, a poem and a film into one `cal:1916` window query. So this pattern ends in a
+   * four-digit year and accepts no other span. A subject whose period genuinely runs goes in its
+   * timeline (epochs/segments), not in its id.
+   *
+   * One optional middle segment, same as `SYSTEM`, because `us:amendment:11:1795` names a
+   * numbered series member. Two levels is the cap; deeper is a sign it wants its own domain.
+   */
+  US: /^us:[a-z0-9_]+(?::[a-z0-9_]+)?:\d{4}$/,
   
   /**
    * Technology universes: `technology:<slug>:<span>`.
@@ -361,6 +411,37 @@ export function isTechnicalUniverseId(id: string): id is TechnicalUniverseId {
 
 export function isSystemUniverseId(id: string): id is SystemUniverseId {
   return UNIVERSE_ID_PATTERNS.SYSTEM.test(id);
+}
+
+export function isUSUniverseId(id: string): id is USUniverseId {
+  return UNIVERSE_ID_PATTERNS.US.test(id);
+}
+
+/**
+ * A `us:` universe ID: `us:<subject>:<year>` or `us:<subject>:<sub>:<year>`.
+ *
+ * The year is required and must be four digits — see {@link UNIVERSE_ID_PATTERNS.US} for why
+ * that is the point of the domain rather than a limitation of it. `sub` names a member of a
+ * numbered series: `createUSUniverseId('amendment', 1795, 11)` -> `us:amendment:11:1795`.
+ * Spaces and hyphens in either part are normalised to underscores.
+ */
+export function createUSUniverseId(
+  subject: string,
+  year: number,
+  sub?: string | number,
+): USUniverseId {
+  const parts = [toIdFragment(subject)];
+  if (sub !== undefined) parts.push(toIdFragment(String(sub)));
+  if (parts.some((part) => part === '')) {
+    throw new Error(
+      `us: subject and sub must normalise to something, got ${JSON.stringify({ subject, sub })}`,
+    );
+  }
+  const id = `us:${parts.join(':')}:${year}`;
+  if (!isUSUniverseId(id)) {
+    throw new Error(`Invalid us universe ID format: ${id}`);
+  }
+  return id as USUniverseId;
 }
 
 /**
@@ -593,8 +674,14 @@ export function createSeriesUniverseId(network: string, title: string, year: num
   return id as SeriesUniverseId;
 }
 
-export function createBookUniverseId(publisher: string, title: string, year: number): BookUniverseId {
-  const id = `${publisher}:${title}:${year}`;
+/**
+ * A book universe ID: `<publisher>:<title>:<year>` or `<publisher>:<title>:<sub>:<year>`.
+ *
+ * `sub` names the volume of a titled series — `createBookUniverseId('literature', 'tolkien',
+ * 1954, 'lotr')` is the shape the corpus uses for `literature:tolkien:lotr:1954`.
+ */
+export function createBookUniverseId(publisher: string, title: string, year: number, sub?: string): BookUniverseId {
+  const id = `${publisher}:${title}${sub ? `:${sub}` : ''}:${year}`;
   if (!isBookUniverseId(id)) {
     throw new Error(`Invalid book universe ID format: ${id}`);
   }
@@ -609,8 +696,15 @@ export function createFashionUniverseId(event: string, year: number): FashionUni
   return id as FashionUniverseId;
 }
 
-export function createPersonalUniverseId(person: string, year: number): PersonalUniverseId {
-  const id = `personal:${person}:${year}`;
+/**
+ * A `personal:` universe ID: `personal:<person>:<year>` or `personal:<person>:<sub>:<year>`.
+ *
+ * `sub` names the experience when one person has several recorded in the same year —
+ * `createPersonalUniverseId('tolkien', 1916, 'war_experience')` is the shape
+ * `explorations/proposal.md` uses.
+ */
+export function createPersonalUniverseId(person: string, year: number, sub?: string): PersonalUniverseId {
+  const id = `personal:${person}${sub ? `:${sub}` : ''}:${year}`;
   if (!isPersonalUniverseId(id)) {
     throw new Error(`Invalid personal universe ID format: ${id}`);
   }
