@@ -37,6 +37,20 @@ runtime, some cut points, some moments, a distributor, some sources. Writing it 
 The library is moving toward assembly from shims and smaller parts. A film spec is the
 smallest part a film decomposes into.
 
+The cast is worth naming precisely, because the usual reason to reach for it is
+legitimate. A universe **is** self-accurate: it carries its own facts, and one shape
+cannot hold every universe. The cast was not wrong because the object was
+self-accurate — it was wrong because it removed *checking*. In `#143` the hidden
+values were not facts the union could not express; they were values the author would
+have been told were wrong. So:
+
+- keep the shape **open where the domain is open**, and extend a union deliberately
+  when a value is genuinely new — never cast around it;
+- let the factory check the **contracts that must hold**: the id resolves, the acts
+  cover the runtime, the references resolve, the sources exist, the plane is declared.
+
+Self-accuracy is necessary; checkability is what makes it trustworthy.
+
 ## What the factory derives — so you cannot get it wrong
 
 | Derived | From | The bug it makes impossible |

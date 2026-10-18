@@ -21,6 +21,13 @@ Three properties define "done":
 3. **Projectable** — the fields are the retrieval schema (corpus, weights, charge), so
    keep them real rather than decorative (#76).
 
+And it is **self-accurate**: a universe carries its own facts, and no one shape holds
+every universe. That is why the types here are **contracts** — the id resolves, the
+plane is declared, the references resolve, the sources exist — rather than a single
+literal shape, and why a genuinely new value extends the union deliberately instead of
+being cast around. Self-accuracy is necessary; checkability is what makes it
+trustworthy.
+
 And it must be **real content**: a real event or a real work. "Fiction is modelled,
 not hidden" is the second half of the rule, not an exception to the first — a
 fictional film is real content *because it is a real work*, and its fictionality lives
