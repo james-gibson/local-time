@@ -28,8 +28,10 @@ in `realityRelation`. An invented work has no existence to model, however fictio
 its characters. `games/monopoly.ts` is the worked example: deleted (#113, #142) because
 it invented a Pixar short with no author, venue or publication. A real, published fan
 work would be recordable; this was not one. See `kagi.md` § Automatic Context
-Discovery. An event that belongs to an existing work's own timeline is a keyframe on
-that work, not a universe of its own.
+Discovery. Deleting the universe does not delete the connection: a fiction claim about
+a real work is documentable at the 42i plane layer (charge -1, `presupposes` the work,
+positive `tensor.w` — the *possible* rung), not as a universe. An event that belongs to
+an existing work's own timeline is a keyframe on that work, not a universe of its own.
 
 ## Pick a path
 

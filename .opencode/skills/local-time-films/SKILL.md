@@ -93,9 +93,15 @@ could exist between the films" is none of those — it is not a work at all.
 
 That is why `games/monopoly.ts` was **deleted** (#113, #142): it invented a 2005 Pixar
 short with no author, venue or publication, and attributed it to a real studio. The
-defect was the fabricated existence and attribution, not the fictional characters — a
-character's in-universe job is fiction data, not a reason to invent the work that
-contains it.
+defect was the fabricated existence and attribution, not the fictional characters.
+
+Deleting the universe does not delete the connection. A fiction claim about a real
+work is documentable at the **42i plane layer**, not as a universe: charge -1,
+`presupposes` the work, and a positive `tensor.w` in an `out == 0` block, because it is
+*possible* — the required compendium is present and the claim is anchored in it. It is
+not *unknown* (nothing required is missing) and not *really wrong* (no inverse
+compendium present). "Not documented" is not "not documentable". See
+`isotope/docs/lore-plane-mapping.md` §6.
 
 If an event belongs to an existing work's own timeline, it is a `FilmMoment` on that
 work, not a universe of its own.
