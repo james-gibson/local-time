@@ -1,5 +1,9 @@
 import { Universe } from '../../../core/types';
-import { createFilmUniverseId, isValidUniverseId } from '../../../core/universe-ids';
+import {
+  createFilmUniverseId,
+  isFilmUniverseId,
+  isValidUniverseId,
+} from '../../../core/universe-ids';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import { ConfigLoader } from '../../config-loader';
 import { UniverseRegistry } from '../../universe-registry';
@@ -37,6 +41,12 @@ const segments = (u: Universe): Array<{ id: string; start: bigint; end: bigint; 
 
 describe('Dungeons & Dragons: Honor Among Thieves (2023) universe (james-gibson/local-time#116)', () => {
   test('uses a pinned, valid film id — the punctuation cannot produce one', () => {
+    // The ticket's `film:paramount:…:2023` is four segments, so it passes only via
+    // the ANY_YEAR_TERMINATED catch-all (#50) — assert the *domain* guard, not the
+    // permissive one.
+    expect(isFilmUniverseId(String(dungeonsAndDragonsHonorAmongThievesUniverse.universeId))).toBe(
+      true,
+    );
     // The raw title does *not* produce this id: `toIdFragment` strips the `&`, so
     // deriving the id from `Dungeons & Dragons: Honor Among Thieves` gives
     // `dungeons_dragons_honor_among_thieves`. The readable slug is pinned

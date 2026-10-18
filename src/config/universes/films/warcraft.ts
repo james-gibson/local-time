@@ -12,12 +12,20 @@ import { distributedByRef, resolveFilmStudio } from '../studios';
  *
  * ## Id
  *
- * The ticket proposed `film:legendary:warcraft:2016`. That is not the film
- * vocabulary: a film id is `<studio-token>:<title>:<year>`, and `film:` is a
- * reserved namespace prefix, so `film:…` validates only through the
- * `ANY_YEAR_TERMINATED` catch-all (james-gibson/local-time#50). The distributor
- * is Universal, which *is* a registered studio token, so the id is
- * `universal:warcraft:2016` — the canonical `<studio>:<slug>:<year>` shape.
+ * The ticket proposed `film:legendary:warcraft:2016`. Two things are wrong with
+ * it, and both are measurable rather than stylistic:
+ *
+ * - It has **four** segments, and no declared pattern accepts that shape — only
+ *   the `ANY_YEAR_TERMINATED` catch-all (#50). `isValidUniverseId` therefore
+ *   returns `true` for it, which is exactly why the permissive validator is not
+ *   the guard to trust: assert the *domain* guard (`isFilmUniverseId`) instead.
+ * - `film` is the **generic studio token** (`GENERIC_FILM_STUDIO_TOKEN`), meaning
+ *   "no studio named" — not a namespace prefix, and not a distributor. Even as the
+ *   three-segment `film:warcraft:2016` it would have dropped the distributor.
+ *
+ * The film vocabulary is `<studio-token>:<title>:<year>`, and the distributor is
+ * Universal, which *is* a registered studio token — so the id names it:
+ * `universal:warcraft:2016`.
  *
  * ## The unsourced "Christopher Pike" premise (ticket §4)
  *

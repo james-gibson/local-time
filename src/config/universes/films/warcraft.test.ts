@@ -1,5 +1,9 @@
 import { Universe } from '../../../core/types';
-import { createFilmUniverseId, isValidUniverseId } from '../../../core/universe-ids';
+import {
+  createFilmUniverseId,
+  isFilmUniverseId,
+  isValidUniverseId,
+} from '../../../core/universe-ids';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import { ConfigLoader } from '../../config-loader';
 import { UniverseRegistry } from '../../universe-registry';
@@ -37,9 +41,13 @@ const segments = (u: Universe): Array<{ id: string; start: bigint; end: bigint; 
 
 describe('Warcraft (2016) universe (james-gibson/local-time#115)', () => {
   test('uses the canonical film id — <studio-token>:<slug>:<year>', () => {
-    // The ticket proposed `film:legendary:warcraft:2016`, which is not the film
-    // vocabulary: `film` is a reserved namespace prefix and the shape has four
-    // segments. The distributor's registered token is `universal`.
+    // The ticket proposed `film:legendary:warcraft:2016`, which is four segments:
+    // no declared pattern accepts it, so it passes only via the
+    // ANY_YEAR_TERMINATED catch-all (#50) and `isValidUniverseId` — the weak
+    // guard — says `true` for it. `film` is also the *generic* studio token
+    // ("no studio named"), not a namespace. The distributor's registered token is
+    // `universal`, so the domain guard is what this test asserts.
+    expect(isFilmUniverseId(String(warcraftFilmUniverse.universeId))).toBe(true);
     expect(warcraftFilmUniverse.universeId).toBe(
       createFilmUniverseId('universal', 'warcraft', 2016),
     );

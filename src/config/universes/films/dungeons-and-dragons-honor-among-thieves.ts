@@ -14,10 +14,12 @@ import { distributedByRef, resolveFilmStudio } from '../studios';
  * ## Id
  *
  * The title carries a colon and an ampersand, and the ticket's proposed
- * `film:paramount:…` shape is not the film vocabulary — a film id is
- * `<studio-token>:<title>:<year>`, and `film:` is a reserved prefix that only
- * passes through the `ANY_YEAR_TERMINATED` catch-all (james-gibson/local-time#50).
- * The distributor is Paramount, a registered studio token.
+ * `film:paramount:…` id has **four** segments — no declared pattern accepts that
+ * shape, so it passes only via the `ANY_YEAR_TERMINATED` catch-all (#50) and the
+ * permissive `isValidUniverseId`. (`film` is also the *generic* studio token,
+ * "no studio named", not a namespace.) The film vocabulary is
+ * `<studio-token>:<title>:<year>`, and the distributor is Paramount, a
+ * registered studio token.
  *
  * The id is **pinned explicitly** rather than derived from the title, because
  * `toIdFragment` strips the `&` and would emit `dungeons_dragons_…` — losing the
