@@ -106,6 +106,18 @@ and the JSON as downstream, exactly as `CONVENTIONS.md` already says about
 - **The smell.** An id that appears only on the right-hand side of edges. If an
   id is never a `universe-id:` of a document but is referenced by three, the
   reference count is the priority.
+- **Edges from declared compendia, not just from references.** The frontier has
+  two sources. A shim (or registry entry) names an original — that is what
+  inversion can see. A **declared** compendium's own `presupposes` edge names
+  something too, and inversion cannot see it, because nothing in the referencing
+  document mentions it. So **declaring one thing reveals the next hole**: declare
+  the shell and its `presupposes: [technology:tty:1971]` puts the terminal on the
+  frontier; declare the terminal and its `presupposes: [technology:teletype:1963]`
+  puts the 1963 hardware there. Walk the traversal, do not guess the wildcard.
+- **A `*` is not an id.** `namespace:name:year` has no wildcard slot. A family
+  like `technology:tty:*` has to be *expanded* into members, and the model
+  expresses the family with `parentUniverses` / `extends` — which are references
+  with their own resolver (below).
 
 ## When to leave it presumed
 
@@ -140,6 +152,22 @@ Declaring is not done when the markdown is written. Four gates, in order:
    recovered from a reference. `find` was recovered as `technology:find:1971` and
    is `1974` (Version 5, Programmer's Workbench). Updating it means updating the
    referencing entries too, so the edges keep pointing at the right id.
+5. **Resolve the parents — they are references too, with a stricter resolver.**
+   Every declared `parentUniverses` entry must resolve to a **container**, and a
+   container cannot be contributed by a universe module:
+   `COMMON_UNIVERSE_IDS.initializeHierarchies()` is a private static block of
+   hard-coded roots and `addHierarchy` is private. So inventing a container is the
+   same error as inventing an address, one level up — and it surfaces as a failing
+   test rather than a dangling edge:
+
+   ```
+   ● every declared parent in the tree resolves to a container
+   + "technology:tty:1971 -> TERMINALS"   (TERMINALS does not exist)
+   ```
+
+   Use a real container (`SOFTWARE_ENGINEERING`, `WORLD_HISTORY`, …), or file the
+   missing container as work — a family that keeps attracting compendia (shells,
+   terminals) deserves a root, and adding one is a core change (local-time#158).
 
 `references/shim-inversion.md` has the worked run, including the exact importer
 refusal and the corrected address.

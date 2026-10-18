@@ -155,3 +155,52 @@ Note `src/config/universes/imported/` is **git-ignored** ("the compendia live
 under the kb's private `lore/` root and this repo is public"), so none of step 2's
 output is committed here. The candidates are staged in `mcp-lab/lore/`; promotion
 into `kb/lore` is a separate step through that project's own tools.
+
+## Settling a wildcard: `technology:tty:*`
+
+Asked to settle `technology:tty:*`, the answer turned out to be *do not guess the
+wildcard — walk the traversal*. Two things fell out of it.
+
+**The frontier has a source inversion cannot see.** `lezz-path-shim` replaces
+"PATH assembly in `~/.zshrc`", and it referenced `technology:sh:1971`. Settling the
+shell meant declaring it — and a declared compendium's own `presupposes` edge is a
+reference too:
+
+```
+technology:sh:1977  presupposes: [technology:sh:1971, technology:tty:1971]
+technology:tty:1971 presupposes: [technology:teletype:1963]
+```
+
+Declaring the shell put the terminal on the frontier; declaring the terminal put
+the 1963 hardware there. No shim names any of them, so inversion alone would never
+have produced them. The generator now builds the frontier from **shim references ∪
+declared originals' `presupposes`** − declared:
+
+```
+presumed:  2
+  technology:ripgrep:2016     <- shim:rg-decoy:2026
+  technology:teletype:1963    <- technology:tty:1971
+```
+
+**The PATH referent was wrong, the same way `find`'s year was.** `PATH` as an
+environment variable is a **Bourne shell** feature (1977), not a Thompson shell one
+(1971) — the Thompson shell had no search path at all. So `lezz-path-shim` now
+points at `technology:sh:1977`, and both shells are declared with a `SUPERSEDES`
+edge between them. Two of the three declared corrections so far have been *wrong
+addresses recovered by inversion*; that is the expected failure rate for a guess.
+
+**And the containers were invented.** Declaring `tty`/`pty`/`sh` with
+`parentUniverses: [TERMINALS]` / `[SHELLS]` failed:
+
+```
+● every declared parent in the tree resolves to a container
++ "technology:tty:1971 -> TERMINALS"
+```
+
+`SHELLS` and `TERMINALS` do not exist, and a container cannot come from a universe
+module — `initializeHierarchies()` is a private static block of hard-coded roots
+and `addHierarchy` is private. So an invented *container* is an invented *address*
+one level up, caught by a test instead of a dangling edge. Fixed by using real
+containers (`SOFTWARE_ENGINEERING`, `WORLD_HISTORY`) and filing the missing roots
+as work (james-gibson/local-time#158); the seven declared universes then import and
+all register, 22/22.
