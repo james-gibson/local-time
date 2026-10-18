@@ -49,6 +49,13 @@ import {scotus2025Universes} from "./scotus-ot2025"
 // owner, and containment could not transit from a film, through its studio, up to
 // `HOLLYWOOD_SYSTEM` (james-gibson/local-time#111).
 import {filmStudioUniverses} from "./studios"
+// Three more universes that were defined and never handed to the registry
+// (james-gibson/local-time#153). `williamsDisneyAladdinDisputeUniverse` is re-exported
+// by the `historical` barrel and was simply not in the import list above; the other two
+// live in modules no barrel reached at all, so nothing imported them.
+import {williamsDisneyAladdinDisputeUniverse} from "./historical"
+import {homeEnergyLogSept2025Universe} from "./james/solar"
+import {damPodcastEpisodeUniverse} from "./podcast/hydrology-impacts"
 export const allUniverses = [
     ...filmUniverses,
   ...filmStudioUniverses,
@@ -101,6 +108,12 @@ export const allUniverses = [
   ...hillaryClintonConspiracyRebuttalsUniverses,
   ...scotus2013Universes,
   ...scotus2025Universes,
+  // james-gibson/local-time#153 — the three orphans not owned by the `cybersecurity`
+  // barrel. Registering them is the point: an unregistered universe is unreachable from
+  // every query, so `getOwner`/`contains`/search could not see them at all.
+  williamsDisneyAladdinDisputeUniverse,
+  homeEnergyLogSept2025Universe,
+  damPodcastEpisodeUniverse,
 ];
 
 export const allNetworks = [

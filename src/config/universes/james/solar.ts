@@ -118,7 +118,10 @@ export const homeEnergyLogSept2025Universe: Universe = {
         ] as Keyframe[],
         windows: {
             strategy: 'time_based',
-            avgWindowSize: 900, // 15 minutes in seconds
+            // 15 minutes as a bigint, matching every other universe; the literal `900`
+            // predates the field being typed and only survived the `as unknown as
+            // Universe` cast below (james-gibson/local-time#153).
+            avgWindowSize: 900n,
             description: 'Data is structured in 15-minute intervals as provided by the utility meter.',
         },
     },
@@ -137,16 +140,24 @@ export const homeEnergyLogSept2025Universe: Universe = {
     },
 
     attribution: {
-        copyright_holders: ['Anonymous User'],
-        copyright_year: 2025,
-        copyright_status: CopyrightStatus.PRIVATE,
-        public_domain: false,
+        // Rewritten in the current `Attribution` shape when this universe was registered
+        // (james-gibson/local-time#153). It carried the retired flat fields —
+        // `copyright_holders` / `copyright_year` / `copyright_status` — which nothing
+        // reads, so `hasProvenance` was false and the corpus invariant in
+        // `universe-builder-behaviour.test.ts` would not accept it. `status` is `active`
+        // rather than the old `PRIVATE`: the `Attribution` union has no private member,
+        // and the privacy intent is already carried by `usage_restrictions`.
+        copyright: {
+            holders: ['Anonymous User'],
+            year: 2025,
+            status: CopyrightStatus.ACTIVE,
+        },
+        citations_required: false,
         usage_restrictions: [
             UsageRestriction.INTERNAL_ANALYSIS_ONLY,
             UsageRestriction.NO_COMMERCIAL_USE,
             UsageRestriction.ANONYMIZATION_REQUIRED,
         ],
-        citations_required: false,
     },
 
     metadata: {
