@@ -6,12 +6,16 @@ import { dieHard1988Universe } from './die-hard';
 import { starWarsUniverses } from './star-wars';
 import { twentiethCenturyFoxMajorReleases } from './20th';
 import { colombiaFilmUniverses } from './colombia';
+import { warcraftFilmUniverse } from './warcraft';
+import { dungeonsAndDragonsHonorAmongThievesUniverse } from './dungeons-and-dragons-honor-among-thieves';
 
 export * from './20th';
 export * from './marvel';
 export * from './die-hard';
 export * from './star-wars';
 export * from './colombia';
+export * from './warcraft';
+export * from './dungeons-and-dragons-honor-among-thieves';
 
 /**
  * # The film namespace
@@ -47,6 +51,8 @@ export const filmUniverses = [
   dieHard1988Universe,
   ...twentiethCenturyFoxMajorReleases,
   ...colombiaFilmUniverses,
+  warcraftFilmUniverse,
+  dungeonsAndDragonsHonorAmongThievesUniverse,
 ];
 
 // MCP Integration for film universe generation
