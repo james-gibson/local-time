@@ -27,13 +27,22 @@ import { diabloUniverses } from './diablo/diablo-series';
  * See james-gibson/local-time#113 and #142.
  *
  * Deleting the universe does not delete the connection. "The toys played Monopoly
- * and Woody held a real job in it" is not documented, but it is documentable: at the
- * 42i plane layer it is a *possible* claim (the required compendium — Toy Story — is
- * present, and the claim is anchored in it), so it takes a positive `tensor.w` in an
- * `out == 0` block, with charge -1 and `presupposes: [pixar:toy_story:1995]`. It is
- * not *unknown* (nothing required is missing) and not *really wrong* (no inverse
- * compendium is present). A universe is the wrong container for it; a fiction-plane
- * compendium is the right one. See `isotope/docs/lore-plane-mapping.md` §6.
+ * and Woody held a real job in it" is not documented, but it is documentable. `42i`
+ * is the working-hypothesis anchor (`0+42i`), against `42` (`42+0i`), the
+ * proven-consensus anchor; a compendium is a *feature* — Gherkin in the domain's own
+ * vocabulary: Given its zero/`presupposes`/anchors, When its keyframes, Then its
+ * claims — and the answer is the combination of feature and receipt. This claim's
+ * feature is declarable and its receipt is absent:
+ *
+ *   - possible (the required compendium, Toy Story, is present and the claim is
+ *     anchored in it): a positive `tensor.w` in an `out == 0` block, charge -1,
+ *     `presupposes: [pixar:toy_story:1995]`;
+ *   - not unknown (nothing required is missing) and not really wrong (no inverse
+ *     compendium present).
+ *
+ * A universe is the wrong container for a declared feature; a fiction-plane
+ * compendium is the right one. See `kb/scripts/lab/SPLASH.md` (Decomposition by
+ * feature) and `isotope/docs/lore-plane-mapping.md` §6.
  *
  * The constraint is scoped: "no fictional character in real attribution" bounds
  * `attribution.creators`, not the fiction plane or the connection. 42i's inverse is

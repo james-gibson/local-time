@@ -95,12 +95,28 @@ That is why `games/monopoly.ts` was **deleted** (#113, #142): it invented a 2005
 short with no author, venue or publication, and attributed it to a real studio. The
 defect was the fabricated existence and attribution, not the fictional characters.
 
-Deleting the universe does not delete the connection. A fiction claim about a real
-work is documentable at the **42i plane layer**, not as a universe: charge -1,
-`presupposes` the work, and a positive `tensor.w` in an `out == 0` block, because it is
-*possible* — the required compendium is present and the claim is anchored in it. It is
-not *unknown* (nothing required is missing) and not *really wrong* (no inverse
-compendium present). "Not documented" is not "not documentable". See
+Deleting the universe does not delete the connection. `kagi.md` and 42i answer
+different questions: `kagi.md` decides what is **real content** (a universe); 42i
+decides what is **representable**. `42i` is the working-hypothesis anchor (`0+42i`),
+against `42` (`42+0i`), the proven-consensus anchor — and the two are never mixed in
+one run.
+
+A compendium is a **feature**, which is Gherkin in the domain's own vocabulary:
+*Given* its zero, `presupposes` and anchors, *When* its keyframes, *Then* its claims.
+The answer is the combination of the declared feature and the observed receipt, and
+it is the 42i value; the rung is the bucket it falls into. A declared feature with no
+receipt is a **working hypothesis** — representable and evaluable, not a fact you
+assert and not an absence you delete. That is what "documentable" means here:
+
+- charge -1, `presupposes` the work, positive `tensor.w` in an `out == 0` block: the
+  claim is *possible* (the required compendium is present and the claim is anchored in
+  it);
+- not *unknown* (nothing required is missing) and not *really wrong* (no inverse
+  compendium present);
+- the feature is declared; the receipt — a published fan work — does not exist, so
+  nothing is documented yet.
+
+See `kb/scripts/lab/SPLASH.md` (*Decomposition by feature*) and
 `isotope/docs/lore-plane-mapping.md` §6.
 
 The constraint is **scoped to the container**, not to the claim. "A fictional

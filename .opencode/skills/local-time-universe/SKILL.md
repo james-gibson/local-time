@@ -28,16 +28,18 @@ in `realityRelation`. An invented work has no existence to model, however fictio
 its characters. `games/monopoly.ts` is the worked example: deleted (#113, #142) because
 it invented a Pixar short with no author, venue or publication. A real, published fan
 work would be recordable; this was not one. See `kagi.md` § Automatic Context
-Discovery. Deleting the universe does not delete the connection: a fiction claim about
-a real work is documentable at the 42i plane layer (charge -1, `presupposes` the work,
-positive `tensor.w` — the *possible* rung), not as a universe. Keep the constraint
-**scoped to its container**: "no fictional character in real attribution" bounds
-`attribution.creators`, not the fiction plane — and 42i's inverse is keyframe-scoped
-for the same reason. The point of that context is the next calculation: "has Woody
-ever produced a film?" answers *no* in the real sector and *yes, in the fan work* in
-the fiction sector; a fictional name in the real credit block turns the same query
-into a false real-world fact. An event that belongs to an existing work's own timeline
-is a keyframe on that work, not a universe of its own.
+Discovery. Deleting the universe does not delete the connection: `42i` is the
+working-hypothesis anchor (`0+42i`) against `42` (`42+0i`), and a compendium is a
+*feature* — Given its zero/`presupposes`/anchors, When its keyframes, Then its claims —
+so a fiction claim about a real work stays declarable (charge -1, `presupposes` the
+work, positive `tensor.w` — *possible*), not as a universe, with the receipt absent.
+Keep the constraint **scoped to its container**: "no fictional character in real
+attribution" bounds `attribution.creators`, not the fiction plane — and 42i's inverse
+is keyframe-scoped for the same reason. The point of that context is the next
+calculation: "has Woody ever produced a film?" answers *no* in the real sector and
+*yes, in the fan work* in the fiction sector; a fictional name in the real credit block
+turns the same query into a false real-world fact. An event that belongs to an existing
+work's own timeline is a keyframe on that work, not a universe of its own.
 
 ## Pick a path
 
