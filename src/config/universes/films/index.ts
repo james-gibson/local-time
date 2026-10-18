@@ -16,6 +16,9 @@ export * from './star-wars';
 export * from './colombia';
 export * from './warcraft';
 export * from './dungeons-and-dragons-honor-among-thieves';
+// The assembly shim, so a new film is `import { createFilmUniverse } from '../films'`.
+// The registration walk skips functions, so exporting it here is inert to that test.
+export * from './film-universe';
 
 /**
  * # The film namespace

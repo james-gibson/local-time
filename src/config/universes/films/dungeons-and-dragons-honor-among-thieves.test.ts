@@ -136,6 +136,35 @@ describe('Dungeons & Dragons: Honor Among Thieves (2023) universe (james-gibson/
     expect(dungeonsAndDragonsHonorAmongThievesUniverse.realityRelation.type).toBe('pure_fiction');
   });
 
+  /**
+   * The universe is now assembled by `createFilmUniverse(spec)` rather than hand-authored, so
+   * these are the fields the shim owns: what a hand-written literal used to carry, and a spec
+   * could silently lose.
+   */
+  test('carries the provenance and metadata the spec declares', () => {
+    const u = dungeonsAndDragonsHonorAmongThievesUniverse;
+    expect(u.metadata?.canonicalName).toBe('Dungeons & Dragons: Honor Among Thieves');
+    expect(u.metadata?.released).toEqual(new Date('2023-03-31'));
+    expect(u.metadata?.cultural_significance).toBe(0.78);
+    expect(u.attribution.sources).toHaveLength(3);
+    expect(u.attribution.usage_restrictions).toHaveLength(2);
+    expect((u.metadata as { based_on?: string[] }).based_on).toEqual(['Dungeons & Dragons by Hasbro']);
+    expect(u.temporalStructure?.windows.strategy).toBe('scene_based');
+  });
+
+  test('acts keep their prose (#100) and partition the runtime', () => {
+    const u = dungeonsAndDragonsHonorAmongThievesUniverse;
+    const acts = (u.temporalStructure?.segments ?? []) as Array<{
+      id: string;
+      start: bigint;
+      end: bigint;
+      description?: string;
+    }>;
+    expect(acts.every((a) => typeof a.description === 'string' && a.description.length > 0)).toBe(
+      true,
+    );
+  });
+
   test('projects as fiction', () => {
     const gradient = RealityGradientAnalyzer.analyzeUniverse(
       dungeonsAndDragonsHonorAmongThievesUniverse,
