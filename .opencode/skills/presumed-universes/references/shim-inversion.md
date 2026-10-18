@@ -202,5 +202,26 @@ module — `initializeHierarchies()` is a private static block of hard-coded roo
 and `addHierarchy` is private. So an invented *container* is an invented *address*
 one level up, caught by a test instead of a dangling edge. Fixed by using real
 containers (`SOFTWARE_ENGINEERING`, `WORLD_HISTORY`) and filing the missing roots
-as work (james-gibson/local-time#158); the seven declared universes then import and
-all register, 22/22.
+as work (james-gibson/local-time#158).
+
+**And one universe was invented outright.** `technology:pty:1983` was declared with
+**zero inbound references** — nothing referenced it; it existed because the
+wildcard made terminals salient. Every gate passed on it: build, import, 22/22
+jest, registered. It was **removed**, not stubbed (a stub is for something
+*referenced*), and `generate.py` now reports grounding so the next orphan is
+visible:
+
+```
+grounding: 6 of 6 originals referenced by something in the graph
+  technology:sh:1977    <- shim:lezz-path-shim:2026
+  technology:sh:1971    <- technology:sh:1977           (1 asserted, not referenced)
+  technology:tty:1971   <- technology:sh:1971, sh:1977  (2 asserted, not referenced)
+```
+
+The counts matter more than the pass/fail. `tty` *is* reachable — the chain
+terminates at a shim reference — but the last two hops are edges the model wrote
+answering the wildcard, not references. Grounding catches the orphan and reports
+the assertion depth; it cannot catch a plausible assertion. That is the limit, and
+it is why the rule is about *why* a thing was declared rather than about whether it
+resolves: **a declaration cites the reference that demanded it, or states that it is
+a root — and a `*` is a question, not a reference.**

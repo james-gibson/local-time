@@ -183,6 +183,47 @@ and the charge graph or consensus disagrees. Front-load the cheap structural che
 mark an overridden address as a hypothesis that moved; and keep presumed nodes off
 the charge graph so a wrong id cannot pollute it while it is wrong.
 
+## The fourth class: invented referents
+
+There is a class worse than all three above, and it is the one to watch for when
+working from prose rather than from a reference.
+
+Asked to settle `technology:tty:*` — a `*`, which is not an id and never was a
+reference — the registry grew `tty`, `pty`, `sh:1971`, `sh:1977` and a presumed
+`teletype:1963`. Every gate passed: build `6/0`, import 6 modules, `jest 22/22`,
+`test:scripts 13/13`, all registered. And **`technology:pty:1983` had zero inbound
+references.** Nothing referenced it. It existed because a wildcard made terminals
+salient.
+
+That is **a referent with no ground truth at all** — not a wrong address, an
+unrequested one. It is invisible to every resolver, every structural check and the
+charge graph, because the artifact is internally consistent and nothing dangles.
+The only detector is asking *what demanded this*, and answering from the graph
+rather than from the prose that raised it.
+
+So: a universe may be declared for two reasons and no third — **something
+references it** (a shim, or a declared compendium's `presupposes`), or **it is a
+root with the reason stated**. A grounding report distinguishes the two and counts
+**asserted** edges (ones a compendium wrote) separately from **referenced** ones
+(a shim named it):
+
+```
+technology:sh:1977    <- shim:lezz-path-shim:2026
+technology:tty:1971   <- technology:sh:1971, sh:1977  (2 asserted, not referenced)
+```
+
+Note the limit, and state it rather than hide it: grounding catches the *orphan*
+but not the *plausible assertion*. `tty` is reachable — the chain terminates at
+`sh:1977`, which a shim references — yet the last two hops are edges the model
+wrote in response to the wildcard. **Inventing one true-sounding edge launders
+everything downstream of it.** Reachability alone would call that grounded.
+
+The rule:
+
+> **A declaration cites the reference that demanded it, or states that it is a
+> root. There is no third category — and a `*` is a question, not a reference, so
+> it is refused at the first token rather than resolved.**
+
 ## Verifying a promotion
 
 Declaring is not done when the markdown is written. Four gates, in order:
