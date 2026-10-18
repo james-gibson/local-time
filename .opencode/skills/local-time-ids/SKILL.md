@@ -16,6 +16,32 @@ The rule this skill exists to enforce:
 > *domain* guard or the *factory* for the kind of thing you are writing, and prove
 > that every id you *reference* resolves to a registered universe.
 
+## 0. What the pattern promises — and what it does not
+
+The pattern is not a prediction of every id shape the corpus will ever need. It is a
+**small deal** between the recorder and the referencer:
+
+> I will record ids in this shape. If you reference one, this is how to read it.
+
+That is why the general form is `<ns>:<subject>[:<sub>]:<year>`, and why
+`ANY_YEAR_TERMINATED` accepts shapes no declared domain owns: the recorder may not know
+yet whether a subject needs a middle segment, and the deal still holds as long as the id
+is well-formed and year-terminated. The pattern commits to enough shape for a reference
+to resolve; it does not presume the shape of future subjects.
+
+Two claims must not be collapsed:
+
+- **`isValidUniverseId`** — "this is a *referenceable* id". The permissive catch-all is
+  the deal working, not a proof of a domain.
+- **the domain guard** (`isFilmUniverseId`, `isHistoricalUniverseId`, …) — "I *claim*
+  this is a film id". A four-segment shape the catch-all accepts can still fail this, and
+  that is the guard doing its job, not the pattern contradicting itself.
+
+An id carries **addressability, not existence or charge**. `film:<slug>:<year>` names a
+place a reader can look; whether a work with that name exists, and in which plane, is
+`realityRelation` / the plane block. Deleting content does not invalidate the name any
+more than naming it asserted the content.
+
 ## 1. Why `isValidUniverseId` is not a proof
 
 ```ts
