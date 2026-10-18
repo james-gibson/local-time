@@ -36,10 +36,14 @@ its characters. `games/monopoly.ts` is the worked example: deleted (#113, #142) 
 it invented a Pixar short with no author, venue or publication. A real, published fan
 work would be recordable; this was not one. See `kagi.md` § Automatic Context
 Discovery. Deleting the universe does not delete the connection: `42i` is the
-working-hypothesis anchor (`0+42i`) against `42` (`42+0i`), and a compendium is a
+working-hypothesis anchor (`0+42i`) against `42` (`42+0i`) — `42` being the shared
+zero, the plane where every universe agrees where `0` is — and a compendium is a
 *feature* — Given its zero/`presupposes`/anchors, When its keyframes, Then its claims —
 so a fiction claim about a real work stays declarable (charge -1, `presupposes` the
-work, positive `tensor.w` — *possible*), not as a universe, with the receipt absent.
+work, positive `tensor.w` — *possible*), not as a universe, with the receipt absent. A
+compendium is comparable to the system only once it declares **internal direction**
+(the encoder, from `reality-gradient` + `zero-status`) and **rotational positioning**
+(its charge and signed `tensor` weights); absence is no plane, never charge `0`.
 Keep the constraint **scoped to its container**: "no fictional character in real
 attribution" bounds `attribution.creators`, not the fiction plane — and 42i's inverse
 is keyframe-scoped for the same reason. The point of that context is the next

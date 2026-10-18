@@ -115,6 +115,33 @@ decides what is **representable**. `42i` is the working-hypothesis anchor (`0+42
 against `42` (`42+0i`), the proven-consensus anchor — and the two are never mixed in
 one run.
 
+`42` is the plane where **every other universe agrees where `0` is** — the shared
+zero. The agreements that make a shared zero possible are increasing, and each
+presupposes the one before:
+
+```text
+null
+null exists
+0 is not null
+-1 < 0
+0 < 1
+```
+
+The model then presupposes a limit theorem and fixes `42` where the agreements
+converge. That is why **absence is expressed as no plane, never as `0`** in a charge
+list — a neutral charge cannot enter the graph (`ErrDisconnected`) — and why charges
+are sector labels, not magnitudes.
+
+For the shared zero to be computable, each compendium declares two things:
+
+- **internal direction** — its own axis and ordering: the encoder, from
+  `reality-gradient` (the real tier) and `zero-status` (the imaginary 42i distance);
+- **rotational positioning** — where that axis sits relative to the system: its charge
+  (the sector label) and its signed `tensor` weights (how it couples).
+
+With both, the edge tensor, transport, holonomy and three-point key are defined — and
+only then is the compendium comparable to the rest of the system.
+
 A compendium is a **feature**, which is Gherkin in the domain's own vocabulary:
 *Given* its zero, `presupposes` and anchors, *When* its keyframes, *Then* its claims.
 The answer is the combination of the declared feature and the observed receipt, and
