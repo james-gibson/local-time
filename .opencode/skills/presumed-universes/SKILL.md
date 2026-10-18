@@ -190,6 +190,55 @@ Two consequences the rule depends on:
 That is `CONVENTIONS.md`'s "absence is not a zero value" one level up — about the
 record's own edge rather than about a value inside it.
 
+### Why the horizon is a *field*: streams are integrals
+
+The horizon is not a nicety, and the reason is arithmetic. An output stream is the
+**integral** of a plane's charge, and **differentiation annihilates the constant of
+integration** — which sorts the two deferral sources onto the map:
+
+| `deferred-because` | position | detector |
+| --- | --- | --- |
+| `rank` | in the **image** — derivable, just not the demanded member | priority |
+| `horizon` | in the **kernel** — annihilated, so no derivation recovers it | nothing; carry it |
+
+A truth check *is* a derivation, so a `horizon` deferral is by construction what every
+derivation loses. And it is worse than incomplete: a record that drops its constant is
+**underdetermined** — the stated-bound record and the silent one are two *different*
+records, not one record and a gap.
+
+The everyday instance is **budgeting**. You spend a dollar a day and started with $100
+three weeks ago — when will the bank yell? The spend is the derivative, the balance is
+the integral, and **the $100 from three weeks ago is the constant of integration**, and
+it is nowhere in the transaction log. From the log alone you can *differentiate* but you
+cannot *integrate back*, so the rate cannot answer the question at all. The opening
+balance is deferred, not absent: it is precisely the datum the log's own operators lose.
+
+And time is a stream just like a tty, so the apparatus transfers whole: the **calendar
+is the line discipline**, the ordinal framing is the `--color` that a pipe strips, and a
+**pty** is a *substituted* discipline — the same stream, a synthetic framing, valid
+output. `isatty` tells you a discipline is attached and never **which**, which is the
+final reason the horizon entry records the **frame** (`presumes`, and only *probably*
+`presupposes`) and not merely the value.
+
+And this is not a metaphor bolted on: `local-time` already implements it in the 42i
+addressing layer (`src/addressing/temporal-42i.ts`). The correspondence is exact, which
+is why a deferred entry should be liftable rather than special-cased:
+
+| stream | 42i |
+| --- | --- |
+| the integral (anchored elapsed time) | `re` |
+| **the constant of integration** | `im` — "the part of the label that is not anchored" |
+| the horizon, and how firmly it is held | the zeroth + `zeroStatus` |
+| ground truth | `im = 0`, `magnitude = hypot(re, im)` minimal |
+| **no discipline attached** (a raw stream) | `zeroStatus: 'unestablished'` → `re = null` |
+| **a substituted discipline** (the pty) | `literal: true` on an unestablished zeroth |
+
+So a `deferred` entry is a **pure-imaginary point**: `re = null`, `im ≠ 0`, and it can
+never reach ground truth — its magnitude has an irreducible floor above 42. That is
+"no derivation recovers it", stated in the repo's own vocabulary. `presumed` and
+`deferred` are not the same state: a presumption is a promise that a derivation will
+arrive; a deferral says none will.
+
 ## A permissive id space lets an agent be wrong first
 
 `CONVENTIONS.md`: *"every universe-id is valid, and nothing here constrains what an
