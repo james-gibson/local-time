@@ -183,23 +183,30 @@ and the charge graph or consensus disagrees. Front-load the cheap structural che
 mark an overridden address as a hypothesis that moved; and keep presumed nodes off
 the charge graph so a wrong id cannot pollute it while it is wrong.
 
-## The fourth class: invented referents
+## The class with no truth signal: valid but unranked
 
-There is a class worse than all three above, and it is the one to watch for when
-working from prose rather than from a reference.
+There is a class worse than all three above, and naming it correctly took a
+correction.
 
-Asked to settle `technology:tty:*` — a `*`, which is not an id and never was a
-reference — the registry grew `tty`, `pty`, `sh:1971`, `sh:1977` and a presumed
-`teletype:1963`. Every gate passed: build `6/0`, import 6 modules, `jest 22/22`,
-`test:scripts 13/13`, all registered. And **`technology:pty:1983` had zero inbound
-references.** Nothing referenced it. It existed because a wildcard made terminals
-salient.
+A question like `technology:tty:*` is a **query** — a request for a set. Its members
+are not true or false; they are *ranked*. A wrong member is not a lie. Getting this
+right matters because the two failures have different detectors:
 
-That is **a referent with no ground truth at all** — not a wrong address, an
-unrequested one. It is invisible to every resolver, every structural check and the
-charge graph, because the artifact is internally consistent and nothing dangles.
-The only detector is asking *what demanded this*, and answering from the graph
-rather than from the prose that raised it.
+| axis | detector | catches |
+| --- | --- | --- |
+| **is it real?** | a truth check | fabrication. Cannot touch this case. |
+| **is it the best answer?** | rank against demand | this case. Not satisfiable by facts, because every fact is true. |
+
+The concrete instance: `pty` was committed as though the query had demanded it. It
+is real, it is genuinely part of the terminal family, and it was a *valid* answer —
+just not the demanded member, because the shim's behaviour turns on `isatty(1)` and
+the line discipline, which is `tty`, not the pty a harness allocates one level out.
+
+**An accurate answer to a question nobody asked is harder to catch than a
+hallucination**, and that is the point worth carrying: nothing dangles, every gate
+is green, and the answer is true. Even so, it is still an *orphan* — nothing
+referenced it — and that is a structural fact, so the detector exists after all: ask
+what demanded the declaration, not whether it is correct.
 
 So: a universe may be declared for two reasons and no third — **something
 references it** (a shim, or a declared compendium's `presupposes`), or **it is a
@@ -212,16 +219,21 @@ technology:sh:1977    <- shim:lezz-path-shim:2026
 technology:tty:1971   <- technology:sh:1971, sh:1977  (2 asserted, not referenced)
 ```
 
-### And rejection is not absence
+### Deferred is not false, and deferral is not absence
 
-The first instinct is to *delete* the orphan — "absence is the honest state". It is
-not, and the reason is worth keeping. Deleting a considered id collapses a
-**determined** absence into an **undetermined** one. An id that was thought of,
-evaluated and judged un-demanded is a *negative fact*; an id that never came up is
-not the same object.
+Two corrections back, the move was to *delete* the orphan and call absence the
+honest state. Wrong twice over.
 
-> `CONVENTIONS.md`: **absence is not a zero value** — do not read "unknown" as `0`.
-> The mirror: **a considered absence is not absence** — do not read "rejected" as
+**It was not false.** `rejected` would imply the subject was invented; the subject
+is real and the *rank* was wrong. So the state is **deferred**: a rejection is about
+truth, a deferral is about order, and only one of those describes what happened.
+
+**And deletion cannot restore the undetermined state.** An id that was thought of,
+evaluated and ranked is a *negative fact*; an id that never came up is a different
+object:
+
+> `CONVENTIONS.md`: **absence is not a zero value** — don't read "unknown" as `0`.
+> The mirror: **a considered absence is not absence** — don't read "deferred" as
 > "never considered".
 
 Symmetric failure, same shape. So there are **three states, not two-plus-a-hole**:
@@ -230,13 +242,13 @@ Symmetric failure, same shape. So there are **three states, not two-plus-a-hole*
 | --- | --- | --- |
 | **declared** | a reference demanded it | yes, with charges |
 | **presumed** | referenced, not yet declared | no — `charges: []` |
-| **rejected** | considered, determined un-demanded | no, and not stubbed |
+| **deferred** | a valid answer that is not the best answer | no, and not stubbed |
 
-Deletion also destroys the **trail**: the rejected set *is* the blast radius of
-whatever raised the id. Delete it and the artifact reads as though the prompt never
+Deletion also destroys the **trail**: the deferred set *is* the blast radius of
+whatever raised the id. Delete it and the artifact reads as though the query never
 happened — laundering the failure by subtraction, the mirror of laundering it by
-inventing a plausible edge. So rejections carry `reconsider:` / `revisit-if:` and
-stay. A rejection is reversible; silence is not.
+inventing a plausible edge. So deferrals carry `valid-answer-to`, `not-best-because`
+and `revisit-if`, and they stay: a deferral is reversible, silence is not.
 
 Note the limit, and state it rather than hide it: grounding catches the *orphan*
 but not the *plausible assertion*. `tty` is reachable — the chain terminates at

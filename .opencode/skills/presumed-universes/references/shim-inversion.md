@@ -204,11 +204,13 @@ one level up, caught by a test instead of a dangling edge. Fixed by using real
 containers (`SOFTWARE_ENGINEERING`, `WORLD_HISTORY`) and filing the missing roots
 as work (james-gibson/local-time#158).
 
-**And one universe was invented outright.** `technology:pty:1983` was declared with
-**zero inbound references** — nothing referenced it; it existed because the
-wildcard made terminals salient. Every gate passed on it: build, import, 22/22
-jest, registered. `generate.py` now reports grounding so the next orphan is
-visible:
+**And one universe was a valid answer that was not the best answer.** `technology:pty:1983`
+was declared with **zero inbound references**. It was not invented — pty(4) is real
+and is genuinely part of the terminal family — it was simply not the member the
+query demanded, because the shim's behaviour turns on `isatty(1)` and the line
+discipline, which is `tty`. Every gate passed on it anyway: build, import, 22/22
+jest, registered. A ranking failure has no truth signal, which is what makes it the
+harder case. `generate.py` now reports grounding, so the orphan is visible:
 
 ```
 grounding: 6 of 6 originals referenced by something in the graph
@@ -223,13 +225,15 @@ answering the wildcard, not references. Grounding catches the orphan and reports
 the assertion depth; it cannot catch a plausible assertion. That is the limit, and
 it is why the rule is about *why* a thing was declared rather than about whether it
 resolves: **a declaration cites the reference that demanded it, or states that it is
-a root — and a `*` is a question, not a reference.**
+a root — and a `*` is a query, not a reference.**
 
-**The orphan was not deleted.** The first move was to remove `pty` and call absence
-the honest state; that is wrong. Deleting a considered id collapses a *determined*
-absence into an *undetermined* one — the mirror of `CONVENTIONS.md`'s "absence is
-not a zero value". `pty` is now **rejected**: retained, with `demand: none`,
-`provenance` (it came from the wildcard), `rejected-because`, and `revisit-if`.
-Three states, not two-plus-a-hole (declared / presumed / rejected), and the rejected
-entry is also the record of how far the star propagated — delete it and the artifact
-reads as though the star never happened.
+**The orphan was not deleted, and not called false.** The first move was to remove
+`pty` and call absence the honest state; that collapses a *determined* absence into
+an *undetermined* one — the mirror of `CONVENTIONS.md`'s "absence is not a zero
+value". The second move called it invented, which implied the subject was unreal;
+it is not. `pty` is now **deferred**: retained with `valid-answer-to`, `rank`,
+`demand: none`, `provenance`, `not-best-because` and `revisit-if`. Three states, not
+two-plus-a-hole (declared / presumed / deferred), and the deferred entry is the
+record of how far the query propagated — delete it and the artifact reads as though
+the query never happened.
+
