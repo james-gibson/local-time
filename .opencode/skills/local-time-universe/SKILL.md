@@ -33,8 +33,11 @@ a real work is documentable at the 42i plane layer (charge -1, `presupposes` the
 positive `tensor.w` — the *possible* rung), not as a universe. Keep the constraint
 **scoped to its container**: "no fictional character in real attribution" bounds
 `attribution.creators`, not the fiction plane — and 42i's inverse is keyframe-scoped
-for the same reason. An event that belongs to an existing work's own timeline is a
-keyframe on that work, not a universe of its own.
+for the same reason. The point of that context is the next calculation: "has Woody
+ever produced a film?" answers *no* in the real sector and *yes, in the fan work* in
+the fiction sector; a fictional name in the real credit block turns the same query
+into a false real-world fact. An event that belongs to an existing work's own timeline
+is a keyframe on that work, not a universe of its own.
 
 ## Pick a path
 

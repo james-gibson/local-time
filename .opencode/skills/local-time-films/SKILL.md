@@ -112,6 +112,13 @@ the Ford's Theatre fire defeats one Lincoln keyframe, not "Lincoln was assassina
 Drop the scope and the rule swallows the claim it was meant to bound: the fiction gets
 deleted, or it gets promoted to real attribution.
 
+The reason to keep the context explicit is the **next calculation**. With Woody out
+of the real credit block and the claim in the fiction plane, "has Woody ever produced
+a film?" answers *no* in the real sector and *yes, in this fan work* in the fiction
+sector. Put him in `attribution.creators` and the same query answers *yes* — a false
+real-world fact produced by a field that looked like metadata. Attribution and
+metadata are not bookkeeping; they are what makes the next agent's query correct.
+
 If an event belongs to an existing work's own timeline, it is a `FilmMoment` on that
 work, not a universe of its own.
 

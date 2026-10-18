@@ -38,6 +38,11 @@ import { diabloUniverses } from './diablo/diablo-series';
  * The constraint is scoped: "no fictional character in real attribution" bounds
  * `attribution.creators`, not the fiction plane or the connection. 42i's inverse is
  * keyframe-scoped for the same reason — a defeat is never a general negation.
+ *
+ * Sourcing is for the next calculation: with Woody out of the real credits and the
+ * claim in the fiction plane, "has Woody ever produced a film?" answers no in the
+ * real sector and yes in this fan work. In `attribution.creators`, the same query
+ * answers yes — a false fact produced by a metadata field.
  */
 export const gamesUniverses: Universe[] = [...pokemonUniverses, ...diabloUniverses];
 
