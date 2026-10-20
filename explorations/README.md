@@ -47,7 +47,7 @@ written down here.
 | `TemporalReferenceGraph` / `TemporalNode` / `TemporalEdge` | `types.md:338-355`, `multi.md:307-328` | not implemented | #82 (noted) |
 | `TimePrecision` | `types.md:357-367` | `src/core/types.ts` | — |
 | `TemporalAddress` (structured) | `types.md:12-17` | not implemented as such; addressing is a string | #38 |
-| Works as temporal nodes (runtime / narrative / production epochs) | `example.ts.md:426-530` | partial: layers + epochs; `robin-williams.ts` models a runtime epoch | — |
+| Works as temporal nodes (runtime / narrative / production epochs) | `example.ts.md:426-530` | `src/core/temporal-domains.ts`; every work has `runtime`, the other two only when documented. All three on `maryPoppinsUniverse` | **#150** |
 | Address formats — **two, conflicting** | `prompt.md:95-99` (dot) vs `example.ts.md:536` (colon) | `src/addressing/zero-reference-addressing.ts` (colon, fixed-count slice) | **#38** |
 | Semantic window relations (`WindowRelationship`) | `proposal.md:204-232` | not implemented | #82 |
 | Window hierarchy (`WindowHierarchy`, `cal:1916` → months/quarters/named periods) | `proposal.md:264-285` | not implemented | #82 |
