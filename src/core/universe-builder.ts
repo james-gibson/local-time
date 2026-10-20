@@ -1,6 +1,7 @@
 import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalSegment, TemporalLayer, RealityRelation, Attribution, UniverseReference, CreatorAssignments } from './types';
 import { UniverseId, createFilmUniverseId, isValidUniverseId } from './universe-ids';
 import { creatorNames, creatorRefs, mergeCreatorRefs, normaliseCreatorName } from './creators';
+import { TemporalDomain, temporalDomainLayer } from './temporal-domains';
 
 /**
  * Universe types that are not required to carry a timeline. A specification describes a
@@ -171,6 +172,28 @@ export class UniverseBuilder {
       precision: TimePrecision.SECOND,
       description: `${minutes} minute runtime`
     });
+    return this;
+  }
+
+  /**
+   * Add a calendar domain (#150). `narrative` is the story's real-calendar time and
+   * `production` is when the work was made; `runtime` — the third domain — is
+   * `withRuntime()`.
+   *
+   * Calling it twice for the same domain replaces the layer, so a builder cannot end up
+   * with two `narrative` axes. Omit a domain when it is not documented: a work set in an
+   * invented world has no narrative date, and the omission says so.
+   */
+  withTemporalDomain(
+    domain: Exclude<TemporalDomain, 'runtime'>,
+    start: string | Date,
+    end: string | Date,
+    precision: TimePrecision = TimePrecision.DAY,
+    description = '',
+  ): this {
+    const layer = temporalDomainLayer(domain, start, end, precision, description);
+    this.universe.layers = (this.universe.layers ?? []).filter((l) => l.layerId !== domain);
+    this.universe.layers.push(layer);
     return this;
   }
 

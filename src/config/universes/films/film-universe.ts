@@ -3,6 +3,7 @@ import {
   CreatorAssignments,
   RealityAnchor,
   RealityRelation,
+  TimePrecision,
   Universe,
 } from '../../../core/types';
 import {
@@ -84,6 +85,25 @@ export interface FilmMoment {
   description: string;
 }
 
+/**
+ * A calendar domain the film can be found in (#150).
+ *
+ * `narrative` is the story's real-calendar time; `production` is when the film was made. Both
+ * are **omitted** when the sources do not document them — a film set in an invented world has
+ * no narrative date, and its absence is the fact. `description` is required because the date
+ * alone does not say what it measures (filming? post-production? the plot?).
+ */
+export interface FilmDomainRange {
+  /** ISO date, inclusive. */
+  start: string;
+  /** ISO date, exclusive. */
+  end: string;
+  /** Granularity of the claim; defaults to DAY. A month-only source should say MONTH. */
+  precision?: TimePrecision;
+  /** What the span measures, and what it omits. Carries the source's shape, not prose. */
+  description: string;
+}
+
 export interface FilmSpec {
   /** The distributor's registered studio token (not the generic `film` token). */
   studio: string;
@@ -120,6 +140,13 @@ export interface FilmSpec {
   /** In order, by cut point. Must be increasing and end before the runtime. */
   acts: FilmAct[];
   moments: FilmMoment[];
+  /**
+   * Story time in the real world (#150). Omit when the setting is invented or undocumented —
+   * the work then has a runtime and no narrative calendar, which is the honest shape.
+   */
+  narrative?: FilmDomainRange;
+  /** Real-world creation time (#150). The release date lives in `released`, not here. */
+  production?: FilmDomainRange;
   /** Extra containers beyond `HOLLYWOOD_SYSTEM` and the film's own studio. */
   containers?: UniverseId[];
   /** Average window size in minutes; defaults to runtime / 12. */
@@ -212,6 +239,20 @@ export function createFilmUniverse(spec: FilmSpec): Universe {
   if (spec.aliases) builder.withAliases(spec.aliases);
   if (spec.creators) builder.withCreators(spec.creators);
   if (spec.usageRestrictions) builder.withUsageRestrictions(spec.usageRestrictions);
+
+  // The other two domains (#150). Runtime was already emitted by `withRuntime`; these are
+  // present only when the source documents them, so an invented world says so by omission.
+  for (const domain of ['narrative', 'production'] as const) {
+    const range = spec[domain];
+    if (!range) continue;
+    builder.withTemporalDomain(
+      domain,
+      range.start,
+      range.end,
+      range.precision ?? TimePrecision.DAY,
+      range.description,
+    );
+  }
 
   // Containment, derived from the one token: the film is a member of Hollywood and of its own
   // studio's container — never hand-listed, so the three can never disagree.
