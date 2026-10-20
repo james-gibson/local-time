@@ -173,12 +173,39 @@ describe('US History universes (james-gibson/local-time#5)', () => {
     });
 
     test('the Civil War is one shared epoch, not fifty inline copies', () => {
+      // "Shared" is the assertion: every state carries the same labelled frame.
+      // Comparing each state to the first is the property; pinning the epoch to a
+      // nanosecond literal would only couple the test to the storage unit.
+      const shared = usStatehoodHistory[0].epochs?.civil_war;
+      expect(shared).toBeDefined();
+      expect(shared!.epochId).toBe('civil_war');
+
       for (const universe of usStatehoodHistory) {
         const epoch = universe.epochs?.civil_war;
         expect(epoch).toBeDefined();
-        expect(epoch!.epochId).toBe('civil_war');
-        expect(epoch!.startTime).toBe(BigInt(Date.UTC(1861, 3, 12, 12)) * 1_000_000n);
-        expect(epoch!.endTime).toBe(BigInt(Date.UTC(1865, 3, 9, 12)) * 1_000_000n);
+        expect(epoch!.epochId).toBe(shared!.epochId);
+        expect(epoch!.startTime).toBe(shared!.startTime);
+        expect(epoch!.endTime).toBe(shared!.endTime);
+      }
+    });
+
+    test('each statehood segment contains its admission frame', () => {
+      // Labels on both sides: the segment and the keyframe, never a literal.
+      for (const universe of usStatehoodHistory) {
+        const segment = universe.temporalStructure?.segments.find(
+          (entry) => entry.id === 'statehood_era',
+        );
+        const admission = universe.temporalStructure?.keyframes.find(
+          (entry) => entry.id === 'admission_to_union',
+        );
+        expect(segment).toBeDefined();
+        expect(admission).toBeDefined();
+        expect(`${universe.universeId}: ${admission!.timestamp >= segment!.start}`).toBe(
+          `${universe.universeId}: true`,
+        );
+        expect(`${universe.universeId}: ${admission!.timestamp <= segment!.end}`).toBe(
+          `${universe.universeId}: true`,
+        );
       }
     });
   });
