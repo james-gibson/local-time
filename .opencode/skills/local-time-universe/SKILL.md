@@ -264,8 +264,69 @@ full pattern (the lever registry, what to precache, and real worked examples) is
   `identifiers.aliases` only. Keep `primary` equal to `universeId` unless you deliberately
   record a different canonical id — some namespaces assert that equality in their tests.
 
+## After a change: cache the patterns, not just the code
+
+A PR that changes the builder API, registry behaviour, id grammar, registration rules or the
+test doctrine changes how the *next* universe is written. Two artifacts have to move with it:
+
+1. **This skill** — the human-readable contract. Update `SKILL.md` or
+   `references/builder-api.md` in the same PR, and correct any gotcha the change closes.
+2. **The Synapse knowledge cache** — the retrieval layer an agent hits before it reads the
+   file. A summary is attached to a *chunk*, so it surfaces with the code it describes.
+
+Do it after merge, when the index has the new code:
+
+```js
+// 1. Find the chunk. `personal` is the umbrella repo; local-time is a subtree.
+synapse_search_codebase({ action: "regex", repo_id: "personal", query: "UniverseBuilder", path: "local-time/src/core", limit: 10 })
+
+// 2. One card per file — a durable rule set, not a changelog.
+synapse_knowledge_cache({
+  action: "save_summary",
+  chunk_id: "<cid from the search hit>",
+  summary_type: "user",
+  summary: "**Builder pattern card — local-time (refreshed YYYY-MM-DD).**\n- Prefer addParent/addReference …\n- precision = accuracy; certainty = confidence; dateRange = bound …",
+})
+
+// 3. Teach the queries a future agent will type.
+synapse_knowledge_cache({ action: "learn", query: "how do I add a parent universe or typed reference", chunk_id: "<cid>", weight: 1 })
+
+// 4. Verify: summaries are only visible uncompressed.
+synapse_knowledge_cache({ action: "query", query: "builder patterns", compress_payload: false })
+```
+
+What belongs in a card:
+
+- the **rule and the reason**, in one line each (e.g. "keyframe accuracy is `precision`, not
+  `certainty`; they are different axes");
+- the **method or shape to prefer**, and the legacy one it replaces;
+- a **worked file pointer** (`src/config/universes/common-epochs.ts`);
+- the issue/PR that closed the gap only as provenance, never as the whole content.
+
+What does not: line numbers, a date without a snapshot note, or a copy of this skill. The
+card is an index into the contract, not a second contract.
+
+**`save_summary` needs an indexed chunk.** A file that is new, git-ignored or absent from the
+working checkout has no `chunk_id`, so a hint cannot attach to it. Re-index first:
+
+```js
+synapse_indexer_control({ action: "trigger", repo_id: "personal", path: "local-time" })
+```
+
+If the working checkout is behind `main`, say so in the card — e.g. *"refreshed 2026-10-20;
+the index snapshot predates #147–#175"* — so the next agent does not treat a stale summary
+as current code. Re-save the card after the checkout catches up.
+
+The cache is deliberately **per chunk and persistent**: it is the only place a correction
+like "the fifth argument of `addDateKeyframe` is a `TimePrecision` or an options bag" survives
+the session in which it was discovered.
+
 ## Where else to look
 
+- **The Synapse knowledge cache** — query it before searching:
+  `synapse_knowledge_cache({ action: "query", query: "builder patterns" })`. The builder
+  and test pattern cards live on the chunks they describe; see *After a change* above for
+  how to update them.
 - `local-time-ids` (this repo, `.opencode/skills/local-time-ids/`) — **measure the id
   before you write the module.** Why `isValidUniverseId` is not a proof, the reserved
   namespaces, the two slugifiers, and how to prove that an id you *reference* resolves.
