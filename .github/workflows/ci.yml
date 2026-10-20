@@ -17,12 +17,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Node 22 is the active LTS. The repo has no `.nvmrc` and no `engines`
-        # field, so this workflow is the first place a Node version is written
-        # down at all — which is also why it is a single version rather than a
-        # range: an untested matrix entry is a claim, not a guarantee.
+        # Node 26, the LTS line from 2026-10-28. `.nvmrc` pins the same major
+        # for local work. `engines` declares `>=20.0.0`, so 26 sits inside the
+        # supported range rather than at its floor: the versions below it are
+        # supported on paper and untested here. Still a single entry rather
+        # than a range — an untested matrix entry is a claim, not a guarantee.
         node-version:
-          - 22.x
+          - 26.x
 
     steps:
       - uses: actions/checkout@v7
