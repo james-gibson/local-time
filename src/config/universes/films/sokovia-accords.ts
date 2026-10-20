@@ -111,7 +111,7 @@ const accords = new UniverseBuilder(ACCORDS_ID, UniverseType.LEGAL_TIMELINE)
     })
     .addKeyframe('2016-04-01T00:00:00Z', 'lagos_incident', 0.95, ['precipitating_event', 'lagos', 'collateral_damage'], {
         certainty: 0.4,
-        dateRange: { earliest: at('2016-01-01T00:00:00Z'), latest: at('2016-06-30T23:59:59Z') },
+        dateRange: { earliest: at('2016-01-01T00:00:00Z'), latest: at('2016-04-30T23:59:59Z') },
         description:
             'A mission in Lagos ends with civilian deaths caused by an Avenger. The incident is the direct trigger for the drafting of the Accords.',
     })

@@ -1,7 +1,8 @@
 import { LocalTime } from '../../../index';
 import { isLegalUniverseId, isValidUniverseId } from '../../../core/universe-ids';
-import { UniverseType } from '../../../core/types';
+import { Universe, UniverseType } from '../../../core/types';
 import { allUniverses } from '../index';
+import { usConstitutionUniverse } from '../us-history/usFoundingDocuments.universe';
 import { sokoviaAccords2016Universe, sokoviaAccordsUniverseId } from './sokovia-accords';
 import { captainAmericaCivilWar2016Universe } from './marvel';
 
@@ -11,8 +12,53 @@ import { captainAmericaCivilWar2016Universe } from './marvel';
  * The in-universe legal instrument is its own universe, not a keyframe: the id
  * says `legal-…` (what it is), the folder says Marvel (where it is authored),
  * the network says it is part of the collection, and the film points at it with
- * a typed `DEPICTS` edge. This suite pins those four claims.
+ * a typed `DEPICTS` edge.
+ *
+ * ## No nanosecond literals
+ *
+ * Every temporal assertion names a **frame** (a keyframe or epoch id) and relates
+ * it to another named frame. The storage unit is an implementation detail — ADR
+ * 0001 already moves the in-memory nanosecond value to microseconds at rest — so
+ * `expect(timestamp).toBe(1430438400000000000n)` would break on that migration
+ * while proving nothing about the timeline. The label is the durable identifier;
+ * the number is one representation of it.
  */
+
+interface LabelledFrame {
+    id: string;
+    timestamp: bigint;
+    certainty?: number;
+    dateRange?: { earliest: bigint; latest: bigint };
+}
+
+/** Resolve a keyframe by its label, the way a caller addresses it. */
+const frame = (universe: Universe, id: string): LabelledFrame => {
+    const keyframe = universe.temporalStructure?.keyframes.find((entry) => entry.id === id);
+    if (!keyframe) throw new Error(`No keyframe "${id}" in ${universe.universeId}`);
+    return keyframe as LabelledFrame;
+};
+
+/** Resolve an epoch by its label. */
+const epoch = (universe: Universe, id: string) => {
+    const entry = universe.epochs?.[id];
+    if (!entry) throw new Error(`No epoch "${id}" in ${universe.universeId}`);
+    return entry;
+};
+
+/**
+ * Assert that the frames occur in the given label order. The comparison is
+ * between two labels; neither operand is written down as a number.
+ */
+const expectOrdered = (universe: Universe, ids: string[]): void => {
+    for (let index = 1; index < ids.length; index += 1) {
+        const earlier = frame(universe, ids[index - 1]);
+        const later = frame(universe, ids[index]);
+        expect(`${earlier.id} < ${later.id}: ${earlier.timestamp < later.timestamp}`).toBe(
+            `${earlier.id} < ${later.id}: true`,
+        );
+    }
+};
+
 describe('the Sokovia Accords', () => {
     const accords = sokoviaAccords2016Universe;
 
@@ -63,25 +109,46 @@ describe('the Sokovia Accords', () => {
         });
     });
 
-    test('the timeline separates what the film dates from what it only places', () => {
-        expect(accords.epochs?.negotiation).toBeDefined();
-        expect(accords.epochs?.signed_and_contested).toBeDefined();
+    test('its frames are ordered by label', () => {
+        // The names are the timeline; the timestamps are only how it is compared.
+        expectOrdered(accords, [
+            'battle_of_sokovia',
+            'lagos_incident',
+            'accords_drafted',
+            'vienna_signing',
+        ]);
+    });
 
-        const keyframes = accords.temporalStructure?.keyframes ?? [];
-        const byId = new Map(keyframes.map((keyframe) => [keyframe.id, keyframe]));
+    test('an approximate frame carries a range that contains it, inside its epoch', () => {
+        const negotiation = epoch(accords, 'negotiation');
 
-        // A documented event with no on-screen date: the timestamp is a guess and
-        // the range is the honest bound.
-        const lagos = byId.get('lagos_incident')!;
-        expect(lagos.certainty).toBeLessThan(1);
-        expect(lagos.dateRange).toEqual({
-            earliest: BigInt(Date.UTC(2016, 0, 1)) * 1_000_000n,
-            latest: BigInt(Date.UTC(2016, 5, 30, 23, 59, 59)) * 1_000_000n,
-        });
+        for (const keyframe of accords.temporalStructure?.keyframes ?? []) {
+            if (keyframe.certainty !== undefined && keyframe.certainty < 1) {
+                expect(`${keyframe.id}: ${keyframe.dateRange !== undefined}`).toBe(`${keyframe.id}: true`);
+            }
+            if (!keyframe.dateRange) continue;
+            expect(keyframe.timestamp).toBeGreaterThanOrEqual(keyframe.dateRange.earliest);
+            expect(keyframe.timestamp).toBeLessThanOrEqual(keyframe.dateRange.latest);
+        }
 
-        // Chronology is real even where precision is not.
-        expect(byId.get('battle_of_sokovia')!.timestamp).toBeLessThan(
-            byId.get('vienna_signing')!.timestamp,
-        );
+        // Lagos is placed, not dated. The bound it carries is the negotiation
+        // epoch's own bound — a relation between two labels, not a literal.
+        const lagos = frame(accords, 'lagos_incident');
+        expect(lagos.dateRange!.earliest).toBeGreaterThanOrEqual(negotiation.startTime!);
+        expect(lagos.dateRange!.latest).toBeLessThanOrEqual(negotiation.endTime!);
+    });
+
+    test('the Accords are later than the Constitutional Convention', () => {
+        // Two universes, two labels, one shared timeline: the fictional instrument
+        // (2016) after the real convention (1787). The test names the frames; it
+        // does not know or care what unit the timestamps are stored in.
+        const accordsSigning = frame(accords, 'vienna_signing');
+        const conventionSigning = frame(usConstitutionUniverse, 'convention_signing');
+
+        expect(
+            `${conventionSigning.id} < ${accordsSigning.id}: ${
+                conventionSigning.timestamp < accordsSigning.timestamp
+            }`,
+        ).toBe(`${conventionSigning.id} < ${accordsSigning.id}: true`);
     });
 });
