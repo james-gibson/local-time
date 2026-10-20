@@ -2,8 +2,12 @@ import { UniverseNetwork } from '../../../core/types';
 import {
   createFilmUniverseId,
   createHistoricalUniverseId,
+  createLegalUniverseId,
   createUniverseId,
 } from '../../../core/universe-ids';
+
+/** The in-universe legal instrument at the centre of *Captain America: Civil War*. */
+const sokoviaAccords = createLegalUniverseId('united_nations', 'sokovia_accords', 'law_evolution', 2016);
 
 /**
  * The Disney and Marvel networks.
@@ -94,8 +98,14 @@ export const marvelNetwork: UniverseNetwork = {
   universes: new Set([
     createFilmUniverseId('marvel_studios', 'iron_man', 2008),
     createFilmUniverseId('marvel_studios', 'the_avengers', 2012),
+    createFilmUniverseId('marvel_studios', 'avengers_age_of_ultron', 2015),
+    createFilmUniverseId('marvel_studios', 'captain_america_civil_war', 2016),
     createFilmUniverseId('marvel_studios', 'avengers_endgame', 2019),
     createUniverseId('marvel_studios:wandavision:2021'),
+    // The Accords are a member of the collection even though the id is `legal-…`:
+    // the network groups works, and the collection is what makes the legal
+    // instrument part of the Marvel corpus rather than a free-floating document.
+    sokoviaAccords,
   ]),
   
   sharedEpochs: {
@@ -119,6 +129,19 @@ export const marvelNetwork: UniverseNetwork = {
         createFilmUniverseId('marvel_studios', 'the_avengers', 2012),
       ],
       // universes: ["marvel:hulk:2008", "marvel:thor:2011"]
+    },
+    {
+      // Sokovia to Vienna: the destruction that prompts the Accords, the film that
+      // dramatises them, and the instrument itself, grouped as one era.
+      eraId: "sokovia_accords",
+      name: "The Sokovia Accords",
+      start: BigInt(Date.UTC(2015, 3, 1)) * 1000000n,
+      end: BigInt(Date.UTC(2016, 11, 31)) * 1000000n,
+      universes: [
+        createFilmUniverseId('marvel_studios', 'avengers_age_of_ultron', 2015),
+        createFilmUniverseId('marvel_studios', 'captain_america_civil_war', 2016),
+        sokoviaAccords,
+      ],
     },
     {
       eraId: "disney_plus_expansion", 
