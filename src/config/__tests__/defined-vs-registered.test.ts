@@ -27,31 +27,13 @@ import type { Universe } from '../../core/types';
  * `podcast/hydrology-impacts.ts` — were reachable from no barrel at all, so a barrel
  * walk could not have seen them however carefully it was written.
  *
- * The one exclusion is explicit and named, so it is a documented hole rather than an
- * implied one.
+ * There is no exclusion. `global-politics/` used to be excluded here because it
+ * had no barrel and three of its modules threw on import (#81, #102); #170 wired
+ * and repaired it, so the hole was removed rather than left to rot.
  */
 
 /** The directory under test. */
 const UNIVERSES_DIR = resolve(__dirname, '..', 'universes');
-
-/**
- * Subtrees deliberately outside this guard, each with the open issue that owns it.
- *
- * These are excluded rather than tolerated because tolerating them would mean the guard
- * could pass with those modules throwing or missing, which is the failure it exists to
- * catch. An entry is only legitimate while its issue is open.
- */
-const EXCLUDED: Array<{ path: string; reason: string }> = [
-  {
-    path: join(UNIVERSES_DIR, 'global-politics'),
-    reason:
-      '#81 — the namespace has no barrel, so none of its four universes load — and #102 — ' +
-      '`gaza.ts` and `ukraine.ts` throw the historical-id validator at module scope, so they ' +
-      'cannot even be imported. Both are tracked; this guard covers everything else.',
-  },
-];
-
-const EXCLUDED_PATHS = new Set(EXCLUDED.map((entry) => entry.path));
 
 /** A directory name that is never a universe module. */
 const SKIPPED_DIRS = new Set(['__tests__', 'imported']);
@@ -60,13 +42,13 @@ const SKIPPED_DIRS = new Set(['__tests__', 'imported']);
 const isModuleFile = (name: string): boolean =>
   name.endsWith('.ts') && !name.endsWith('.test.ts') && !name.endsWith('.d.ts');
 
-/** Every universe module under `dir`, excluding tests, the git-ignored tree, and {@link EXCLUDED}. */
+/** Every universe module under `dir`, excluding tests and the git-ignored tree. */
 const moduleFilesUnder = (dir: string): string[] => {
   const found: string[] = [];
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) {
-      if (SKIPPED_DIRS.has(entry) || EXCLUDED_PATHS.has(full)) continue;
+      if (SKIPPED_DIRS.has(entry)) continue;
       found.push(...moduleFilesUnder(full));
     } else if (isModuleFile(entry)) {
       found.push(full);
@@ -140,14 +122,6 @@ describe('every universe defined under src/config/universes is registered (james
 
   test('no universe module fails to import', () => {
     expect(importFailures).toEqual([]);
-  });
-
-  test('every exclusion still points at a real directory', () => {
-    // An outdated exclusion is a hole that outlives its issue. If `global-politics` moves
-    // or is deleted, this fails instead of silently covering nothing.
-    for (const { path } of EXCLUDED) {
-      expect(statSync(path).isDirectory()).toBe(true);
-    }
   });
 
   test('nothing defined under src/config/universes is missing from allUniverses', () => {

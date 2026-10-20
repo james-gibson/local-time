@@ -70,6 +70,23 @@ Every epoch needs an explicit `epochId`. `addEpoch`'s 3-arg form stamps it; a ma
 literal that omits it makes the registry substitute the layer key and warn, silently
 changing what every reference to that epoch means (#19).
 
+### Common named epochs (pre/post boundaries)
+
+Some epochs are shared across unrelated universes: **pre/post 9/11**, **pre/post Enron**.
+Do not re-declare those dates. Each boundary is declared once, on the event's own
+universe, as a `NamedBoundary` (`src/core/named-boundary.ts`), and
+`src/config/universes/common-epochs.ts` exports the derived pairs:
+
+```ts
+.addEpoch('primary', POST_NINE_ELEVEN.epochId, { ...POST_NINE_ELEVEN })
+```
+
+The pair is deliberately **half-open**: `pre` has only an `endTime`, `post` only a
+`startTime`. A named boundary claims one instant; an invented start-of-history or
+"now" at the other end is not part of the definition. The boundary universe is
+`historical/911.ts` (`north_tower_impact`) and `historical/enron.ts`
+(`chapter_11_filing`).
+
 ## Reality relation and attribution
 
 | Method | Effect |

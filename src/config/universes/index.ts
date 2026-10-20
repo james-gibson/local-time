@@ -24,7 +24,7 @@ import {
   electricTelegraphUniverse,
   september11AttacksUniverse,
   penicillinDiscoveryUniverse, tulsaMassacreMediaCoverageUniverse, tulsaRaceMassacre1921Universe, transistorInventionUniverse, worldWideWebUniverse
-, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses, pagerankHistoryUniverse, post911SkyscraperShiftUniverse} from './historical';
+, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses, pagerankHistoryUniverse, post911SkyscraperShiftUniverse, enronCollapseUniverse} from './historical';
 import {allCybersecurityUniverses} from './cybersecurity';
 import {chuckBerryUniverse} from './chuckBerryUniverse';
 import {calvinKleinHistory} from './calvinKleinHistory';
@@ -122,6 +122,9 @@ export const allUniverses = [
   ...globalPoliticsUniverses,
   ...usPoliticsUniverses,
   post911SkyscraperShiftUniverse,
+  // The second common boundary (#175): pre/post Enron is derived from this
+  // universe's `chapter_11_filing` keyframe.
+  enronCollapseUniverse,
 ];
 
 export const allNetworks = [
@@ -152,5 +155,6 @@ export {
   trumpAssassinationAttemptUniverse,
   globalPoliticsUniverses,
   usPoliticsUniverses,
-  post911SkyscraperShiftUniverse
+  post911SkyscraperShiftUniverse,
+  enronCollapseUniverse
 };

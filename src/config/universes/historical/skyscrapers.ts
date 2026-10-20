@@ -1,6 +1,7 @@
 import { Universe } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import { createHistoricalBuilder } from '../../../core/universe-builder';
+import { POST_NINE_ELEVEN, PRE_NINE_ELEVEN } from '../common-epochs';
 
 /**
  * Post-9/11 Evolution of Skyscraper Design and Cinematic Portrayal
@@ -85,6 +86,10 @@ const skyscrapers = createHistoricalBuilder()
     ])
     .addParent(CommonUniverseIds.US_HISTORY)
     .addParent(CommonUniverseIds.HOLLYWOOD_SYSTEM)
+    // The subject of the universe is the before/after of one event, so both
+    // halves are the shared named epochs rather than a local re-declaration.
+    .addEpoch('primary', PRE_NINE_ELEVEN.epochId, { ...PRE_NINE_ELEVEN })
+    .addEpoch('primary', POST_NINE_ELEVEN.epochId, { ...POST_NINE_ELEVEN })
     .addDateSegment(
         '2001-09-11',
         '2003-12-31',
