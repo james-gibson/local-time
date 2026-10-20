@@ -178,8 +178,8 @@ async function createSearchViewEntry(universe: any) {
     universe.metadata?.canonicalName,
     universe.identifiers?.aliases?.join(' '),
     universe.metadata?.creators?.join(' '),
-    universe.attribution?.creators?.director?.join(' '),
-    universe.attribution?.creators?.writer?.join(' '),
+    // Attribution creators are keyed by person (#148): project the names, not a role list.
+    universe.attribution?.creators?.map((creator: { name: string }) => creator.name).join(' '),
   ].filter(Boolean).join(' ');
 
   // Extract tags from keyframes

@@ -1,4 +1,5 @@
 import { Universe, UniverseType, TimePrecision } from '../../../core/types';
+import { creatorRefs } from '../../../core/creators';
 
 export const pokemonRedBlueUniverse: Universe = {
   universeId: "game:pokemon:red_blue:1996",
@@ -19,10 +20,10 @@ export const pokemonRedBlueUniverse: Universe = {
       year: 1996,
       status: 'active'
     },
-    creators: {
+    creators: creatorRefs({
       director: ["Satoshi Tajiri"],
       writer: ["Satoshi Tajiri", "Ken Sugimori"]
-    },
+    }),
     citations_required: true,
     usage_restrictions: ["Fair use for criticism and comment"]
   },
@@ -139,10 +140,10 @@ export const pokemonAnimeUniverse: Universe = {
       year: 1997,
       status: 'active'
     },
-    creators: {
+    creators: creatorRefs({
       director: ["Kunihiko Yuyama"],
       writer: ["Takeshi Shudo"]
-    },
+    }),
     citations_required: true,
     usage_restrictions: ["Fair use for criticism and comment"]
   },

@@ -1,5 +1,5 @@
 import { createUniverseId } from '../../core/universe-ids';
-import { TimePrecision, Universe, UniverseType } from '../../core';
+import { TimePrecision, Universe, UniverseType, creatorRefs } from '../../core';
 
 export const backToTheFutureUniverse: Universe = {
     universeId: createUniverseId("film:bttf:1985"),
@@ -20,10 +20,10 @@ export const backToTheFutureUniverse: Universe = {
             year: 1985,
             status: 'active'
         },
-        creators: {
+        creators: creatorRefs({
             director: ["Robert Zemeckis"],
             writer: ["Robert Zemeckis", "Bob Gale"]
-        },
+        }),
         citations_required: true,
         usage_restrictions: ["Fair use for criticism and comment"]
     },

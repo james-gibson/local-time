@@ -1,6 +1,6 @@
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import {
-  Attribution,
+  CreatorAssignments,
   RealityAnchor,
   RealityRelation,
   Universe,
@@ -105,7 +105,8 @@ export interface FilmSpec {
     year: number;
     status: 'active' | 'expired' | 'public_domain' | 'invalid';
   };
-  creators?: Attribution['creators'] & { based_on?: string[] };
+  /** Role-keyed creator credits; `based_on` names a work, so it goes to `metadata`. */
+  creators?: CreatorAssignments;
   /** At least three, per the guide's attribution rule. */
   sources: string[];
   usageRestrictions?: string[];

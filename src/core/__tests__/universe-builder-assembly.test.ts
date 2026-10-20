@@ -311,8 +311,12 @@ describe('a film can be assembled through the builder, with no cast (#103, #115,
       'Copyrighted. This record contains no stills or footage.',
     ]);
     // `based_on` is not a person, so `withCreators` routes it to metadata, not to
-    // `attribution.creators` — which holds `director` / `writer` / `historical_advisors` only.
-    expect(warcraft.attribution.creators?.director).toEqual(['Duncan Jones']);
+    // `attribution.creators`. Creators are keyed by person (#148): Jones directed and wrote,
+    // so he is one entry with two roles, not one entry per role.
+    expect(warcraft.attribution.creators).toEqual([
+      { name: 'Duncan Jones', roles: ['director', 'writer'] },
+      { name: 'Charles Leavitt', roles: ['writer'] },
+    ]);
     expect((warcraft.metadata as { based_on?: string[] }).based_on).toEqual([
       'Warcraft by Blizzard Entertainment',
     ]);

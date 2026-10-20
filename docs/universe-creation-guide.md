@@ -108,7 +108,7 @@ const hobbitUniverse = new UniverseBuilder()
 - `.withRealityRelation(type, degree, anchors?)` - Set reality relationship
 - `.withCopyright(holders, year, status?)` - Set copyright info
 - `.withPublicDomain(sources)` - Mark as public domain
-- `.withCreators(creators)` - Set creator information
+- `.withCreators(creators)` - Set role-keyed creator credits (stored one entry per person)
 - `.withCulturalSignificance(0.0-1.0)` - Set cultural impact
 - `.withMetadata(metadata)` - Add additional metadata
 
@@ -321,10 +321,12 @@ export const manualUniverse: Universe = {
       year: 1964,
       status: 'active'
     },
-    creators: {
-      director: ["Robert Stevenson"],
-      writer: ["Bill Walsh", "Don DaGradi"]
-    },
+    // One entry per person (#148); a person credited twice gets two roles.
+    creators: [
+      { name: "Robert Stevenson", roles: ['director'] },
+      { name: "Bill Walsh", roles: ['writer'] },
+      { name: "Don DaGradi", roles: ['writer'] },
+    ],
     citations_required: true,
     usage_restrictions: ["Fair use for criticism and comment"]
   },
@@ -888,9 +890,9 @@ class NetworkExpander {
     
     // Find universes by the same creator
     for (const [id, universe] of universeRegistry) {
+      // `attribution.creators` is person-keyed (#148): match the name on any role.
       const hasCreator = universe.metadata?.creators.includes(creator) ||
-        universe.attribution?.creators?.director?.includes(creator) ||
-        universe.attribution?.creators?.writer?.includes(creator);
+        universe.attribution?.creators?.some((credit) => credit.name === creator);
       
       if (hasCreator) {
         expandedNetwork.universes.add(id);

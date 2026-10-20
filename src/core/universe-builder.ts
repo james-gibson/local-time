@@ -1,5 +1,6 @@
-import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalSegment, TemporalLayer, RealityRelation, Attribution, UniverseReference } from './types';
+import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalSegment, TemporalLayer, RealityRelation, Attribution, UniverseReference, CreatorAssignments } from './types';
 import { UniverseId, createFilmUniverseId, isValidUniverseId } from './universe-ids';
+import { creatorNames, creatorRefs, mergeCreatorRefs, normaliseCreatorName } from './creators';
 
 /**
  * Universe types that are not required to carry a timeline. A specification describes a
@@ -378,51 +379,32 @@ export class UniverseBuilder {
     return this;
   }
 
-  withCreators(creators: { 
-    director?: string[]; 
-    writer?: string[]; 
-    historical_advisors?: string[];
-    participant?: string[];
-    based_on?: string[];
-    host?: string[];
-    producer?: string[];
-    researcher?: string[];
-  }): this {
+  /**
+   * Record creator credits, keyed by role — the way a credit roll reads — and store them
+   * keyed by person (#148). One person credited as both director and writer becomes one
+   * `CreatorRef` with two roles.
+   *
+   * Pass `{ name, personId }` instead of a bare name when the person is a universe
+   * (`biography:…` or `personal:…`); a bare name is still the common case, because a credit
+   * line carries no birth year. `based_on` names a work rather than a person, so it is
+   * routed to `metadata.based_on` and never enters `attribution.creators`.
+   */
+  withCreators(creators: CreatorAssignments): this {
     if (!this.universe.attribution) {
       this.universe.attribution = {
         citations_required: true
       };
     }
-    if (!this.universe.attribution.creators) {
-      this.universe.attribution.creators = {};
-    }
-    if (creators.director) {
-      this.universe.attribution.creators.director = creators.director;
-    }
-    if (creators.writer) {
-      this.universe.attribution.creators.writer = creators.writer;
-    }
-    if (creators.historical_advisors) {
-      this.universe.attribution.creators.historical_advisors = creators.historical_advisors;
-    }
-    // Store additional creator types in metadata
-    if (!this.universe.metadata) {
-      this.universe.metadata = {};
-    }
-    if (creators.participant) {
-      (this.universe.metadata as any).participants = creators.participant;
-    }
+    this.universe.attribution.creators = mergeCreatorRefs(
+      this.universe.attribution.creators,
+      creatorRefs(creators),
+    );
+
     if (creators.based_on) {
+      if (!this.universe.metadata) {
+        this.universe.metadata = {};
+      }
       (this.universe.metadata as any).based_on = creators.based_on;
-    }
-    if (creators.host) {
-      (this.universe.metadata as any).host = creators.host;
-    }
-    if (creators.producer) {
-      (this.universe.metadata as any).producer = creators.producer;
-    }
-    if (creators.researcher) {
-      (this.universe.metadata as any).researcher = creators.researcher;
     }
     return this;
   }
@@ -988,23 +970,21 @@ export class UniverseBuilder {
       }
     }
 
-    // creators: role lists in a stable order, then copyright holders. Copyright holders are
-    // a studio, which is a creator of the work but not a role, so they go last.
+    // creators: the display names of the person-keyed refs (in recorded order), then
+    // copyright holders. Copyright holders are a studio — a creator of the work but not a
+    // role, so they go last. The name list is the retrieval text; `creatorRefs()` records
+    // people in role order, which keeps this list identical to the old role-keyed
+    // de-duplication (#148). Ids never enter the list, only names.
     if (!metadata.creators) {
-      const creators = (universe.attribution as any)?.creators;
-      const roles: string[] = [
-        'director', 'writer', 'producer', 'host', 'researcher',
-        'historical_advisors', 'participant', 'based_on',
-      ];
       const collected: string[] = [];
-      for (const role of roles) {
-        for (const name of creators?.[role] ?? []) {
-          if (!collected.includes(name)) collected.push(name);
-        }
-      }
-      for (const holder of (universe.attribution as any)?.copyright?.holders ?? []) {
-        if (!collected.includes(holder)) collected.push(holder);
-      }
+      const add = (name: string) => {
+        const normalised = normaliseCreatorName(name);
+        if (normalised && !collected.includes(normalised)) collected.push(normalised);
+      };
+
+      for (const name of creatorNames(universe.attribution?.creators)) add(name);
+      for (const holder of (universe.attribution as any)?.copyright?.holders ?? []) add(holder);
+
       if (collected.length) metadata.creators = collected;
     }
   }

@@ -390,6 +390,27 @@ export function isPersonalUniverseId(id: string): id is PersonalUniverseId {
   return UNIVERSE_ID_PATTERNS.PERSONAL.test(id);
 }
 
+/**
+ * A person as a universe. Both person idioms in the corpus are valid members:
+ *
+ * - `biography:<slug>:<birth>-<death|present>` — span-anchored, so it needs a birth year
+ *   (`biography:jrr_tolkien:1892-1973`, `biography:britney_spears:1981-present`).
+ * - `personal:<slug>:<year>` — year-anchored (`personal:hillary_clinton:1947`).
+ *
+ * Neither is derivable from a credit line: `Attribution.creators` names a director, not
+ * their birth year. That is why a `CreatorRef` carries a display name and only *optionally*
+ * a `personId` (james-gibson/local-time#148).
+ *
+ * The pattern cannot tell a person from a year-anchored record (`personal:docs:2026`), so
+ * this is a shape guard, not proof that the universe is a person. Cite a universe that
+ * exists.
+ */
+export type PersonUniverseId = BiographyUniverseId | PersonalUniverseId;
+
+export function isPersonUniverseId(id: string): id is PersonUniverseId {
+  return isPersonalUniverseId(id) || isBiographyUniverseId(id);
+}
+
 export function isMissionUniverseId(id: string): id is MissionUniverseId {
   return UNIVERSE_ID_PATTERNS.MISSION.test(id);
 }

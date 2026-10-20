@@ -1,4 +1,4 @@
-import {TimePrecision, Universe, UniverseType} from '../../core';
+import {TimePrecision, Universe, UniverseType, creatorRefs} from '../../core';
 
 export const maryPoppinsUniverse: Universe = {
     universeId: "disney:mary_poppins:1964",
@@ -20,10 +20,10 @@ export const maryPoppinsUniverse: Universe = {
             year: 1964,
             status: 'active'
         },
-        creators: {
+        creators: creatorRefs({
             director: ["Robert Stevenson"],
             writer: ["Bill Walsh", "Don DaGradi"]
-        },
+        }),
         citations_required: true,
         usage_restrictions: ["Fair use for criticism and comment"]
     },

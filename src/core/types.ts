@@ -1,5 +1,5 @@
 // Import branded universe ID types
-import type { UniverseId } from './universe-ids';
+import type { PersonUniverseId, UniverseId } from './universe-ids';
 
 /**
  * Represents a specific address within a temporal universe system.
@@ -408,6 +408,72 @@ export interface RealityAnchor {
 }
 
 /**
+ * The roles a person can hold in a work (#148). A role is a property of a *person's*
+ * involvement, not a bucket a name is filed under: one person can direct and write.
+ */
+export type CreatorRole =
+  | 'director'
+  | 'writer'
+  | 'producer'
+  | 'host'
+  | 'researcher'
+  | 'historical_advisor'
+  | 'participant'
+  | 'actor'
+  | 'composer';
+
+/**
+ * One person's credited involvement in a work — the unit `Attribution.creators` stores.
+ *
+ * Keying by person instead of by role is what makes "what did X write?" answerable, and
+ * what makes a person appearing as both director and writer a single fact rather than two
+ * entries that have to be de-duplicated by spelling (#148).
+ *
+ * `name` is always present: it is the retrieval text (`metadata.creators`) and the fallback
+ * identity when no person universe exists — which is the common case, because a credit line
+ * carries no birth year and the person idioms are year-anchored.
+ */
+export interface CreatorRef {
+  /** Display name. The retrieval text, and the identity when `personId` is absent. */
+  name: string;
+  /**
+   * The person as a universe, when one exists — `biography:<slug>:<birth>-<death|present>`
+   * or `personal:<slug>:<year>`. Optional because most credits have no person universe yet;
+   * it upgrades in place when one lands.
+   */
+  personId?: PersonUniverseId;
+  /** Every role this person had in the work, in the order the assignment recorded them. */
+  roles: CreatorRole[];
+}
+
+/**
+ * A creator as authored: a bare display name, or a name that also names the person
+ * universe it resolves to.
+ */
+export type CreatorCredit = string | { name: string; personId?: PersonUniverseId };
+
+/**
+ * Role-keyed creator input, accepted by `UniverseBuilder.withCreators()` and by the film
+ * spec. This is the *authoring* shape; `Attribution.creators` is the stored, person-keyed
+ * one. `based_on` is a work rather than a person, so it is routed to `metadata`, not to
+ * `Attribution.creators`.
+ */
+export interface CreatorAssignments {
+  director?: CreatorCredit[];
+  writer?: CreatorCredit[];
+  producer?: CreatorCredit[];
+  host?: CreatorCredit[];
+  researcher?: CreatorCredit[];
+  /** Credit key keeps the plural spelling the corpus already uses; the role is singular. */
+  historical_advisors?: CreatorCredit[];
+  participant?: CreatorCredit[];
+  actor?: CreatorCredit[];
+  composer?: CreatorCredit[];
+  /** Not a person: stays in `metadata.based_on`. */
+  based_on?: string[];
+}
+
+/**
  * Copyright, creator, and usage information for legal compliance.
  * Essential for proper attribution and understanding usage rights.
  * 
@@ -419,10 +485,11 @@ export interface RealityAnchor {
  *     year: 1964,
  *     status: 'active'
  *   },
- *   creators: {
- *     director: ["Robert Stevenson"],
- *     writer: ["Bill Walsh", "Don DaGradi"]
- *   },
+ *   creators: [
+ *     { name: "Robert Stevenson", roles: ['director'] },
+ *     { name: "Bill Walsh", roles: ['writer'] },
+ *     { name: "Don DaGradi", roles: ['writer'] }
+ *   ],
  *   citations_required: true,
  *   usage_restrictions: [
  *     "Fair use for criticism and comment only",
@@ -455,16 +522,13 @@ export interface Attribution {
     /** Current copyright status */
     status: 'active' | 'expired' | 'public_domain' | 'invalid';
   };
-  
-  /** Creator information */
-  creators?: {
-    /** Directors for films/TV */
-    director?: string[];
-    /** Writers/authors */
-    writer?: string[];
-    /** Historical advisors for historical works */
-    historical_advisors?: string[];
-  };
+
+  /**
+   * Creator information, one entry per person (#148). Prefer the builder's
+   * `withCreators({ director: [...] })` authoring form; use `creatorRefs()` when writing
+   * the literal.
+   */
+  creators?: CreatorRef[];
   
   /** Whether citations are required when referencing */
   citations_required: boolean;
