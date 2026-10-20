@@ -1,4 +1,5 @@
 import { UniverseBuilder } from '../../../core';
+import { CommonUniverseIds } from '../../../core/common-universe-ids';
 
 /**
  * @universe us_gov:aumf_2001:2001-present
@@ -7,16 +8,30 @@ import { UniverseBuilder } from '../../../core';
  * @reality-relation Documentary, based on public laws, executive branch statements, and Congressional Research Service reports. Fictionalization degree is 0.0.
  * @significance The 2001 AUMF is a document of immense historical and legal significance (1.0). It fundamentally reshaped the legal architecture of U.S. military action in the 21st century, authorizing operations in at least 22 countries and sparking a long-running debate over war powers between the executive and legislative branches.【1】
  */
-export const aumf2001UsageUniverse = new UniverseBuilder()
+const aumf = new UniverseBuilder()
     // Was `.historical(createHistoricalUniverseId(...), 'Presidential Usage of the 2001 AUMF')`,
     // which passed a whole id as the *event* and a title as the *year*, producing an id no
     // validator accepts — so the registry dropped this universe with a warning
     // (james-gibson/local-time#70). The intended id is the one the factory already built.
-    .historical('us_gov:aumf_2001_usage', '2001-present')
+    //
+    // The next attempt still produced `history:us_gov:aumf_2001_usage:2001-present`,
+    // which no *declared* pattern accepted (HISTORICAL was three-segment; the
+    // trailing span is not a bare year, so the permissive catch-all rejected it
+    // too). HISTORICAL now declares the optional middle segment, and the year pair
+    // is passed through the factory's own parameters (james-gibson/local-time#126).
+    .historical('us_gov:aumf_2001_usage', 2001, 'present')
+    .withCanonicalName('Presidential Usage of the 2001 AUMF')
+    .withReleased('2001-09-18')
     .withDescription('A documentation of the 2001 Authorization for Use of Military Force and its application by U.S. Presidents.')
     .withRealityRelation('documentary', 0.0)
+    .addParent(CommonUniverseIds.US_GOVERNMENT)
+    .addParent(CommonUniverseIds.US_MILITARY)
     // Source: Based on public law texts, Congressional Research Service reports (e.g., "The 2001 AUMF: A Brief Overview"), and White House/DOD statements.
-    .withCopyright(['Public Domain'], 2001, 'public_domain')
+    .withPublicDomain([
+        'Public Law 107-40',
+        'Congressional Research Service, "The 2001 AUMF: A Brief Overview"',
+        'White House and Department of Defense statements',
+    ])
     .withCulturalSignificance(1.0)
     .withTags(['us_law', 'war_powers', 'counter_terrorism', 'foreign_policy', 'aumf', 'september_11'])
 
@@ -73,6 +88,13 @@ export const aumf2001UsageUniverse = new UniverseBuilder()
         description: 'The U.S. Senate votes to repeal the 1991 and 2002 AUMFs related to Iraq, signaling growing bipartisan momentum to reform and repeal outdated war authorizations, including renewed calls to address the 2001 AUMF.',
     })
     .build();
+
+// `metadata.creators` has no builder setter (Congress is the authorising body,
+// not a credited person); see the residue table in the `local-time-universe`
+// skill.
+aumf.metadata = { ...aumf.metadata, creators: ['United States Congress'] };
+
+export const aumf2001UsageUniverse = aumf;
 
 // --- Usage Example ---
 /*

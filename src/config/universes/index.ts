@@ -24,7 +24,7 @@ import {
   electricTelegraphUniverse,
   september11AttacksUniverse,
   penicillinDiscoveryUniverse, tulsaMassacreMediaCoverageUniverse, tulsaRaceMassacre1921Universe, transistorInventionUniverse, worldWideWebUniverse
-, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses, pagerankHistoryUniverse} from './historical';
+, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses, pagerankHistoryUniverse, post911SkyscraperShiftUniverse} from './historical';
 import {allCybersecurityUniverses} from './cybersecurity';
 import {chuckBerryUniverse} from './chuckBerryUniverse';
 import {calvinKleinHistory} from './calvinKleinHistory';
@@ -44,6 +44,8 @@ import {hillaryClintonConspiracyTheoriesUniverses} from "./people/clinton-conspi
 import {hillaryClintonConspiracyRebuttalsUniverses} from "./people/clinton-conspiracy-rebuttals"
 import {scotus2013Universes} from "./scotus-ot2013"
 import {scotus2025Universes} from "./scotus-ot2025"
+import {globalPoliticsUniverses} from "./global-politics"
+import {usPoliticsUniverses} from "./us-politics"
 // The `film_studio:` container universes. They were defined but never spread into
 // `allUniverses`, so the registry never registered them: the studio containers had no
 // owner, and containment could not transit from a film, through its studio, up to
@@ -114,6 +116,12 @@ export const allUniverses = [
   williamsDisneyAladdinDisputeUniverse,
   homeEnergyLogSept2025Universe,
   damPodcastEpisodeUniverse,
+  // The politics namespaces (#126). `global-politics/` had no barrel and nothing
+  // imported it, so its modules were never evaluated — which is why three of them
+  // throwing on import went unnoticed. `us-politics/` is the domestic counterpart.
+  ...globalPoliticsUniverses,
+  ...usPoliticsUniverses,
+  post911SkyscraperShiftUniverse,
 ];
 
 export const allNetworks = [
@@ -141,5 +149,8 @@ export {
   robinWilliamsFilmography,
   jamesCameronFilmography,
   edSheeranCopyrightTrial2023Universe,
-  trumpAssassinationAttemptUniverse
+  trumpAssassinationAttemptUniverse,
+  globalPoliticsUniverses,
+  usPoliticsUniverses,
+  post911SkyscraperShiftUniverse
 };
