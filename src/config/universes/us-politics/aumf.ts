@@ -1,5 +1,6 @@
 import { UniverseBuilder } from '../../../core';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { POST_NINE_ELEVEN } from '../common-epochs';
 
 /**
  * @universe us_gov:aumf_2001:2001-present
@@ -26,6 +27,9 @@ const aumf = new UniverseBuilder()
     .withRealityRelation('documentary', 0.0)
     .addParent(CommonUniverseIds.US_GOVERNMENT)
     .addParent(CommonUniverseIds.US_MILITARY)
+    // The AUMF is the post-9/11 statute: its whole existence is dated from the
+    // shared boundary, not from a date re-typed here.
+    .addEpoch('primary', POST_NINE_ELEVEN.epochId, { ...POST_NINE_ELEVEN })
     // Source: Based on public law texts, Congressional Research Service reports (e.g., "The 2001 AUMF: A Brief Overview"), and White House/DOD statements.
     .withPublicDomain([
         'Public Law 107-40',
