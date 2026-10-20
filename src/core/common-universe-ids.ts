@@ -39,6 +39,11 @@ export class CommonUniverseIds {
   static readonly US_COPYRIGHT_LAW = createLegalUniverseId('us_gov','copyright','law_evolution', 1790);
   static readonly US_CONSTITUTION = createLegalUniverseId('us_gov', 'constitution','constitutional_framework', 1787);
   
+  // Every state's statehood timeline is a member of this one container, rather
+  // than repeating the US_HISTORY / US_GOVERNMENT parent pair on all fifty and
+  // leaving no place for the epoch they share (james-gibson/local-time#103).
+  static readonly US_STATEHOOD = createHistoricalUniverseId('us_statehood', 1787);
+
   // State level examples
   static readonly CALIFORNIA_HISTORY = createHistoricalUniverseId('california_state_timeline', '*');
   static readonly DELAWARE_CORPORATIONS = createLegalUniverseId('us_gov','delaware', 'corporate_law', 1899);
@@ -134,6 +139,18 @@ export class CommonUniverseIds {
       timespan: { start: 1776, end: new Date().getFullYear() }
     });
     
+    // National -> Statehood. The fifty statehood timelines are members of one
+    // container, which is itself both a national-history and a government
+    // subject, so the states keep both ancestors transitively while declaring a
+    // single membership (james-gibson/local-time#103).
+    this.addHierarchy(this.US_STATEHOOD, {
+      parents: new Set([this.US_HISTORY, this.US_GOVERNMENT]),
+      children: new Set(),
+      level: 'national',
+      jurisdiction: 'United States',
+      timespan: { start: 1787, end: 1959 }
+    });
+
     // National -> State
     this.addHierarchy(this.CALIFORNIA_HISTORY, {
       parent: this.US_HISTORY,

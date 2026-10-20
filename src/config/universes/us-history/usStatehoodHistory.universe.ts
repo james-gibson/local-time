@@ -1,5 +1,6 @@
-import { Universe, UniverseType } from '../../../core/types';
+import { TimePrecision, Universe } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { createHistoricalBuilder } from '../../../core/universe-builder';
 import { usConstitutionUniverse } from './usFoundingDocuments.universe';
 
 /**
@@ -14,11 +15,38 @@ import { usConstitutionUniverse } from './usFoundingDocuments.universe';
  * - National Archives and Records Administration (archives.gov)
  * - Official State Historical Societies and Archives
  *
- * Hierarchical Context: US_HISTORY -> US_GOVERNMENT
+ * ## One container, fifty members (james-gibson/local-time#103)
+ *
+ * Every state declares a single membership — `US_STATEHOOD` — and that container
+ * is itself a child of `US_HISTORY` and `US_GOVERNMENT`, so the fifty states keep
+ * both ancestors transitively without each repeating the pair. The Civil War is
+ * the same national event in every state's timeline, so it is one shared epoch
+ * constant rather than fifty copies.
+ *
+ * The universes are assembled through `UniverseBuilder`, not a hand-written
+ * literal with an `as unknown as Universe` cast: the builder can now express the
+ * parent edge, the typed reference, the segment prose and the released date
+ * (#103, #100, #147).
  */
 
 const fromIso = (iso: string): bigint => BigInt(new Date(iso).getTime()) * 1_000_000n;
-const PRESENT = fromIso('2025-09-14T12:00:00Z');
+const PRESENT_ISO = '2025-09-14T12:00:00Z';
+
+/**
+ * The American Civil War, shared by every statehood timeline.
+ *
+ * It is national context, not a state-specific claim: a state's own admission,
+ * secession and readmission keyframes remain distinct, and the war is one epoch
+ * every state can be located inside.
+ */
+const CIVIL_WAR_EPOCH = {
+  epochId: 'civil_war',
+  startTime: fromIso('1861-04-12T12:00:00Z'),
+  endTime: fromIso('1865-04-09T12:00:00Z'),
+  precision: TimePrecision.DAY,
+  description:
+    'The American Civil War, from the attack on Fort Sumter to the surrender at Appomattox Court House.',
+};
 
 interface StateData {
   name: string;
@@ -29,100 +57,77 @@ interface StateData {
 
 const createStateUniverse = (data: StateData): Universe => {
   const slug = data.name.toLowerCase().replace(/ /g, '_');
-  const year = data.admission.substring(0, 4);
-  const stateId = `history:${slug}:${year}`;
+  const year = Number(data.admission.substring(0, 4));
 
-  const keyframes: Array<Record<string, unknown>> = [
-    {
-      id: 'admission_to_union',
-      timestamp: fromIso(`${data.admission}T12:00:00Z`),
-      significance: 1.0,
-      tags: ['statehood', 'admission', 'us_history'],
-      certainty: 1.0,
-    },
-  ];
+  const builder = createHistoricalBuilder()
+    .historical(slug, year)
+    .withAliases([data.name])
+    .withCanonicalName(`History of ${data.name} Statehood`)
+    .withDescription(`The timeline of ${data.name}'s status within the United States of America.`)
+    .withReleased(data.admission)
+    .withCulturalSignificance(0.8)
+    .withRealityRelation('documentary', 0.0, [
+      {
+        realEventId: `history:${slug}:${year}`,
+        relationshipType: 'documents',
+        confidence: 1.0,
+        evidence: ['U.S. Congressional Records'],
+      },
+    ])
+    .withPublicDomain(['U.S. Congressional Records'])
+    .addParent(CommonUniverseIds.US_STATEHOOD)
+    .addReference({
+      type: 'BASED_ON',
+      targetUniverseId: usConstitutionUniverse.universeId,
+      description: 'Statehood is granted under the authority of the U.S. Constitution.',
+      confidence: 1.0,
+      evidence: ['Article IV, Section 3 of the U.S. Constitution'],
+    })
+    .addEpoch('primary', 'civil_war', { ...CIVIL_WAR_EPOCH })
+    .addDateSegment(
+      `${data.admission}T12:00:00Z`,
+      PRESENT_ISO,
+      'statehood_era',
+      'legal_period',
+      'active',
+      'United States',
+      `Period from ${data.name}'s admission to the Union to the present day.`,
+    )
+    .addDateKeyframe(
+      `${data.admission}T12:00:00Z`,
+      'admission_to_union',
+      1.0,
+      ['statehood', 'admission', 'us_history'],
+      { certainty: 1.0 },
+    )
+    .withWindowing('phase_based');
 
   if (data.secession) {
-    keyframes.push({
-      id: 'secession_from_union',
-      timestamp: fromIso(`${data.secession}T12:00:00Z`),
-      significance: 0.95,
-      tags: ['secession', 'civil_war', 'confederacy'],
-      certainty: 1.0,
-    });
+    builder.addDateKeyframe(
+      `${data.secession}T12:00:00Z`,
+      'secession_from_union',
+      0.95,
+      ['secession', 'civil_war', 'confederacy'],
+      { certainty: 1.0 },
+    );
   }
 
   if (data.readmission) {
-    keyframes.push({
-      id: 'readmission_to_union',
-      timestamp: fromIso(`${data.readmission}T12:00:00Z`),
-      significance: 0.9,
-      tags: ['readmission', 'reconstruction', 'us_history'],
-      certainty: 1.0,
-    });
+    builder.addDateKeyframe(
+      `${data.readmission}T12:00:00Z`,
+      'readmission_to_union',
+      0.9,
+      ['readmission', 'reconstruction', 'us_history'],
+      { certainty: 1.0 },
+    );
   }
 
-  keyframes.sort((a, b) => Number((a.timestamp as bigint) - (b.timestamp as bigint)));
-
-  return {
-    universeId: stateId,
-    type: UniverseType.HISTORICAL_EVENT,
-    identifiers: { primary: stateId, aliases: [data.name] },
-    realityRelation: {
-      type: 'documentary',
-      fictionalizationDegree: 0.0,
-      realityAnchors: [
-        {
-          realEventId: stateId,
-          relationshipType: 'documents',
-          confidence: 1.0,
-          evidence: ['U.S. Congressional Records'],
-        },
-      ],
-    },
-    attribution: {
-      public_domain: true,
-      sources: ['U.S. Congressional Records'],
-      citations_required: false,
-      usage_restrictions: [],
-    },
-    layers: [{ layerId: 'primary', type: 'primary', epochs: {} }],
-    epochs: {},
-    temporalStructure: {
-      segments: [
-        {
-          id: 'statehood_era',
-          start: fromIso(`${data.admission}T12:00:00Z`),
-          end: PRESENT,
-          type: 'legal_period',
-          status: 'active',
-          jurisdiction: 'United States',
-          description: `Period from ${data.name}'s admission to the Union to the present day.`,
-        },
-      ],
-      keyframes,
-      windows: { strategy: 'phase_based' },
-    },
-    metadata: {
-      canonicalName: `History of ${data.name} Statehood`,
-      description: `The timeline of ${data.name}'s status within the United States of America.`,
-      creators: ['United States Congress'],
-      released: new Date(data.admission),
-      cultural_significance: 0.8,
-    },
-    connections: {
-      natural: { parentUniverses: [CommonUniverseIds.US_HISTORY, CommonUniverseIds.US_GOVERNMENT] },
-      references: [
-        {
-          type: 'BASED_ON',
-          targetUniverseId: usConstitutionUniverse.universeId,
-          description: 'Statehood is granted under the authority of the U.S. Constitution.',
-          confidence: 1.0,
-          evidence: ['Article IV, Section 3 of the U.S. Constitution'],
-        },
-      ],
-    },
-  } as unknown as Universe;
+  const universe = builder.build();
+  // `metadata.creators` has no builder setter: `withCreators` records roles, and
+  // Congress is the authorising body rather than a credited person. Assigning the
+  // typed field after `build()` keeps the value without a literal or a cast.
+  universe.metadata = { ...universe.metadata, creators: ['United States Congress'] };
+  return universe;
 };
 
 const stateData: StateData[] = [

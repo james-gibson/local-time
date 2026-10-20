@@ -1,4 +1,7 @@
 import { isValidUniverseId, isUSUniverseId } from '../../../core/universe-ids';
+import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { UniverseRegistry } from '../../universe-registry';
+import { ConfigLoader } from '../../config-loader';
 import {
   usConstitutionUniverse,
   billOfRightsUniverse,
@@ -137,5 +140,46 @@ describe('US History universes (james-gibson/local-time#5)', () => {
       'secession_from_union',
       'readmission_to_union',
     ]);
+  });
+
+  /**
+   * james-gibson/local-time#103 — the states are one container's members, not
+   * fifty copies of the same containment block, and the Civil War is one shared
+   * epoch rather than fifty inline copies.
+   */
+  describe('the US_STATEHOOD container', () => {
+    const registry = (() => {
+      const instance = new UniverseRegistry(new ConfigLoader());
+      for (const universe of usStatehoodHistory) {
+        instance.registerUniverse(universe.universeId, universe);
+      }
+      return instance;
+    })();
+
+    test('every state declares exactly one membership — the statehood container', () => {
+      for (const universe of usStatehoodHistory) {
+        expect(registry.getMemberships(universe.universeId)).toEqual([
+          CommonUniverseIds.US_STATEHOOD,
+        ]);
+      }
+    });
+
+    test('the container places the states under both national ancestors', () => {
+      for (const universe of usStatehoodHistory) {
+        expect(registry.contains(CommonUniverseIds.US_STATEHOOD, universe.universeId)).toBe(true);
+        expect(registry.contains(CommonUniverseIds.US_HISTORY, universe.universeId)).toBe(true);
+        expect(registry.contains(CommonUniverseIds.US_GOVERNMENT, universe.universeId)).toBe(true);
+      }
+    });
+
+    test('the Civil War is one shared epoch, not fifty inline copies', () => {
+      for (const universe of usStatehoodHistory) {
+        const epoch = universe.epochs?.civil_war;
+        expect(epoch).toBeDefined();
+        expect(epoch!.epochId).toBe('civil_war');
+        expect(epoch!.startTime).toBe(BigInt(Date.UTC(1861, 3, 12, 12)) * 1_000_000n);
+        expect(epoch!.endTime).toBe(BigInt(Date.UTC(1865, 3, 9, 12)) * 1_000_000n);
+      }
+    });
   });
 });

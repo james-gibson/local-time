@@ -42,7 +42,7 @@ written down here.
 | `SpecificMapping` (incl. `tolkien_acknowledged`) | `types.md:230-235`, `example.ts.md:260-273` | declared, **zero** uses | #82 (noted) |
 | `UniverseType` enum | `types.md:241-254` | `src/core/types.ts`, extended (`TECHNOLOGY`, `TECHNICAL_*`, `ABSTRACT_CONCEPT`) | — |
 | `ReferenceType` enum | `types.md:256-298`, `example.ts.md:282-303` | `src/core/types.ts`, extended (`FULFILLS_PROMISE`, frame-derived) | — |
-| `UniverseNetwork` / `NetworkEra` | `types.md:309-325`, `example.ts.md:663-716` | `UniverseNetwork` implemented; **`NetworkEra` unused** | — |
+| `UniverseNetwork` / `NetworkEra` | `types.md:309-325`, `example.ts.md:663-716` | `UniverseNetwork` implemented; `sharedEpochs` inherited by members at registration and `eras` validated against the membership and read through `getNetwork` | **#103** |
 | `WindowAlignment` | `types.md:327-336`, `proposal.md:141-201` | declared **twice**: `src/core/types.ts` and `src/zero-reference-queries.ts:24` (different shapes) | #82 |
 | `TemporalReferenceGraph` / `TemporalNode` / `TemporalEdge` | `types.md:338-355`, `multi.md:307-328` | not implemented | #82 (noted) |
 | `TimePrecision` | `types.md:357-367` | `src/core/types.ts` | — |
@@ -85,7 +85,7 @@ serve:
 ## Dormant constructs (one list, so "unused" is legible)
 
 `reality_correspondence` (#75) · `WindowAlias` + `Universe.temporalWindows`
-(#82) · `WindowRelationship` / `WindowHierarchy` (#82) · `SpecificMapping` · `NetworkEra` ·
+(#82) · `WindowRelationship` / `WindowHierarchy` (#82) · `SpecificMapping` ·
 `TemporalReferenceGraph` / `TemporalNode` / `TemporalEdge` · the duplicate `WindowAlignment`
 declaration · `TemporalAddress`
 
