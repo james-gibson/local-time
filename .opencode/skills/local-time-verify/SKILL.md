@@ -12,7 +12,8 @@ that make a local run lie about them.
 ## The gates, in order
 
 ```sh
-export PATH="$HOME/.nvm/versions/node/v24.21.0/bin:$PATH"   # node is often NOT on PATH (nvm)
+# node is often NOT on PATH (nvm); `nvm use` reads the repo's .nvmrc
+export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; nvm use
 
 npm run typecheck            # tsc --noEmit && tsc -p tsconfig.test.json
 npm run lint                 # eslint src --ext .ts
@@ -27,8 +28,8 @@ gh pr checks <pr> --watch
 ```
 
 `.github/workflows/ci.yml` runs exactly `lint`, `typecheck`, `build`, `test` and
-`test:scripts` on Node 22. **If CI and your laptop disagree, CI is right** — read
-the next section before you file anything.
+`test:scripts` on Node 26, the same major `.nvmrc` pins. **If CI and your laptop
+disagree, CI is right** — read the next section before you file anything.
 
 ## Trap 1 — a symlinked `node_modules` makes lint lie about *another* checkout
 
