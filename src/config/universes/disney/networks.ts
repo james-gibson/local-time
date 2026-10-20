@@ -1,14 +1,31 @@
 import { UniverseNetwork } from '../../../core/types';
+import {
+  createFilmUniverseId,
+  createHistoricalUniverseId,
+  createUniverseId,
+} from '../../../core/universe-ids';
+
+/**
+ * The Disney and Marvel networks.
+ *
+ * `sharedEpochs` used to be declared and never read (james-gibson/local-time#103):
+ * the corporate and cultural timelines described the network and no universe
+ * carried them. They are now inherited by every member at registration —
+ * `UniverseRegistry.inheritSharedEpochs` copies each epoch into the member's own
+ * epoch map under its `epochId`, and a member's own epoch of that id wins. An
+ * `eras[].universes` entry is a declared slice of `universes`, and registration
+ * warns when the two disagree.
+ */
 
 export const disneyNetwork: UniverseNetwork = {
   networkId: "disney",
+  // Membership is what makes `sharedEpochs` do anything: a member inherits the
+  // corporate and cultural epochs below at registration
+  // (james-gibson/local-time#103). Only universes that actually exist are listed —
+  // a member id with no universe is a claim the registry cannot honour.
   universes: new Set([
-    // "disney:mary_poppins:1964"
-    // Additional universes would be added here as they're created
-    // "disney:lion_king:1994",
-    // "disney:frozen:2013",
-    // "disney_channel:high_school_musical:2006",
-    // "disney_plus:mandalorian:2019"
+    createFilmUniverseId('disney', 'mary_poppins', 1964),
+    createHistoricalUniverseId('disney:pixar_acquisition', 2006),
   ]),
   
   sharedEpochs: {
@@ -42,8 +59,8 @@ export const disneyNetwork: UniverseNetwork = {
       name: "Silver Age",
       start: BigInt(Date.UTC(1950, 0, 1)) * 1000000n,
       end: BigInt(Date.UTC(1967, 0, 1)) * 1000000n,
-      universes: [],
-      // universes: ["disney:cinderella:1950", "disney:mary_poppins:1964", "disney:jungle_book:1967"]
+      universes: [createFilmUniverseId('disney', 'mary_poppins', 1964)],
+      // universes: ["disney:cinderella:1950", "disney:jungle_book:1967"]
     },
     {
       eraId: "renaissance",
@@ -75,10 +92,10 @@ export const disneyNetwork: UniverseNetwork = {
 export const marvelNetwork: UniverseNetwork = {
   networkId: "marvel",
   universes: new Set([
-    // MCU films and Disney+ series would be added here
-    // "marvel:iron_man:2008",
-    // "marvel:avengers:2012", 
-    // "disney_plus:wandavision:2021"
+    createFilmUniverseId('marvel_studios', 'iron_man', 2008),
+    createFilmUniverseId('marvel_studios', 'the_avengers', 2012),
+    createFilmUniverseId('marvel_studios', 'avengers_endgame', 2019),
+    createUniverseId('marvel_studios:wandavision:2021'),
   ]),
   
   sharedEpochs: {
@@ -97,16 +114,19 @@ export const marvelNetwork: UniverseNetwork = {
       name: "MCU Phase One",
       start: BigInt(Date.UTC(2008, 4, 2)) * 1000000n, // Iron Man release
       end: BigInt(Date.UTC(2012, 4, 4)) * 1000000n, // Avengers release
-      universes: [],
-      // universes: ["marvel:iron_man:2008", "marvel:hulk:2008", "marvel:thor:2011"]
+      universes: [
+        createFilmUniverseId('marvel_studios', 'iron_man', 2008),
+        createFilmUniverseId('marvel_studios', 'the_avengers', 2012),
+      ],
+      // universes: ["marvel:hulk:2008", "marvel:thor:2011"]
     },
     {
       eraId: "disney_plus_expansion", 
       name: "Disney+ Marvel Series",
       start: BigInt(Date.UTC(2021, 0, 15)) * 1000000n, // WandaVision premiere
       end: BigInt(Date.now()) * 1000000n,
-      universes: [],
-      // universes: ["disney_plus:wandavision:2021", "disney_plus:falcon_winter:2021"]
+      universes: [createUniverseId('marvel_studios:wandavision:2021')],
+      // universes: ["disney_plus:falcon_winter:2021"]
     }
   ]
 };

@@ -169,6 +169,7 @@ export class UniverseRegistry {
     }
 
     this.registerDeclaredContainment(universeId, universe);
+    this.inheritSharedEpochs(universeId, universe);
 
     if (universe.identifiers?.aliases) {
       for (const alias of universe.identifiers.aliases) {
@@ -195,6 +196,41 @@ export class UniverseRegistry {
     const parents = this.declaredParentUniverses(universe);
     if (parents.length > 0) {
       CommonUniverseIds.registerUniverseLinks(id, parents);
+    }
+  }
+
+  /**
+   * Inherit a network's `sharedEpochs` into a registered member
+   * (james-gibson/local-time#103).
+   *
+   * `UniverseNetwork.sharedEpochs` was declared and never read: the Disney
+   * corporate/cultural timelines were written down and no code looked at them.
+   * A shared epoch is context the network's members hold in common, so it belongs
+   * on the member's own epoch map — the map every temporal query already reads —
+   * rather than in a parallel lookup a caller has to know to ask for.
+   *
+   * Rules, both deliberate:
+   *
+   * - **The member's own epoch wins.** A shared epoch is context, never a claim
+   *   that can overwrite a universe's own timeline, so an existing `epochId` is
+   *   left untouched.
+   * - **Copy, not alias.** A consumer mutating a registered universe's epoch must
+   *   not mutate the network definition shared by every other member.
+   *
+   * Networks normally register before their members (see `loadBuiltInUniverses`),
+   * so `registerUniverse` is the usual path; `registerNetwork` calls this too for
+   * members that were already registered.
+   */
+  private inheritSharedEpochs(id: UniverseId, universe: Universe): void {
+    for (const network of this.networks.values()) {
+      if (!network.universes?.has(id)) continue;
+
+      for (const epoch of Object.values(network.sharedEpochs ?? {})) {
+        if (!epoch?.epochId) continue;
+        universe.epochs ??= {};
+        if (universe.epochs[epoch.epochId]) continue;
+        universe.epochs[epoch.epochId] = { ...epoch };
+      }
     }
   }
 
@@ -292,6 +328,13 @@ export class UniverseRegistry {
    * The alias is set only when the network has no existing alias, so a multi-member network
    * resolves to its first member deterministically rather than whichever member happened to
    * be iterated last.
+   *
+   * `sharedEpochs` and `eras` were both declared and unread
+   * (james-gibson/local-time#103). They now have the two different treatments their shapes
+   * imply: a shared epoch is *inherited* by every member (see
+   * {@link inheritSharedEpochs}), while an era is a declared slice of the membership and is
+   * *validated* against it — `getNetwork(...).eras` stays a declaration, read through the
+   * network, rather than being copied onto a universe it does not describe.
    */
   async registerNetwork(network: UniverseNetwork): Promise<void> {
     if (!network?.networkId) return;
@@ -306,6 +349,29 @@ export class UniverseRegistry {
         }
       } catch (error) {
         console.warn(`Network "${network.networkId}" member "${memberId}" not indexed:`, error);
+      }
+    }
+
+    // A member may have registered before its network (a second config file, or
+    // `registerNetwork` called directly after `registerUniverse`). Inheritance is
+    // idempotent, so running it from both ends is safe and the member still gets
+    // the shared epochs.
+    for (const memberId of network.universes ?? []) {
+      const member = this.universes.get(memberId);
+      if (member) this.inheritSharedEpochs(memberId, member);
+    }
+
+    // An era is a *slice* of the network's membership, so a member named by an era
+    // but absent from `universes` is a contradiction: `getNetwork(...).eras` would
+    // claim a universe the network does not contain. Report it rather than letting
+    // the two lists disagree silently.
+    for (const era of network.eras ?? []) {
+      const strays = (era.universes ?? []).filter((id) => !network.universes?.has(id));
+      if (strays.length > 0) {
+        console.warn(
+          `Network "${network.networkId}" era "${era.eraId}" names ` +
+            `${strays.length} universe(s) outside the network: ${strays.join(', ')}`,
+        );
       }
     }
   }
