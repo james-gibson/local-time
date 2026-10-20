@@ -58,8 +58,8 @@ drops such a universe with a warning. Pin the id and check it yourself with
 | `addRuntimeSegment(startMin, startSec, endMin, endSec, id, type)` | Runtime-relative segment |
 | `addLayer(layerId \| layer, type?, epochs?)` | Adds a `TemporalLayer` |
 | `addEpoch(layerId, epochId, epoch)` **or** `addEpoch(startISO, endISO, epochId, significance?, tags?, options?)` | Adds/merges an epoch; the 3-arg form stamps `epochId` onto the epoch (local-time#19) |
-| `addKeyframe(timestamp, id, significance, tags, options?)` or `(dateStr, id, …)` | Pushes a keyframe; `options` carries `description`, `certainty`, `dateRange`, `type`, `targetUniverseId`, `targetKeyframeId`, `targetKeyframeType` |
-| `addDateKeyframe(dateStr, id, sig, tags, precision?)` or `(y,m,d,h,min,s,id,sig,tags,options?)` | Date-form keyframe |
+| `addKeyframe(timestamp, id, significance, tags, options?)` or `(dateStr, id, …)` | Pushes a keyframe; `options` carries `description`, `certainty`, `dateRange`, `precision`, `type`, `targetUniverseId`, `targetKeyframeId`, `targetKeyframeType` |
+| `addDateKeyframe(dateStr, id, sig, tags, precision?)` or `(y,m,d,h,min,s,id,sig,tags,options?)` | Date-form keyframe; the fifth argument accepts a `TimePrecision` **or** an options bag, and `precision` is kept on the frame (#173) |
 | `addRuntimeKeyframe(minutes, seconds, id, significance, tags, description?)` | `seconds` is seconds **within** the minute; `description` is forwarded (#77) |
 | `withWindowing(strategy, windowSize?)` | Sets `windows` **and its guard**, so a factory default no longer overwrites it (#99, fixed) |
 | `addParent(targetUniverseId)` | Appends to the **first-class** `connections.natural.parentUniverses` — the preferred containment call |

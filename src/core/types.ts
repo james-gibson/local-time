@@ -668,6 +668,22 @@ export interface TemporalKeyframe {
     latest: bigint;
   };
   /**
+   * The **accuracy** of this frame: the resolution at which the timestamp
+   * asserts something.
+   *
+   * `TimePrecision.DAY` says the event happened on that day; `YEAR` says only the
+   * year is claimed, and the timestamp is a representative instant inside it. It
+   * is not the same axis as `certainty` — a frame can be certain about a year and
+   * uncertain about the day — nor as `dateRange`, which bounds the date rather
+   * than naming its resolution.
+   *
+   * Epochs always carried `precision`; keyframes did not, so the builder's
+   * documented `precision` parameter on `addDateKeyframe` was accepted and
+   * dropped. This is the same class of omission as #77 (description) and #100
+   * (segment fields). See james-gibson/local-time#173.
+   */
+  precision?: TimePrecision;
+  /**
    * What kind of event this is. Required in spirit for any universe that has
    * more than one event of a kind — see {@link KeyframeType} for why "the
    * release" is never a well-defined target on its own.

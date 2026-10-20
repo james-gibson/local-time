@@ -1,6 +1,6 @@
 import { LocalTime } from '../../../index';
 import { isLegalUniverseId, isValidUniverseId } from '../../../core/universe-ids';
-import { Universe, UniverseType } from '../../../core/types';
+import { TimePrecision, Universe, UniverseType } from '../../../core/types';
 import { allUniverses } from '../index';
 import { usConstitutionUniverse } from '../us-history/usFoundingDocuments.universe';
 import { sokoviaAccords2016Universe, sokoviaAccordsUniverseId } from './sokovia-accords';
@@ -22,12 +22,17 @@ import { captainAmericaCivilWar2016Universe } from './marvel';
  * `expect(timestamp).toBe(1430438400000000000n)` would break on that migration
  * while proving nothing about the timeline. The label is the durable identifier;
  * the number is one representation of it.
+ *
+ * Accuracy is part of the frame as well: a keyframe whose event the film does
+ * not date declares `TimePrecision.YEAR`, and `certainty` says how sure we are
+ * of that year. Neither is a number to pin — they are the frame's own claims.
  */
 
 interface LabelledFrame {
     id: string;
     timestamp: bigint;
     certainty?: number;
+    precision?: TimePrecision;
     dateRange?: { earliest: bigint; latest: bigint };
 }
 
@@ -117,6 +122,30 @@ describe('the Sokovia Accords', () => {
             'accords_drafted',
             'vienna_signing',
         ]);
+    });
+
+    test('an undated frame declares YEAR accuracy, not a false day', () => {
+        const yearOf = (value: bigint): number =>
+            new Date(Number(value / 1_000_000n)).getUTCFullYear();
+
+        for (const keyframe of accords.temporalStructure?.keyframes ?? []) {
+            // The film shows these events but does not date them. The accuracy of
+            // the frame is the year, and the range it carries stays inside that
+            // year — both derived from the frame, never written down as a literal.
+            expect(`${keyframe.id}: ${keyframe.precision}`).toBe(`${keyframe.id}: ${TimePrecision.YEAR}`);
+            expect(keyframe.dateRange).toBeDefined();
+            expect(`${keyframe.id}: ${yearOf(keyframe.dateRange!.earliest)}`).toBe(
+                `${keyframe.id}: ${yearOf(keyframe.timestamp)}`,
+            );
+            expect(`${keyframe.id}: ${yearOf(keyframe.dateRange!.latest)}`).toBe(
+                `${keyframe.id}: ${yearOf(keyframe.timestamp)}`,
+            );
+        }
+
+        // Accuracy belongs to the frame, not to the universe: the negotiation
+        // window is a day-precision epoch even though its events are year-precision
+        // keyframes.
+        expect(epoch(accords, 'negotiation').precision).toBe(TimePrecision.DAY);
     });
 
     test('an approximate frame carries a range that contains it, inside its epoch', () => {
