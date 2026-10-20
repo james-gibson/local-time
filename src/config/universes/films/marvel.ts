@@ -19,6 +19,7 @@ import { getMarvelFilmNotables } from '../people/marvel';
 // --- Phase One: The Avengers Assembled ---
 
 import {createFilmUniverseId} from '../../../core/universe-ids';
+import {sokoviaAccordsUniverseId} from './sokovia-accords';
 
 /**
  * ## Iron Man (2008)
@@ -285,6 +286,16 @@ export const captainAmericaCivilWar2016Universe = new UniverseBuilder()
     .withCopyright(['Marvel Studios', 'The Walt Disney Company'], 2016, 'active')
     .withCreators({ director: ['Anthony Russo', 'Joe Russo'], writer: ['Christopher Markus', 'Stephen McFeely'] })
     .withCulturalSignificance(0.97)
+    // The film's plot *is* the Accords; the legal instrument is its own universe
+    // rather than a keyframe, so the timeline and the document can be queried
+    // separately. The edge is one-way: the film depicts the accord.
+    .addReference({
+        type: 'DEPICTS',
+        targetUniverseId: sokoviaAccordsUniverseId,
+        description: 'The film dramatises the drafting, signing and immediate aftermath of the Sokovia Accords.',
+        confidence: 1.0,
+        evidence: ['Captain America: Civil War (2016)'],
+    })
     .build();
 
 /**

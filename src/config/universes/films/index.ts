@@ -2,6 +2,7 @@ import { maryPoppinsUniverse } from '../maryPoppinsUniverse';
 import { savingPrivateRyanUniverse } from '../savingPrivateRyanUniverse';
 import { backToTheFutureUniverse } from '../backToTheFutureUniverse';
 import { marvelFilmUniverses } from './marvel';
+import { sokoviaAccords2016Universe } from './sokovia-accords';
 import { dieHard1988Universe } from './die-hard';
 import { starWarsUniverses } from './star-wars';
 import { twentiethCenturyFoxMajorReleases } from './20th';
@@ -16,6 +17,7 @@ export * from './star-wars';
 export * from './colombia';
 export * from './warcraft';
 export * from './dungeons-and-dragons-honor-among-thieves';
+export * from './sokovia-accords';
 // The assembly shim, so a new film is `import { createFilmUniverse } from '../films'`.
 // The registration walk skips functions, so exporting it here is inert to that test.
 export * from './film-universe';
@@ -51,6 +53,9 @@ export const filmUniverses = [
   savingPrivateRyanUniverse,
   backToTheFutureUniverse,
   ...marvelFilmUniverses,
+  // The Accords are not a film, but they are a work in the Marvel collection and
+  // the collection is what the folder organises (the id is `legal-…`).
+  sokoviaAccords2016Universe,
   dieHard1988Universe,
   ...twentiethCenturyFoxMajorReleases,
   ...colombiaFilmUniverses,
