@@ -1,5 +1,6 @@
 import { KeyframeType, RealityAnchor, TimePrecision, Universe, UniverseType } from '../../../../core/types';
 import { createGameUniverseId } from '../../../../core/universe-ids';
+import { creatorRefs } from '../../../../core/creators';
 import { DIABLO_SOURCES, diabloTimestamp } from './diablo-common';
 import { DIABLO_II_ID } from './diablo-ii';
 
@@ -56,7 +57,7 @@ export const diabloIIResurrectedUniverse: Universe = {
       year: 2021,
       status: 'active',
     },
-    creators: { director: ['Blizzard Entertainment'], writer: ['Blizzard Entertainment'] },
+    creators: creatorRefs({ director: ['Blizzard Entertainment'], writer: ['Blizzard Entertainment'] }),
     sources: [...DIABLO_SOURCES],
     citations_required: true,
     usage_restrictions: [

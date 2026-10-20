@@ -6,6 +6,7 @@ import {
   UniverseType,
 } from '../../../../core/types';
 import { UniverseId, createGameUniverseId } from '../../../../core/universe-ids';
+import { creatorRefs } from '../../../../core/creators';
 
 /**
  * Diablo — shared builder for the mainline game universes.
@@ -138,7 +139,7 @@ export function createDiabloGameUniverse(spec: DiabloGameSpec): Universe {
         year: spec.year,
         status: 'active',
       },
-      creators: spec.creators,
+      creators: creatorRefs(spec.creators),
       sources: [...DIABLO_SOURCES],
       citations_required: true,
       usage_restrictions: [...USAGE_RESTRICTIONS],

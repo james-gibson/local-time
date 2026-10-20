@@ -1,4 +1,5 @@
-import {TimePrecision, Universe, UniverseType} from '../../core';
+import {TimePrecision, Universe, UniverseType, creatorRefs} from '../../core';
+import { WELL_KNOWN_UNIVERSES } from '../../core/universe-ids';
 
 export const middleEarthUniverse: Universe = {
     universeId: "literature:tolkien:lotr:1954",
@@ -32,9 +33,11 @@ export const middleEarthUniverse: Universe = {
             year: 1954,
             status: 'active'
         },
-        creators: {
-            writer: ["J.R.R. Tolkien"]
-        },
+        creators: creatorRefs({
+            // A person is a universe. Tolkien's biography exists, so the credit names it as
+            // well as displaying the name (#148).
+            writer: [{ name: "J.R.R. Tolkien", personId: WELL_KNOWN_UNIVERSES.TOLKIEN }]
+        }),
         citations_required: true,
         usage_restrictions: ["Fair use for criticism and comment"]
     },

@@ -100,8 +100,12 @@ describe('containment: one owner, many memberships (james-gibson/local-time#74)'
       // It is a 20th Century Fox release ...
       expect(registry.getMemberships(id)).toContain(fox);
       expect(registry.contains(fox, id)).toBe(true);
-      // ... and it is still owned by the James Cameron filmography.
-      expect(registry.getOwner(id)?.attribution.creators?.director).toContain('James Cameron');
+      // ... and it is still owned by the James Cameron filmography. Creators are keyed by
+      // person (#148), so the credit is a `CreatorRef` rather than a `director` name list.
+      const creators = registry.getOwner(id)?.attribution.creators ?? [];
+      expect(
+        creators.some((c) => c.name === 'James Cameron' && c.roles.includes('director')),
+      ).toBe(true);
     }
   });
 

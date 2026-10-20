@@ -1,4 +1,5 @@
 import { Universe, UniverseType, TimePrecision } from '../../../core/types';
+import { creatorRefs } from '../../../core/creators';
 
 export const starWarsANewHopeUniverse: Universe = {
   universeId: "film:star_wars:a_new_hope:1977",
@@ -20,10 +21,10 @@ export const starWarsANewHopeUniverse: Universe = {
       year: 1977,
       status: 'active'
     },
-    creators: {
+    creators: creatorRefs({
       director: ["George Lucas"],
       writer: ["George Lucas"]
-    },
+    }),
     citations_required: true,
     usage_restrictions: ["Fair use for criticism and comment"]
   },

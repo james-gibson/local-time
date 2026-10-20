@@ -1,5 +1,5 @@
 import { createUniverseId } from '../../core/universe-ids';
-import { TimePrecision, Universe, UniverseType } from '../../core';
+import { TimePrecision, Universe, UniverseType, creatorRefs } from '../../core';
 import * as utils from '../../utils';
 
 export const savingPrivateRyanUniverse: Universe = {
@@ -42,11 +42,11 @@ export const savingPrivateRyanUniverse: Universe = {
             year: 1998,
             status: 'active'
         },
-        creators: {
+        creators: creatorRefs({
             director: ["Steven Spielberg"],
             writer: ["Robert Rodat"],
             historical_advisors: ["Stephen E. Ambrose"]
-        },
+        }),
         citations_required: true,
         usage_restrictions: ["Fair use for criticism and comment"]
     },

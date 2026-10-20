@@ -1,5 +1,6 @@
 import { KeyframeType, TimePrecision, Universe, UniverseType } from '../../../../core/types';
 import { CommonUniverseIds } from '../../../../core/common-universe-ids';
+import { creatorRefs } from '../../../../core/creators';
 import { DIABLO_SOURCES, diabloTimestamp } from './diablo-common';
 
 /**
@@ -49,10 +50,10 @@ export const diabloFranchiseUniverse: Universe = {
       year: 1996,
       status: 'active',
     },
-    creators: {
+    creators: creatorRefs({
       director: ['David Brevik', 'Blizzard North'],
       writer: ['Blizzard Entertainment'],
-    },
+    }),
     sources: [...DIABLO_SOURCES],
     citations_required: true,
     usage_restrictions: [
