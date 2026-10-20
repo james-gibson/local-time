@@ -729,6 +729,7 @@ export class UniverseBuilder {
       ...(options?.description ? { description: options.description } : {}),
       ...(options?.certainty !== undefined ? { certainty: options.certainty } : {}),
       ...(options?.dateRange ? { dateRange: options.dateRange } : {}),
+      ...(options?.precision !== undefined ? { precision: options.precision } : {}),
       ...(options?.type ? { type: options.type } : {}),
       ...(options?.targetUniverseId ? { targetUniverseId: options.targetUniverseId } : {}),
       ...(options?.targetKeyframeId ? { targetKeyframeId: options.targetKeyframeId } : {}),
@@ -753,7 +754,17 @@ export class UniverseBuilder {
   }
 
 
-  addDateKeyframe(dateStr: string, id: string, significance: number, tags: string[], precision?: any): this;
+  /**
+   * Date-form keyframe.
+   *
+   * The string form's fifth parameter is documented as `precision` and was
+   * forwarded as the whole options bag, so `TimePrecision.YEAR` (a number) was
+   * silently discarded while an options object happened to work. It now accepts
+   * either: a `TimePrecision` is lifted into the options bag, and an object is
+   * used as-is. `precision` survives into `TemporalKeyframe.precision`
+   * (james-gibson/local-time#173).
+   */
+  addDateKeyframe(dateStr: string, id: string, significance: number, tags: string[], precision?: TimePrecision | Record<string, unknown>): this;
   addDateKeyframe(year: number, month: number, day: number, hour: number, minute: number, second: number, id: string, significance: number, tags: string[], options?: any): this;
   addDateKeyframe(
     dateStrOrYear: string | number,
@@ -771,7 +782,16 @@ export class UniverseBuilder {
       // String date format: addDateKeyframe('2023-04-27', 'id', 1.0, ['tags'])
       const date = new Date(dateStrOrYear);
       const timestamp = BigInt(date.getTime()) * BigInt(1_000_000);
-      return this.addKeyframe(monthOrId as string, timestamp, dayOrSignificance!, hourOrTags as string[], minuteOrPrecision);
+      // The fifth argument is either a `TimePrecision` (the documented form) or
+      // the options bag callers have been passing instead. Accept both rather
+      // than breaking the call sites that already work.
+      const overrides =
+        minuteOrPrecision !== null && typeof minuteOrPrecision === 'object'
+          ? (minuteOrPrecision as Record<string, unknown>)
+          : typeof minuteOrPrecision === 'number'
+            ? { precision: minuteOrPrecision }
+            : undefined;
+      return this.addKeyframe(monthOrId as string, timestamp, dayOrSignificance!, hourOrTags as string[], overrides);
     } else {
       // Numeric format: addDateKeyframe(year, month, day, hour, minute, second, id, significance, tags)
       const date = new Date(dateStrOrYear, (monthOrId as number) - 1, dayOrSignificance!, hourOrTags as number, minuteOrPrecision!, second!);

@@ -54,7 +54,7 @@ describe('network shared epochs and eras (james-gibson/local-time#103)', () => {
         const fresh = new UniverseRegistry(new ConfigLoader());
         const mary = registry.getUniverse('disney:mary_poppins:1964')!;
         const clone = { ...mary, epochs: { ...mary.epochs } } as Universe;
-        const ownStart = clone.epochs!.unix.startTime;
+        const ownStart = clone.epochs!['utc:unix_epoch'].startTime;
 
         return fresh
             .registerNetwork({
@@ -62,7 +62,7 @@ describe('network shared epochs and eras (james-gibson/local-time#103)', () => {
                 universes: new Set([createUniverseId('disney:mary_poppins:1964')]),
                 sharedEpochs: {
                     corporate: {
-                        epochId: 'unix',
+                        epochId: 'utc:unix_epoch',
                         startTime: 1n,
                         endTime: 2n,
                         precision: TimePrecision.DAY,
@@ -72,7 +72,7 @@ describe('network shared epochs and eras (james-gibson/local-time#103)', () => {
             })
             .then(() => {
                 fresh.registerUniverse(clone.universeId, clone);
-                expect(clone.epochs!.unix.startTime).toBe(ownStart);
+                expect(clone.epochs!['utc:unix_epoch'].startTime).toBe(ownStart);
             });
     });
 

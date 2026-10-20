@@ -1,4 +1,4 @@
-import { Universe, UniverseType } from '../../../core/types';
+import { TimePrecision, Universe, UniverseType } from '../../../core/types';
 import { UniverseBuilder } from '../../../core/universe-builder';
 import { createLegalUniverseId } from '../../../core/universe-ids';
 
@@ -105,30 +105,35 @@ const accords = new UniverseBuilder(ACCORDS_ID, UniverseType.LEGAL_TIMELINE)
     // timestamp is the best single guess; `dateRange` carries the honest bound.
     .addKeyframe('2015-05-01T00:00:00Z', 'battle_of_sokovia', 1.0, ['precipitating_event', 'sokovia', 'avengers'], {
         certainty: 0.5,
+        precision: TimePrecision.YEAR,
         dateRange: { earliest: at('2015-01-01T00:00:00Z'), latest: at('2015-12-31T23:59:59Z') },
         description:
             'The Avengers’ defence of Sokovia ends with the city lifted into the air and destroyed. The civilian cost is the immediate argument for international oversight.',
     })
     .addKeyframe('2016-04-01T00:00:00Z', 'lagos_incident', 0.95, ['precipitating_event', 'lagos', 'collateral_damage'], {
         certainty: 0.4,
+        precision: TimePrecision.YEAR,
         dateRange: { earliest: at('2016-01-01T00:00:00Z'), latest: at('2016-04-30T23:59:59Z') },
         description:
             'A mission in Lagos ends with civilian deaths caused by an Avenger. The incident is the direct trigger for the drafting of the Accords.',
     })
     .addKeyframe('2016-04-15T00:00:00Z', 'accords_drafted', 0.9, ['drafting', 'united_nations', '117_nations'], {
         certainty: 0.4,
+        precision: TimePrecision.YEAR,
         dateRange: { earliest: at('2016-01-01T00:00:00Z'), latest: at('2016-04-30T23:59:59Z') },
         description:
             'The Accords are drafted and presented to the Avengers by Secretary of State Thaddeus Ross: 117 countries agree that the team should be registered and directed by a UN panel.',
     })
     .addKeyframe('2016-05-06T00:00:00Z', 'vienna_signing', 1.0, ['signing', 'vienna', 'united_nations', 'bombing'], {
         certainty: 0.4,
+        precision: TimePrecision.YEAR,
         dateRange: { earliest: at('2016-04-01T00:00:00Z'), latest: at('2016-06-30T23:59:59Z') },
         description:
             'The Accords are signed at the United Nations in Vienna. The signing is bombed, killing King T’Chaka of Wakanda and turning the political dispute into a manhunt.',
     })
     .addKeyframe('2016-05-06T00:00:00Z', 'avengers_split', 1.0, ['schism', 'leipzig', 'civil_war'], {
         certainty: 0.4,
+        precision: TimePrecision.YEAR,
         dateRange: { earliest: at('2016-04-01T00:00:00Z'), latest: at('2016-06-30T23:59:59Z') },
         description:
             'The pro- and anti-Accords factions fight at Leipzig/Halle airport; the team that assembled in 2012 is formally divided.',

@@ -1,4 +1,4 @@
-import {TemporalEpoch, Universe, UniverseNetwork} from '../core/types';
+import { TemporalEpoch, TimePrecision, Universe, UniverseNetwork } from '../core/types';
 import { UniverseId, isValidUniverseId, createUniverseId } from '../core/universe-ids';
 import { CommonUniverseIds } from '../core/common-universe-ids';
 import { ConfigLoader } from './config-loader';
@@ -76,27 +76,37 @@ export class UniverseRegistry {
       universe.universeId = universeId;
     }
 
+      // Calendar frames every universe can be read against.
+      //
+      // Their bounds and zero points are `bigint` nanoseconds like every other
+      // timestamp, and their accuracy is a `TimePrecision`. Both used to be
+      // decimal *strings* (`"0"`, `"DAY"`) hidden behind an
+      // `as unknown as TemporalEpoch` cast, so a frame's accuracy disagreed with
+      // the type that describes it (james-gibson/local-time#173).
+      // The map key is the frame's id. It used to be the short `unix` /
+      // `gregorian` while `epochId` said `utc:…`, so a caller addressing the
+      // frame by its label could not find it.
       const epochs = {
-        "unix": {
+        "utc:unix_epoch": {
           "epochId": "utc:unix_epoch",
-          "startTime": "0",
-          "endTime": "2147483647000000000",
-          "precision": "NANOSECOND",
+          "startTime": 0n,
+          "endTime": 2147483647000000000n, // 2038-01-19T03:14:07Z
+          "precision": TimePrecision.NANOSECOND,
           "description": "Unix epoch (January 1, 1970, 00:00:00 UTC to January 19, 2038, 03:14:07 UTC)",
-          "zeroPoint": "0", // + Math.random().toString(36),
+          "zeroPoint": 0n,
           "zeroEvent": "Unix epoch start",
           "beforePrefix": "BCE-",
           "afterPrefix": "CE+",
           "relativeFormat": "TIMESTAMP"
         } as unknown as TemporalEpoch,
 
-        "gregorian": {
+        "utc:gregorian": {
           "epochId": "utc:gregorian",
-          "startTime": "-62135596800000000000",
-          "endTime": "253402300799000000000",
-          "precision": "DAY",
+          "startTime": -62135596800000000000n, // 0001-01-01T00:00:00Z
+          "endTime": 253402300799000000000n, // 9999-12-31T23:59:59Z
+          "precision": TimePrecision.DAY,
           "description": "Gregorian calendar system (January 1, 0001 to December 31, 9999)",
-          "zeroPoint": "-62135596800000000000",
+          "zeroPoint": -62135596800000000000n,
           "zeroEvent": "Anno Domini start",
           "beforePrefix": "BCE ",
           "afterPrefix": "CE ",

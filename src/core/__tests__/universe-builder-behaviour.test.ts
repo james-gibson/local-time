@@ -156,6 +156,60 @@ describe('UniverseBuilder — validation', () => {
 
         expect(universe.layers).toEqual([]);
         expect(universe.temporalStructure!.keyframes).toHaveLength(1);
+        // `addDateKeyframe`'s documented fifth argument is the frame's accuracy.
+        expect(universe.temporalStructure!.keyframes[0].precision).toBe(TimePrecision.DAY);
+    });
+});
+
+/**
+ * james-gibson/local-time#173 — the accuracy of a frame.
+ *
+ * `TemporalKeyframe` had `certainty` and `dateRange` but no `precision`, so the
+ * builder's `addDateKeyframe(..., precision)` argument had nowhere to land and
+ * was dropped. Accuracy is a separate axis: a frame can be certain about a year
+ * and silent about the day.
+ */
+describe('UniverseBuilder — frame accuracy', () => {
+    const build = (addKeyframe: (builder: UniverseBuilder) => UniverseBuilder) =>
+        addKeyframe(
+            new UniverseBuilder()
+                .historicalEvent('an_event', 1963)
+                .withRealityRelation('documentary', 0.0)
+                .withPublicDomain(['Records']),
+        ).build();
+
+    test('a TimePrecision passed positionally is preserved', () => {
+        const universe = build((builder) =>
+            builder.addDateKeyframe('1963-11-22', 'a_moment', 1.0, ['historic'], TimePrecision.DAY),
+        );
+
+        expect(universe.temporalStructure!.keyframes[0].precision).toBe(TimePrecision.DAY);
+    });
+
+    test('an options bag carries precision alongside certainty and range', () => {
+        const universe = build((builder) =>
+            builder.addDateKeyframe('1963-11-22', 'a_moment', 1.0, ['historic'], {
+                precision: TimePrecision.YEAR,
+                certainty: 0.4,
+                dateRange: {
+                    earliest: BigInt(Date.UTC(1963, 0, 1)) * 1_000_000n,
+                    latest: BigInt(Date.UTC(1963, 11, 31)) * 1_000_000n,
+                },
+            }),
+        );
+
+        const keyframe = universe.temporalStructure!.keyframes[0];
+        expect(keyframe.precision).toBe(TimePrecision.YEAR);
+        expect(keyframe.certainty).toBe(0.4);
+        expect(keyframe.dateRange).toBeDefined();
+    });
+
+    test('a frame that declares no accuracy keeps the field absent', () => {
+        const universe = build((builder) =>
+            builder.addDateKeyframe('1963-11-22', 'a_moment', 1.0, ['historic']),
+        );
+
+        expect('precision' in universe.temporalStructure!.keyframes[0]).toBe(false);
     });
 });
 
