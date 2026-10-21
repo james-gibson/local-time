@@ -1,6 +1,6 @@
 ---
 name: 42i-prep
-description: Use before a multi-step refactor, before creating or adding a universe in local-time (or processing one of its implementation tickets), or before any KB/plane work. 42i prep loads any durable gated plan for the task from Qdrant memory, classifies the task shape (research, one edit, ten, refactor, universe-create, ticket), probes the unknown facts (cwd, git remote, branch, node, Synapse repo_id, KB root), and warms three caches: the Qdrant `kb` plane/42i vector, Qdrant memory, and the Synapse code graph. For a universe it hands over a ready-to-fill scaffold so the agent starts writing, not deciding; for a ticket it falsifies the ticket's presumptions first. It records the block/chunk ids and hands them down so downstream agents read by id; Synapse returns addressed chunks, not grep output. Also load when an agent serialises edits, re-reads its own output, misreads a thin result as "not found", or stalls expecting a local server to be slow — the failure mode this skill calls agent anxiety.
+description: Use before a multi-step refactor, before creating or adding a universe in local-time (or processing one of its implementation tickets), or before any KB/plane work. 42i prep loads any durable gated plan for the task from Qdrant memory, classifies the task shape (research, one edit, ten, bulk-set, refactor, universe-create, ticket), probes the unknown facts (cwd, git remote, branch, node, Synapse repo_id, KB root), and warms three caches: the Qdrant `kb` plane/42i vector, Qdrant memory, and the Synapse code graph. For a universe it hands over a ready-to-fill scaffold so the agent starts writing, not deciding; for a ticket it falsifies the ticket's presumptions first. It records the block/chunk ids and hands them down so downstream agents read by id; Synapse returns addressed chunks, not grep output. Also load when an agent serialises edits, re-reads its own output, misreads a thin result as "not found", stalls expecting a local server to be slow, or grinds a filtered queue (Dependabot PRs, a bot's issue list) one item at a time when a single query enumerates the whole set — the failure mode this skill calls agent anxiety.
 ---
 
 # 42i prep — warm the caches, then work
@@ -17,6 +17,11 @@ be slow. The cure is structural, not reassurance: if the data is already hot and
 there is nothing to fear and nothing to re-derive. [references/anxiety-facts.md](references/anxiety-facts.md)
 holds the measured latencies that prove it.
 
+It has a **sibling**: trusting a *filtered queue* as if it were the whole set — a bot's PR list,
+the first page of a paginated API — and then paying **per item** for a set that one query
+enumerates. Same error (an unmeasured premise: "this queue is the work"), same cure: read the
+source of truth first, and the per-item grind has no object.
+
 ## When to run it
 
 Any of these is a trigger:
@@ -27,6 +32,9 @@ Any of these is a trigger:
 - **Processing an implementation ticket** — `process <repo>/issues/<N>`. That string is the
   **GitHub issue** `<N>` in `<repo>` (`<repo>/issues/` is not a path and does not exist), and a
   ticket is a set of **presumptions** — so the prep is to falsify them (Step 1).
+- **Processing a set** — Dependabot PRs, a queue of issues, N files. Run the **enumerating**
+  call first (`npm audit`, the Dependabot alerts API, one index query); the queue is a *view*,
+  not the set (`bulk-set`, Step 1).
 - A KB edit that will flow through `local-time/scripts/sync-lore.sh`.
 - Plane / 42i / embedding work.
 - Any task you expect to outlive one context compaction.
@@ -64,6 +72,7 @@ Classify first — the shape sets the prep budget and the handoff.
 | **universe-create** | a new universe (KB or TS) | KB payload + registration surfaces + a sibling to copy |
 | **universe-derive** | a new universe **from an existing one** | the **lever** universe's full fact set (see below) |
 | **ticket** | `process <repo>/issues/<N>` — an implementation ticket | the ticket's **presumptions**, falsified (see below) |
+| **bulk-set** | "process all N" — Dependabot PRs, an issue queue, N files | the **enumerating** call (`npm audit` / alerts API / one index query), then the shared root cause |
 | **plane / 42i** | embedding / plane work | the whole charge graph, not one compendium |
 
 Say the shape out loud before you start. If you cannot classify it, you are in **research** —
@@ -108,6 +117,27 @@ stop, record it with its evidence, and get a decision before building the thing 
 it. Worked example — issue #89's containment presumption fails, so its acceptance criterion
 needs a core edit the ticket never mentions:
 [references/presumption-ledger.md](references/presumption-ledger.md).
+
+### A "process all N" is a bulk-set — enumerate it, then bisect
+
+When the task is "process all N" — Dependabot PRs, a queue of issues, N files — the trap is to
+treat the **queue as the set** and pay **per item**. A queue is a **view** built by someone
+else's filter, and it hides exactly the work that exceeds the filter: Dependabot's PR list stops
+at the `^` ranges in `package.json`, so it **never** opens a major bump; a paginated API stops
+at page 1. The prep is to find the **one call that enumerates the whole set** and read *that*:
+
+- dependencies — `npm audit --package-lock-only`, or
+  `gh api repos/<owner>/<repo>/dependabot/alerts?state=open`
+- the repo's own queue — `gh pr list` / `gh issue list`, cross-checked against the source above
+- code — one `synapse_search_codebase (regex)` or an index query, not N searches
+
+Then **collapse to the root cause**: if many items move together, they are one change. Worked
+case (`gibsunas/openttd`, 2026-10): the Dependabot queue drained to **empty** — yet `npm audit`
+showed **49 vulnerabilities (2 low, 9 moderate, 38 high)**, and **38 of them were the single
+`jest` 29 → 30 tree**. The per-PR path was 32 merges and ~90 minutes of CI waits; the audit
+returned the whole set in one call and pointed at one deliberate upgrade to bisect. Grinding a
+set one item at a time is the same error as re-reading a block you already hold: paying
+repeatedly for what one call settles.
 
 ## Step 2 — the environment probe (the "skill-reset")
 
@@ -273,6 +303,12 @@ Name it, then do the opposite of it.
 - **stalls on facts it could have probed once** — where is `node`, which repo am I in, what is
   the `repo_id` — instead of running the probe;
 - **cannot say the task shape**, so it oscillates between too-small and too-large steps;
+- **grinds a set one item at a time** — N PRs, N tickets, N files — when a single query
+  enumerates the whole set;
+- **reads a filtered queue as the full set** — "no open Dependabot PRs" is not "no outdated
+  deps"; the bot's queue stops at the `^` ranges and never shows the majors;
+- **fixes N findings that share one root cause** one at a time, instead of making the single
+  move that resolves all N;
 - **trusts the ticket** — starts writing against a mechanism that is named in the ticket but is
   designed, not wired, and finds out sixty files later;
 - declines to spawn parallel calls because "the server might be slow";
@@ -295,6 +331,13 @@ Name it, then do the opposite of it.
 - **Falsify the ticket's presumptions.** A ticket is a claim set, not a fact. One `read_chunk`
   per presumption settles it — and a `refuted` one is a gate, not a footnote
   ([references/presumption-ledger.md](references/presumption-ledger.md)).
+- **Enumerate before you iterate.** For "process all N of X" find the one call that lists the
+  whole set — `npm audit`, the Dependabot alerts API, a registry query, one
+  `synapse_search_codebase`. A per-item queue is a *view* through someone else's filter (semver
+  `^`, a budget, "what the bot opened"), and it hides exactly the work that exceeds the filter.
+- **Collapse to the root cause; bisect, don't grind.** If many items move together they are one
+  change — 38 of 49 audit highs were the single `jest` 29→30 tree. Find the shared cause.
+- **An empty queue is not a done state.** Verify against the underlying state, not the bot's view.
 - **Say the name.** "This is agent anxiety" — naming the pattern is usually enough to break
   it, because the premise (a slow server, an unknown environment) was never observed.
 
@@ -322,6 +365,13 @@ Name it, then do the opposite of it.
   tool repo `gibsunas/openttd`, but the source is `code/OpenTTD/` — scope every `path` with the
   prefix, and keep the **wrapper** remote distinct from the **upstream** (`OpenTTD/OpenTTD`)
   that public source URLs cite.
+- **The Dependabot PR queue is not the dependency state.** The queue is bounded by the `^`
+  ranges in `package.json`, so it **never** opens a major bump — and an empty queue is not a
+  clean repo (`gibsunas/openttd`: queue drained, **49 vulnerabilities / 38 high** still open).
+  Enumerate with `npm audit --package-lock-only` or
+  `gh api repos/<owner>/<repo>/dependabot/alerts?state=open`; both return the whole set in one
+  call. The repo's own `dependabot-batch-merge.yml` is not a substitute — it is broken
+  (`gibsunas/openttd#60`).
 - **`read_files` `ranges` are `"start-end"` strings.** Pass `ranges: ["140-175"]`; an array of
   two-element arrays is rejected.
 - **OpenKnowledge's cwd is sticky.** Always pass `cwd` to `exec`/`edit`/`write`; a bare
@@ -348,7 +398,8 @@ Name it, then do the opposite of it.
 - [references/handoff.md](references/handoff.md) — the id-handoff protocol, per-shape
   templates, and the disposable scout pattern.
 - [references/anxiety-facts.md](references/anxiety-facts.md) — symptoms, and the measured
-  latency and tool-behaviour facts that refute them.
+  latency and tool-behaviour facts that refute them — including the **filtered-queue** sibling:
+  enumerate a set with one call (audit / alerts API) instead of grinding the queue item by item.
 - The [`local-time-universe`](../local-time-universe/SKILL.md) skill — what to do *after* prep
   when the task is a new universe.
 - The `zero-reference` skill (kb vault) — the KB side of the pipeline.

@@ -9,6 +9,11 @@ that is not there.
 The name is the first tool: naming it usually breaks it, because the premise was never
 measured.
 
+**Its sibling** is *grinding a filtered view one item at a time*: treating a queue someone else
+built — Dependabot PRs, a bot's issue list, the first page of results — as if it were the whole
+set, and paying per item for a set that one query enumerates. Same root error: acting on an
+unmeasured premise (here, "this queue is the work") instead of the source of truth.
+
 ## Symptoms
 
 - Splitting one batch of edits into many single edits "to be safe".
@@ -23,6 +28,14 @@ measured.
 - Hedging the plan ("this may take a while", "the index may be rebuilding") without evidence.
 - Serialising `write_safely` calls for the same file.
 - Avoiding a refresh that is incremental and cheap, then working from stale data.
+- **Grinding a set one item at a time** — 32 PRs merged serially, re-waiting on CI after each —
+  when a single query (`npm audit`, the Dependabot alerts API, a registry lookup, one
+  `synapse_search_codebase`) enumerates the whole set at once.
+- **Reading a filtered queue as the whole set.** "No open Dependabot PRs" is not "no outdated
+  deps": the bot's queue is bounded by the `^` ranges in `package.json` and **structurally
+  cannot** show the major-version work. The queue is a *view*; the audit is the *state*.
+- **Fixing N findings that share one root cause**, one at a time, instead of making the single
+  move that resolves all N (bisect, don't grind).
 - **Trusting the ticket** — implementing a mechanism it names without checking that the mechanism
   exists, is public, and will accept the new value.
 
@@ -42,6 +55,9 @@ are local, and the expensive parts are cached or skipped.
 | "OpenKnowledge is a server, it'll lag." | OK `exec` read-only (`cat`, `ls`, `grep`) is cheap; watched docs bypass the round trip. |
 | "I should not add more calls." | Prepping removes calls: one `read_chunk` replaces a search that returns a summary; one batched edit replaces three serialised ones. |
 | "The ticket says it works this way." | A ticket is a **claim set**, not a fact. Worked case: `common-universe-ids.ts` builds its containment registry in a **`private static`** block of 9 hard-coded roots and never reads universe objects — so a ticket that says "resolve containment with `getAllDescendants()`" (local-time#89, AC#2) **cannot be satisfied** by declaring `parentUniverses`; it needs a core edit. One `read_chunk` settles it. A `refuted` presumption is a **gate**, not a footnote. |
+| "I'll work the queue one item at a time." | The queue is a **view produced by a bot's own policy** — not the set. `npm audit --package-lock-only` and `GET /repos/{owner}/{repo}/dependabot/alerts?state=open` return the **entire** outstanding set in **one call**. Enumerate first, then decide: 32 serial PR merges (~90 min of CI waits) collapsed to one audit call. |
+| "The queue is empty, so we're done." | An empty Dependabot queue **≠** a clean repo. Dependabot PRs are bounded by the `^` ranges in `package.json`, so a **major** bump is never opened. Post-drain state: **49 vulnerabilities (2 low, 9 moderate, 38 high)**. Ask the source of truth — the audit, not the queue. |
+| "Each finding needs its own fix." | When N findings share one root cause they are **one** change. 38 of those 49 highs were the single **jest 29 → 30** tree (`jest*`, `babel-jest`, `expect`, `@jest/*`, `braces`, `micromatch`, `js-yaml`, `sprintf-js`, `argparse`, `@istanbuljs/*`). One deliberate major upgrade + a bisect of the failing tests beats N per-package merges. |
 
 ## The counter-scripts
 
@@ -65,6 +81,17 @@ When you feel the pull to slow down, do the opposite of the symptom:
   depends on it.
 - **Parallelise independent calls.** Probe + repo list + a symbol search do not depend on each
   other; issue them together.
+- **Enumerate before you iterate.** For any "process all N of X", find the single call that lists
+  the *whole* set — `npm audit --package-lock-only`, `GET /repos/{owner}/{repo}/dependabot/alerts?state=open`,
+  a registry query, one `synapse_search_codebase`. A per-item queue is a view through someone
+  else's filter (semver `^`, a budget, "what the bot chose to open"), and it hides exactly the
+  work that exceeds the filter. 32 serial PR merges (~90 min of CI waits) became one audit call.
+- **Distrust an empty queue.** Absence from a queue is absence *from that queue*. Post-drain the
+  Dependabot queue was empty and the repo still had **49 vulnerabilities (38 high)**. Check the
+  underlying state, not the bot's view.
+- **Collapse to the root cause; bisect, don't grind.** When many items fail or move together they
+  are one change: 38 of those 49 highs were the single **jest 29 → 30** tree. Stop itemising —
+  find the shared cause and make one deliberate move.
 - **Say it.** "This is agent anxiety." Then make the call you were avoiding — it will come
   back in milliseconds or seconds, not minutes.
 
