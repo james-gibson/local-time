@@ -46,6 +46,10 @@ import {scotus2013Universes} from "./scotus-ot2013"
 import {scotus2025Universes} from "./scotus-ot2025"
 import {globalPoliticsUniverses} from "./global-politics"
 import {usPoliticsUniverses} from "./us-politics"
+// OpenTTD community works: the Master Hellish channel and its series, the Season 12
+// "Connect The World" Let's Play, the AI-vs-community video essay, and the platform
+// lineage they run on (Transport Tycoon Deluxe -> OpenTTD -> the AAAhogEx AI).
+import {openttdUniverses} from "./openttd"
 // The `film_studio:` container universes. They were defined but never spread into
 // `allUniverses`, so the registry never registered them: the studio containers had no
 // owner, and containment could not transit from a film, through its studio, up to
@@ -125,6 +129,7 @@ export const allUniverses = [
   // The second common boundary (#175): pre/post Enron is derived from this
   // universe's `chapter_11_filing` keyframe.
   enronCollapseUniverse,
+  ...openttdUniverses,
 ];
 
 export const allNetworks = [
