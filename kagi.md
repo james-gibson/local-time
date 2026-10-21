@@ -64,21 +64,16 @@ Identify hierarchical relationships automatically:
 - Use branded type creation functions: `createFilmUniverseId()`, `createHistoricalUniverseId()`, etc.
 - Validate IDs match expected patterns for universe type
 - Include proper TypeScript imports for ID creation
-- **Gotcha**: `UniverseBuilder.historical(event, …)` slugifies with *only* whitespace replaced:
+- `UniverseBuilder.historical(event, …)` derives the id from the event name: every run of characters outside `[a-z0-9_:.]` collapses to a single `_` (leading/trailing underscores trimmed), and `:`/`.` are kept so a namespaced event keeps its documented id:
 
   ```ts
   // src/core/universe-builder.ts
-  const id = `history:${event.toLowerCase().replace(/\s+/g, '_')}:${yearRange}`;
+  const slug = event.trim().toLowerCase()
+    .replace(/[^a-z0-9_:.]+/g, '_')
+    .replace(/^_+|_+$/g, '');
   ```
 
-  so any title containing an apostrophe, comma or colon (e.g. `Ed Sheeran 'Thinking Out Loud' Copyright Trial`) produces an id `isHistoricalUniverseId` rejects — and the registry then **drops the universe with a warning**. For any historical event whose name is not already a clean `[a-z0-9_.]` slug, pin the id explicitly:
-
-  ```ts
-  .historical("Ed Sheeran 'Thinking Out Loud' Copyright Trial", 2023, 2023)
-  .withId('history:ed_sheeran_copyright_trial:2023')
-  ```
-
-  Tracked as james-gibson/local-time#70.
+  Punctuation is therefore not a problem: `Ed Sheeran 'Thinking Out Loud' Copyright Trial` yields `history:ed_sheeran_thinking_out_loud_copyright_trial:2023-2023`. The derived id is then validated, and a malformed one **throws at the call site**, naming the event — rather than being dropped later by the registry with a warning. `.withId(...)` remains available for pinning an id deliberately, not as a punctuation workaround. (james-gibson/local-time#70.)
 - **Every epoch must carry an explicit `epochId`.** The registry warns and substitutes the layer key when it is missing, which silently changes every reference to that epoch (james-gibson/local-time#19).
 
 ### Temporal Structure Standards
@@ -109,8 +104,7 @@ Identify hierarchical relationships automatically:
   ```
 
   A keyframe that is one of several events of a kind should carry `type` (`KeyframeType`); "the release" is never a well-defined target on its own.
-- `addRuntimeKeyframe(minutes, seconds, id, significance, tags, description?)` — the second argument is **seconds within the minute**, not a duration: `(5, 30, …)` is 5m30s.
-- **Gotcha**: `addRuntimeKeyframe`'s trailing `description` is **discarded**, and `TemporalKeyframe` has no `description` field today (james-gibson/local-time#77). Prose for a moment currently only survives in hand-written universes via `as unknown as Universe`. Do not rely on the builder to store it; put it in `metadata` until #77 lands. This matters for retrieval — the moment description is the corpus, the tags are not.
+- `addRuntimeKeyframe(minutes, seconds, id, significance, tags, description?)` — the second argument is **seconds within the minute**, not a duration: `(5, 30, …)` is 5m30s. The trailing `description` is stored on the keyframe: `TemporalKeyframe.description?: string` exists, and the builder forwards the value through `addKeyframe`'s `options` bag. Put the moment's one sentence here rather than in `metadata` — at retrieval time the description is the corpus and the tags are not (james-gibson/local-time#77).
 
 ### Attribution Requirements
 
@@ -547,12 +541,12 @@ Always document discovered connections:
 | #27 | A universe defined under a namespace must be registered |
 | #45 | `build()` validates; module-scope build failures take the barrel down |
 | #67 | A file shadows a same-named directory; the subtree never loads |
-| #70 | `historical()` slugifies only whitespace; pin ids with punctuation via `withId` |
+| #70 | `historical()` slugifies punctuation to `_` and throws on an id the validator rejects |
 | #71 | `npm run lint` has no config — do not treat it as a gate |
 | #74 | Containment: one owner, many memberships (`parentUniverses`/`contains`) |
 | #75 | Composition: overlay layers with `reality_correspondence`; record collisions |
 | #76 | Projections: corpus / weights / charges derived from the definitions |
-| #77 | `addRuntimeKeyframe`'s `description` is discarded (`TemporalKeyframe` has no field) |
+| #77 | `addRuntimeKeyframe`'s `description` is stored via `TemporalKeyframe.description` |
 | #90 | `plane_charge` is binary ±1; the gradient `level` is the weight, never the charge |
 
 **Design rationale.** The pre-implementation transcripts these rules derive from are indexed in
