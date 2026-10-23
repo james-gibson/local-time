@@ -1,5 +1,7 @@
 import { createUniverseId } from '../../core/universe-ids';
+import { CommonUniverseIds } from '../../core/common-universe-ids';
 import { TimePrecision, Universe, UniverseType, creatorRefs } from '../../core';
+import type { TropeFilmMetadata } from './tropes/types';
 
 export const backToTheFutureUniverse: Universe = {
     universeId: createUniverseId("film:bttf:1985"),
@@ -8,6 +10,18 @@ export const backToTheFutureUniverse: Universe = {
     identifiers: {
         primary: {type: 'film', value: 'tt0088763', year: 1985},
         aliases: ["back_to_the_future", "bttf"]
+    },
+    // Membership, not a second definition (james-gibson/local-time#74).
+    //
+    // The 1980s tropes collection (#130) names this film as the anchor for
+    // `modified_vehicle_time_machine`. That is an edge the child declares: the
+    // universeId is owned here, and `config/universes/tropes` must never restate
+    // it. Keeping the edge next to the owner is what lets one id be in the film
+    // namespace *and* in the trope collection without duplicating the record.
+    connections: {
+        natural: {
+            parentUniverses: [CommonUniverseIds.EIGHTIES_MOVIE_TROPES],
+        },
     },
     realityRelation: {
         type: 'pure_fiction',
@@ -97,6 +111,10 @@ export const backToTheFutureUniverse: Universe = {
         canonicalName: "Back to the Future",
         creators: ["Robert Zemeckis", "Bob Gale"],
         released: new Date("1985-07-03"),
-        cultural_significance: 0.95
-    }
+        cultural_significance: 0.95,
+        // The trope this film anchors (#130). Declared here, on the owner, and
+        // cross-checked against the collection's registry by
+        // `tropes/tropes-registration.test.ts`.
+        tropes: ['modified_vehicle_time_machine'],
+    } as TropeFilmMetadata
 };

@@ -50,6 +50,10 @@ import {usPoliticsUniverses} from "./us-politics"
 // "Connect The World" Let's Play, the AI-vs-community video essay, and the platform
 // lineage they run on (Transport Tycoon Deluxe -> OpenTTD -> the AAAhogEx AI).
 import {openttdUniverses} from "./openttd"
+// The 1980s film-tropes collection (#130). The container holds the trope registry;
+// the films it anchors are ordinary film universes that declare membership of it. Spread,
+// never nested (#45, #68) — a nested array yields `universeId: undefined`.
+import {tropesUniverses} from "./tropes"
 // The `film_studio:` container universes. They were defined but never spread into
 // `allUniverses`, so the registry never registered them: the studio containers had no
 // owner, and containment could not transit from a film, through its studio, up to
@@ -130,6 +134,10 @@ export const allUniverses = [
   // universe's `chapter_11_filing` keyframe.
   enronCollapseUniverse,
   ...openttdUniverses,
+  // The 1980s tropes collection (#130): the container first, then the films it
+  // anchors. *Back to the Future* is a member too, but it is owned by the film
+  // namespace and appears in `filmUniverses` — never here (#74).
+  ...tropesUniverses,
 ];
 
 export const allNetworks = [
