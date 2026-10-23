@@ -70,7 +70,8 @@
   "overrides": {
     "@istanbuljs/load-nyc-config": {
       "js-yaml": "^4.3.2"
-    }
+    },
+    "test-exclude": "^8.0.0"
   },
   "files": [
     "dist/**/*",
