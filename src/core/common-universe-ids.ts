@@ -63,6 +63,25 @@ export class CommonUniverseIds {
   static readonly TOY_STORY_FRANCHISE = createHistoricalUniverseId('toy_story_franchise', 1995);
   static readonly CARS_FRANCHISE = createHistoricalUniverseId('cars_franchise', 2006);
 
+  /**
+   * The 1980s film-tropes collection (james-gibson/local-time#130).
+   *
+   * A *container*, not a work: it holds a taxonomy of conventions and the films
+   * that canonised them. It uses the HISTORICAL span form like every other
+   * umbrella container, because a decade-long collection cannot express its run
+   * in a `film:` id (which is `<studio>:<title>:<year>` and would also claim a
+   * distributor it does not have).
+   *
+   * Declared here, not in `config/universes/tropes`, so a film can name its
+   * membership without importing the module that imports the film — the same
+   * lever `US_STATEHOOD` (#103) and `DIABLO_FRANCHISE` (#112) use.
+   */
+  static readonly EIGHTIES_MOVIE_TROPES = createHistoricalUniverseId(
+    'eighties_movie_tropes',
+    1980,
+    '1980-1989',
+  );
+
   // Games industry — the `game:` namespace's franchise containers.
   //
   // The container uses the HISTORICAL vocabulary like every other franchise
