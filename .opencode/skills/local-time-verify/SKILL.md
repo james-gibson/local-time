@@ -16,7 +16,7 @@ that make a local run lie about them.
 export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; nvm use
 
 npm run typecheck            # tsc --noEmit && tsc -p tsconfig.test.json
-npm run lint                 # eslint src --ext .ts
+npm run lint                 # eslint src (flat config: eslint.config.js)
 npx jest                     # the FULL suite — see below
 npm run test:scripts         # node --test scripts/__tests__/*.test.js
 ```
@@ -40,8 +40,9 @@ A git worktree was set up with `ln -s ../local-time/node_modules node_modules`.
 test file — while CI, running the same command, was green.
 
 The cause: the symlink resolved plugins from the **older** checkout, which had
-`@typescript-eslint` **v6**. `main`'s `.eslintrc.cjs` scopes its override to the
-**v8** rule name:
+`@typescript-eslint` **v6**. At the time `main`'s `.eslintrc.cjs` scoped its
+override to the **v8** rule name (that file is now `eslint.config.js`, #166, but
+the rule name it scopes is the same):
 
 ```js
 { files: ['src/index.ts', '…id-factory-consolidation.test.ts'],

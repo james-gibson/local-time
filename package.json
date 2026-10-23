@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=20.0.0"
+    "node": "^20.19.0 || ^22.13.0 || >=24"
   },
   "exports": {
     ".": {
@@ -27,8 +27,8 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
@@ -55,11 +55,12 @@
     "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": ">=22",
     "@typescript-eslint/eslint-plugin": "^8.71.2",
     "@typescript-eslint/parser": "^8.71.2",
-    "eslint": "^8.57.1",
+    "eslint": "^10.13.0",
     "jest": "^30.5.2",
     "prisma": "^5.7.0",
     "ts-jest": "^29.4.15",
