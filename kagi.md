@@ -548,6 +548,9 @@ Always document discovered connections:
 | #76 | Projections: corpus / weights / charges derived from the definitions |
 | #77 | `addRuntimeKeyframe`'s `description` is stored via `TemporalKeyframe.description` |
 | #90 | `plane_charge` is binary ±1; the gradient `level` is the weight, never the charge |
+| #92 | Signed edges: the walk uses `|w|`, the sign is carried in `affinity` (`contradicts` is not a vote) |
+| #92 | A referenced id that is not registered is reported in `graph.dangling`, never silently redistributed away |
+| #92 | A ranking score must be explainable by its contributing edges (`explainRank`), like a composition that shows its deviations |
 
 **Design rationale.** The pre-implementation transcripts these rules derive from are indexed in
 [`explorations/README.md`](explorations/README.md) — including the constructs designed but never
