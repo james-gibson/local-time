@@ -82,7 +82,8 @@ then dedupes with the copies eslint already resolves, `argparse` resolves to
   `npm view @istanbuljs/load-nyc-config dependencies.js-yaml`.
 - `eslint@8.57.1` remains deprecated and out of support; it is not implicated in
   any open advisory once `ajv` is at 6.14.0, and moving to the flat config is a
-  separate change.
+  separate change. *(Since this ADR was written, #166 moved the tree to ESLint 10
+  and `eslint.config.js`; the observation above is the state at the time.)*
 
 [145]: https://github.com/james-gibson/local-time/issues/145
 [ghsa]: https://github.com/advisories/GHSA-hp3w-g68c-fv3c
