@@ -27,7 +27,6 @@ export class RealityGradientAnalyzer {
   static analyzeUniverse(universe: Universe): RealityGradient {
     const relation = universe.realityRelation;
     let level = relation.fictionalizationDegree;
-    let category = this.categorizeByLevel(level);
     let confidence = 0.8; // Default confidence
     const evidence: string[] = [];
 
@@ -35,32 +34,27 @@ export class RealityGradientAnalyzer {
     switch (relation.type) {
       case 'documentary':
         level = Math.min(level, 0.1);
-        category = level === 0.0 ? RealityCategory.PURE_REALITY : RealityCategory.DOCUMENTED_REALITY;
         confidence = 0.95;
         evidence.push('Classified as documentary');
         break;
 
       case 'historical_fiction':
         level = Math.max(level, 0.4);
-        category = RealityCategory.HISTORICAL_FICTION;
         evidence.push('Historical fiction with fictional characters');
         break;
 
       case 'inspired_by':
         level = Math.max(level, 0.3);
-        category = level < 0.5 ? RealityCategory.INSPIRED_FICTION : RealityCategory.SOFT_FICTION;
         evidence.push('Inspired by real events');
         break;
 
       case 'pure_fiction':
         level = Math.max(level, 0.7);
-        category = level < 0.9 ? RealityCategory.HARD_FICTION : RealityCategory.PURE_FANTASY;
         evidence.push('Classified as pure fiction');
         break;
 
       case 'metafiction':
         level = Math.max(level, 0.8);
-        category = RealityCategory.PURE_FANTASY;
         evidence.push('Metafictional work');
         break;
     }
@@ -85,7 +79,7 @@ export class RealityGradientAnalyzer {
     }
 
     // Recategorize after adjustments
-    category = this.categorizeByLevel(level);
+    const category = this.categorizeByLevel(level);
 
     return {
       level: Math.max(0, Math.min(1, level)), // Clamp to 0-1 range
