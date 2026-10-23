@@ -5,34 +5,43 @@ import { ConfigLoader } from '../../config-loader';
 import { UniverseRegistry } from '../../universe-registry';
 import { RealityGradientAnalyzer } from '../../../utils/reality-gradient';
 import { allUniverses } from '../index';
-import { pagerankHistoryUniverse } from './pagerank-history';
+import {
+  PAGERANK_CONTAINER_ID,
+  pagerankEraUniverses,
+  pagerankHistoryContainerUniverse,
+  pagerankHistoryUniverse,
+  pagerankHistoryUniverses,
+} from './pagerank-history';
 
 /**
- * History of PageRank — james-gibson/local-time#93.
+ * History of PageRank — james-gibson/local-time#93, decomposed under #103.
  *
- * The universe is a hand-authored literal, so the guards here are the ones the
- * builder would otherwise provide: a real registry lookup (a spread into
- * `allUniverses` is not proof of a lookup, #27), an explicit `epochId` on every
- * epoch (#19), gapless segments, keyframes inside their epoch bounds, an anchor
- * that resolves to a *registered* universe (the #129 lesson), and a projection
- * that reads as documentary rather than fiction.
+ * The universe is no longer a 352-line literal: it is a container plus five era
+ * members, all built through `UniverseBuilder`. The guards here are the ones the
+ * decomposition makes possible and the ones it could break:
+ *
+ * - registration and a real lookup for every id (#27, #67);
+ * - one membership per era, with the container's ancestors inherited (#74);
+ * - the container's partition and each era's epoch/segment agree, because both
+ *   come from one era table;
+ * - every authored keyframe lands in exactly one era, inside that era's bounds;
+ * - the container owns no keyframes (a moment belongs to one era, #76);
+ * - the anchor resolves to a registered universe (the #129 lesson);
+ * - every epoch carries an explicit `epochId` (#19);
+ * - the whole namespace projects as documentary rather than fiction.
  */
 
-const ordered = <T extends { start?: bigint; end?: bigint }>(items: T[]): T[] =>
-  [...items].sort((a, b) => ((a.start ?? 0n) < (b.start ?? 0n) ? -1 : 1));
+const emptyLoader = { loadConfigurations: async () => [] } as unknown as ConfigLoader;
 
-const structure = pagerankHistoryUniverse.temporalStructure!;
-const segments = structure.segments as Array<{
-  id: string;
-  start: bigint;
-  end: bigint;
-  type: string;
-}>;
-const keyframes = structure.keyframes as Array<{ id: string; timestamp: bigint }>;
+const idOf = (universe: Universe): string => String(universe.universeId);
 
-const epochs = (universe: Universe) =>
-  universe.layers.flatMap((layer) =>
-    Object.entries(layer.epochs).map(([key, epoch]) => ({
+const container = pagerankHistoryContainerUniverse;
+const containerId = PAGERANK_CONTAINER_ID;
+const eraIds = pagerankEraUniverses.map(idOf);
+
+const epochsOf = (universe: Universe) =>
+  (universe.layers ?? []).flatMap((layer) =>
+    Object.entries(layer.epochs ?? {}).map(([key, epoch]) => ({
       label: `${layer.layerId}.${key}`,
       epochId: (epoch as { epochId?: string }).epochId,
       start: (epoch as { startTime?: bigint }).startTime,
@@ -40,108 +49,257 @@ const epochs = (universe: Universe) =>
     })),
   );
 
-const registeredIds = new Set(
-  allUniverses.map((u) => (u as { universeId?: string }).universeId),
-);
+const segmentsOf = (universe: Universe) =>
+  (universe.temporalStructure?.segments ?? []).map((segment) => ({
+    id: segment.id,
+    start: segment.start,
+    end: segment.end,
+    type: segment.type,
+  }));
 
-describe('History of PageRank universe (james-gibson/local-time#93)', () => {
-  test('uses a valid HISTORICAL id, and the primary identifier is that id', () => {
-    expect(pagerankHistoryUniverse.universeId).toBe('history:pagerank:1996');
-    expect(isValidUniverseId(pagerankHistoryUniverse.universeId as string)).toBe(true);
-    expect(pagerankHistoryUniverse.type).toBe(UniverseType.HISTORICAL_EVENT);
-    // A `identifiers.primary` that disagrees with `universeId` is a defect
-    // (james-gibson/local-time#102 BUG-4).
-    expect(pagerankHistoryUniverse.identifiers.primary).toBe(pagerankHistoryUniverse.universeId);
+const keyframesOf = (universe: Universe) =>
+  (universe.temporalStructure?.keyframes ?? []).map((keyframe) => ({
+    id: keyframe.id,
+    timestamp: keyframe.timestamp,
+  }));
+
+const ns = (iso: string): bigint => BigInt(new Date(iso).getTime()) * 1_000_000n;
+const PRESENT = ns('2026-10-17T00:00:00Z');
+
+/** The eleven moments the hand-authored literal carried, by id. */
+const EXPECTED_KEYFRAMES = [
+  'backrub_begins',
+  'provisional_patent_filed',
+  'patent_application_filed',
+  'pagerank_paper_published',
+  'anatomy_paper_published',
+  'google_founded',
+  'patent_granted',
+  'topic_sensitive_pagerank',
+  'nofollow_introduced',
+  'toolbar_pagerank_retired',
+  'patent_expired',
+].sort();
+
+describe('the PageRank container (#103)', () => {
+  test('keeps the id the literal owned, and the primary identifier agrees with it', () => {
+    expect(containerId).toBe('history:pagerank:1996');
+    expect(container.universeId).toBe(containerId);
+    expect(pagerankHistoryUniverse).toBe(container);
+    expect(isValidUniverseId(containerId)).toBe(true);
+    expect(container.type).toBe(UniverseType.HISTORICAL_EVENT);
+    // A `identifiers.primary` that disagrees with `universeId` is a defect (#102 BUG-4).
+    expect(container.identifiers.primary).toBe(containerId);
   });
 
-  test('is registered in allUniverses exactly once', () => {
-    const id = pagerankHistoryUniverse.universeId as string;
-    const count = allUniverses.filter(
-      (u) => (u as { universeId?: string }).universeId === id,
-    ).length;
-    expect(count).toBe(1);
+  test('is registered once, and survives a real registry lookup', async () => {
+    expect(allUniverses.filter((u) => idOf(u as Universe) === containerId)).toHaveLength(1);
+
+    const registry = new UniverseRegistry(emptyLoader);
+    await registry.initialize();
+
+    expect(registry.getUniverse(containerId)).toBeDefined();
+    // The container is reachable by its alias too, which is what a KB reference
+    // or a query typed as "PageRank history" resolves through.
+    expect(registry.getUniverse('PageRank history')?.universeId).toBe(containerId);
   });
 
-  test('survives a real registry lookup', () => {
-    const registry = new UniverseRegistry(new ConfigLoader());
-    const id = pagerankHistoryUniverse.universeId as string;
-    expect(() => registry.registerUniverse(id, pagerankHistoryUniverse)).not.toThrow();
-    expect(registry.getUniverse(id)).toBeDefined();
-  });
-
-  test('every epoch carries an explicit epochId (#19)', () => {
-    const offenders = epochs(pagerankHistoryUniverse)
-      .filter(({ epochId }) => !epochId || epochId.trim() === '')
-      .map(({ label }) => label);
-    expect(offenders).toEqual([]);
-  });
-
-  test('segments are gapless and use only valid segment types', () => {
-    const valid = new Set([
-      'sequence',
-      'act',
-      'scene',
-      'phase',
-      'countdown',
-      'mission_phase',
-      'life_period',
-      'education',
-      'career',
-      'public_service',
-      'legal_period',
-      'legislation_active',
-      'court_jurisdiction',
-    ]);
-    const sorted = ordered(segments);
-    for (let i = 1; i < sorted.length; i += 1) {
-      expect(sorted[i].start).toBe(sorted[i - 1].end);
-    }
-    expect(sorted[0].start).toBe(BigInt(Date.UTC(1996, 0, 1)) * 1_000_000n);
-    for (const segment of sorted) expect(valid.has(segment.type)).toBe(true);
-  });
-
-  test('every keyframe falls inside an epoch', () => {
-    const bounds = epochs(pagerankHistoryUniverse);
-    for (const keyframe of keyframes) {
-      const containing = bounds.filter(
-        ({ start, end }) =>
-          start !== undefined &&
-          end !== undefined &&
-          keyframe.timestamp >= start &&
-          keyframe.timestamp <= end,
-      );
-      expect(`${keyframe.id}: ${containing.length > 0 ? 'inside' : 'OUTSIDE'}`).toBe(
-        `${keyframe.id}: inside`,
-      );
-    }
-  });
-
-  test('anchors only a universe that is actually registered', () => {
-    const anchorIds = pagerankHistoryUniverse.realityRelation.realityAnchors.map(
-      (anchor) => anchor.realEventId,
-    );
-    // The ticket's three anchors included one malformed id (`history:world_wide_web:1989`)
-    // and two ids nothing owns. Only the Web anchor is asserted.
-    expect(anchorIds).toEqual(['technology:world_wide_web:1989']);
-    for (const id of anchorIds) {
-      expect(`${id}: ${registeredIds.has(id) ? 'registered' : 'DANGLING'}`).toBe(
-        `${id}: registered`,
-      );
-    }
-  });
-
-  test('is contained by the software-engineering and world-history containers', () => {
-    const parents = (pagerankHistoryUniverse.connections?.natural?.parentUniverses ??
-      []) as string[];
+  test('is contained by software engineering and world history', () => {
+    const parents = (container.connections?.natural?.parentUniverses ?? []) as string[];
     expect(parents).toContain(CommonUniverseIds.SOFTWARE_ENGINEERING);
     expect(parents).toContain(CommonUniverseIds.WORLD_HISTORY);
     for (const parent of parents) expect(isValidUniverseId(parent)).toBe(true);
   });
 
-  test('projects as a documentary, not fiction', () => {
-    expect(pagerankHistoryUniverse.realityRelation.type).toBe('documentary');
-    expect(pagerankHistoryUniverse.realityRelation.fictionalizationDegree).toBe(0.0);
-    const gradient = RealityGradientAnalyzer.analyzeUniverse(pagerankHistoryUniverse);
-    expect(gradient.level).toBeLessThanOrEqual(0.1);
+  test('holds the five-phase partition, gapless, from 1996 to the present', () => {
+    const segments = segmentsOf(container);
+
+    expect(segments.map((segment) => segment.id)).toEqual([
+      'inception',
+      'publication',
+      'commercialization',
+      'patent_era',
+      'post_patent',
+    ]);
+    expect(segments[0].start).toBe(ns('1996-01-01T00:00:00Z'));
+    expect(segments[segments.length - 1].end).toBe(PRESENT);
+    for (let i = 1; i < segments.length; i += 1) {
+      expect(segments[i].start).toBe(segments[i - 1].end);
+    }
+  });
+
+  test('owns no keyframes: a moment belongs to exactly one era (#76)', () => {
+    expect(keyframesOf(container)).toEqual([]);
+  });
+
+  test('keeps the paper authors as a creator credit', () => {
+    expect(container.metadata?.creators).toEqual([
+      'Lawrence Page',
+      'Sergey Brin',
+      'Rajeev Motwani',
+      'Terry Winograd',
+    ]);
+  });
+
+  test('carries one explicit epoch for the whole run (#19)', () => {
+    const epochs = epochsOf(container);
+    expect(epochs).toHaveLength(1);
+    expect(epochs[0].epochId).toBe('pagerank:1996:2026');
+    expect(epochs[0].start).toBe(ns('1996-01-01T00:00:00Z'));
+    expect(epochs[0].end).toBe(PRESENT);
+  });
+});
+
+describe('the five era members (#103)', () => {
+  test('the namespace is the container plus five eras, all with valid ids', () => {
+    expect(pagerankHistoryUniverses).toHaveLength(6);
+    expect(eraIds).toEqual([
+      'history:pagerank:inception:1996',
+      'history:pagerank:publication:1998',
+      'history:pagerank:commercialization:1998',
+      'history:pagerank:patent_era:2001',
+      'history:pagerank:post_patent:2019',
+    ]);
+    for (const id of [containerId, ...eraIds]) expect(isValidUniverseId(id)).toBe(true);
+  });
+
+  test('every era is a member of the container, and inherits its ancestors', async () => {
+    const registry = new UniverseRegistry(emptyLoader);
+    await registry.initialize();
+
+    for (const id of eraIds) {
+      expect(registry.getMemberships(id).map(String)).toContain(containerId);
+      expect(registry.contains(containerId, id)).toBe(true);
+      // One membership, two inherited ancestors: the point of the container.
+      expect(registry.contains(CommonUniverseIds.SOFTWARE_ENGINEERING, id)).toBe(true);
+      expect(registry.contains(CommonUniverseIds.WORLD_HISTORY, id)).toBe(true);
+    }
+    expect(registry.getChildren(containerId).map(String).sort()).toEqual([...eraIds].sort());
+  });
+
+  test('every era is registered exactly once and retrievable', async () => {
+    const registry = new UniverseRegistry(emptyLoader);
+    await registry.initialize();
+
+    for (const universe of pagerankEraUniverses) {
+      const id = idOf(universe);
+      expect(allUniverses.filter((u) => idOf(u as Universe) === id)).toHaveLength(1);
+      expect(registry.getUniverse(id)).toBeDefined();
+    }
+  });
+
+  test('each era declares exactly one membership — the container', () => {
+    for (const universe of pagerankEraUniverses) {
+      const parents = (universe.connections?.natural?.parentUniverses ?? []) as string[];
+      expect(parents).toEqual([containerId]);
+    }
+  });
+
+  test("each era's epoch and segment are the container's row for that era", () => {
+    const containerSegments = segmentsOf(container);
+
+    pagerankEraUniverses.forEach((universe, index) => {
+      const epochs = epochsOf(universe);
+      const segments = segmentsOf(universe);
+      const expected = containerSegments[index];
+
+      expect(epochs).toHaveLength(1);
+      expect(epochs[0].epochId).toBeTruthy();
+      expect(epochs[0].start).toBe(expected.start);
+      expect(epochs[0].end).toBe(expected.end);
+
+      expect(segments).toHaveLength(1);
+      expect(segments[0].start).toBe(expected.start);
+      expect(segments[0].end).toBe(expected.end);
+      expect(segments[0].type).toBe(expected.type);
+    });
+  });
+
+  test('the eras are contiguous and cover the container span exactly once', () => {
+    const segments = segmentsOf(container);
+    for (let i = 1; i < segments.length; i += 1) {
+      expect(segments[i].start).toBe(segments[i - 1].end);
+    }
+  });
+
+  test('the patent era is a legal_period, the rest are phases', () => {
+    const byId = new Map(pagerankEraUniverses.map((universe) => [idOf(universe), universe]));
+    expect(segmentsOf(byId.get('history:pagerank:patent_era:2001')!)[0].type).toBe('legal_period');
+    expect(segmentsOf(byId.get('history:pagerank:inception:1996')!)[0].type).toBe('phase');
+  });
+});
+
+describe('keyframes are authored once and land in exactly one era', () => {
+  const allEraKeyframes = pagerankEraUniverses.flatMap((universe) =>
+    keyframesOf(universe).map((keyframe) => ({ ...keyframe, universeId: idOf(universe) })),
+  );
+
+  test('all eleven moments survived the decomposition, none duplicated', () => {
+    const ids = allEraKeyframes.map((keyframe) => keyframe.id).sort();
+    expect(ids).toEqual(EXPECTED_KEYFRAMES);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test('every keyframe falls inside its own era, and nowhere else', () => {
+    for (const universe of pagerankEraUniverses) {
+      const [epoch] = epochsOf(universe);
+      for (const keyframe of keyframesOf(universe)) {
+        expect(keyframe.timestamp >= epoch.start!).toBe(true);
+        expect(keyframe.timestamp < epoch.end!).toBe(true);
+      }
+    }
+  });
+
+  test('the expiry opens the post-patent era (the one-day fix)', () => {
+    // The literal had `patent_expired` on 2019-06-04 inside an epoch that started
+    // 2019-06-05. The boundary is now the expiry itself.
+    const postPatent = pagerankEraUniverses.find(
+      (universe) => idOf(universe) === 'history:pagerank:post_patent:2019',
+    )!;
+    const [epoch] = epochsOf(postPatent);
+
+    expect(epoch.start).toBe(ns('2019-06-04T00:00:00Z'));
+    expect(keyframesOf(postPatent).map((keyframe) => keyframe.id)).toEqual(['patent_expired']);
+  });
+
+  test('the publication era holds the paper that the era is named for', () => {
+    const publication = pagerankEraUniverses.find(
+      (universe) => idOf(universe) === 'history:pagerank:publication:1998',
+    )!;
+
+    expect(keyframesOf(publication).map((keyframe) => keyframe.id)).toEqual([
+      'pagerank_paper_published',
+      'anatomy_paper_published',
+    ]);
+  });
+});
+
+describe('anchors and projection', () => {
+  const registeredIds = new Set(allUniverses.map((universe) => idOf(universe as Universe)));
+
+  test('the container anchors only a universe that is registered', () => {
+    const anchorIds = container.realityRelation.realityAnchors.map((anchor) => anchor.realEventId);
+
+    expect(anchorIds).toEqual(['technology:world_wide_web:1989']);
+    for (const id of anchorIds) expect(registeredIds.has(id)).toBe(true);
+  });
+
+  test('the eras add no anchors of their own — the anchor is shared context', () => {
+    for (const universe of pagerankEraUniverses) {
+      expect(universe.realityRelation.realityAnchors).toEqual([]);
+    }
+  });
+
+  test('the container and every era project as documentary, not fiction', () => {
+    for (const universe of pagerankHistoryUniverses) {
+      expect(universe.realityRelation.type).toBe('documentary');
+      expect(universe.realityRelation.fictionalizationDegree).toBe(0.0);
+      expect(RealityGradientAnalyzer.analyzeUniverse(universe).level).toBeLessThanOrEqual(0.1);
+    }
+  });
+
+  test('every id in the namespace is unique across allUniverses', () => {
+    const ids = allUniverses.map((universe) => idOf(universe as Universe));
+    expect(ids.length).toBe(new Set(ids).size);
   });
 });

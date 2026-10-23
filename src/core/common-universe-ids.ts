@@ -104,6 +104,18 @@ export class CommonUniverseIds {
   static readonly SOFTWARE_ENGINEERING = createHistoricalUniverseId('software_engineering', '*');
   static readonly VERSION_CONTROL = createHistoricalUniverseId('version_control', '*');
 
+  /**
+   * The PageRank history container (james-gibson/local-time#103).
+   *
+   * The id the single hand-authored PageRank universe already owned, kept so
+   * existing references resolve. What changed is its role: it is now the
+   * container of five era universes (`history:pagerank:inception:1996`, …)
+   * rather than the sole owner of every keyframe. Modelled on `US_STATEHOOD`
+   * (#168): the children declare one membership, the container holds the shared
+   * context and the partition, and the children inherit its ancestors.
+   */
+  static readonly PAGERANK_HISTORY = createHistoricalUniverseId('pagerank', 1996);
+
   // Containers the KB's frontmatter already declares.
   //
   // The lore template writes `parent-universes:` as symbolic names
