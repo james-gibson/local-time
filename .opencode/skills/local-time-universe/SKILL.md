@@ -181,6 +181,16 @@ one, check which of these you are looking at — the shape to reach for is diffe
   `legal_period` segment, the `admission`/`secession`/`readmission` keyframes, the
   `parentUniverses: [US_HISTORY, US_GOVERNMENT]` edge) are its parameters. If you are about to
   write the same block a third time, write a factory function instead.
+- **A container with members.** A timeline that spans several distinct eras or members is a
+  container universe plus one child per member, not one literal with everything inline.
+  `historical/pagerank-history.ts` is the worked case (#103): the container keeps the id the
+  literal owned (`history:pagerank:1996`), holds the shared sources/anchor/significance and
+  the partition, and five era universes declare one membership each
+  (`history:pagerank:publication:1998`, …). The era table is the single source of the
+  partition, so a child's epoch, its segment and the container's copy of it cannot disagree.
+  `us-history/usStatehoodHistory.universe.ts` is the same shape with fifty members and a
+  shared Civil War epoch (#168). If you find yourself writing a second span inline, stop and
+  make it a member.
 - **A composition.** One universe reached several ways — a film seen by a studio collection
   *and* by a filmography — is one id, not two. `films/index.ts` documents why the
   alternatives were *folded* instead (duplicate ids under #67) and calls that "a workaround,
@@ -195,7 +205,7 @@ The vocabulary to express composition exists, and **containment** is now wired (
 | `UniverseRegistry.getOwner` / `getMemberships` / `contains` | the read surface; the registry folds *both* edges into `CommonUniverseIds` |
 | `TemporalLayer.subuniverses` | **retired** — it had zero producers (#74) |
 | `TemporalLayer.reality_correspondence` | used once, `savingPrivateRyanUniverse.ts` (#75) |
-| `UniverseNetwork.sharedEpochs` / `eras` | declared; every member set is empty |
+| `UniverseNetwork.sharedEpochs` / `eras` | `sharedEpochs` inherited by every member at registration (the member's own epoch wins); `eras` validated against the membership (#168) |
 | `TemporalKeyframe.targetUniverseId` | the only cross-universe keyframe link (#3) |
 
 `allUniverses` is **flat with unique ids** — one owner per id — but a universe may be a *member*

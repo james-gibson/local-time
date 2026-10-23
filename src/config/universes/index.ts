@@ -24,7 +24,7 @@ import {
   electricTelegraphUniverse,
   september11AttacksUniverse,
   penicillinDiscoveryUniverse, tulsaMassacreMediaCoverageUniverse, tulsaRaceMassacre1921Universe, transistorInventionUniverse, worldWideWebUniverse
-, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses, pagerankHistoryUniverse, post911SkyscraperShiftUniverse, enronCollapseUniverse} from './historical';
+, theBeatlesHistoricalUniverse, gamestopUniverses, costcoUniverses, pagerankHistoryUniverses, post911SkyscraperShiftUniverse, enronCollapseUniverse} from './historical';
 import {allCybersecurityUniverses} from './cybersecurity';
 import {chuckBerryUniverse} from './chuckBerryUniverse';
 import {calvinKleinHistory} from './calvinKleinHistory';
@@ -109,7 +109,9 @@ export const allUniverses = [
   ...gamestopUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
-  pagerankHistoryUniverse,
+  // The PageRank timeline: one container plus five era universes (#103). Spread,
+  // not nested — the container is a member's parent, never an array element (#45).
+  ...pagerankHistoryUniverses,
   ...nasaUniverses,
   rogersCommissionUniverse,
   apollo13FilmUniverse,
