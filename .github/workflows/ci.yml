@@ -34,6 +34,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
+      # `postinstall` runs `prisma generate`, so the generated client exists before Lint
+      # and Typecheck read `prisma/` (both cover it now — tsconfig.scripts.json,
+      # james-gibson/local-time#161). Test runs the seed round-trip against a throwaway
+      # SQLite file, so no DATABASE_URL is needed anywhere in this job.
       - name: Install
         run: npm ci
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env tsx
 
-import { PrismaClient } from '@prisma/client';
 import { parseUniverseId, UniverseId } from '../src/core/universe-ids.js';
 import { UniverseRegistry } from '../src/config/universe-registry.js';
 import { ConfigLoader } from '../src/config/config-loader.js';
@@ -325,7 +324,7 @@ console.dir(sortedNodes);
     console.log('\n🔍 Validating Recent Database Entries\n');
     
     // Get recent entries from database
-    const recentEntries = [] ; /*await this.prisma.universe.findMany({
+    const recentEntries: any[] = [] ; /*await this.prisma.universe.findMany({
       orderBy: { createdAt: 'desc' },
       take: 10,
       include: {
