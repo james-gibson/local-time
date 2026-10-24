@@ -1,4 +1,5 @@
 import { KeyframeType, TimePrecision, Universe, UniverseType } from '../../../core/types';
+import { creatorRefs } from '../../../core/creators';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
@@ -183,9 +184,9 @@ export const season12ConnectTheWorldUniverse = {
       year: 2025,
       status: 'active',
     },
-    creators: {
+    creators: creatorRefs({
       director: ['Master Hellish'],
-    },
+    }),
     citations_required: true,
     sources: [
       'masterhellish.net/s12 — season identity, format, goals, mods and settings',

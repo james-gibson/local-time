@@ -1,5 +1,5 @@
 import { CommonUniverseIds } from '../../../../core/common-universe-ids';
-import { Universe, UniverseType, TimePrecision } from '../../../../core';
+import { Universe, UniverseType, TimePrecision, creatorRefs } from '../../../../core';
 import { distributedByRef } from '../../studios';
 import { dateToNanoseconds } from '../../../../utils/temporal-conversion';
 
@@ -76,10 +76,10 @@ export const idiocracyUniverse: Universe = {
       year: 2006,
       status: 'active',
     },
-    creators: {
+    creators: creatorRefs({
       director: ['Mike Judge'],
       writer: ['Mike Judge', 'Etan Cohen'],
-    },
+    }),
     citations_required: true,
     usage_restrictions: ['Rights held by the rights holders; fair use for criticism and comment.'],
     sources: [
@@ -109,6 +109,7 @@ export const idiocracyUniverse: Universe = {
           epochId: 'idiocracy:experiment',
           startTime: ns('2005-01-01T00:00:00Z'),
           endTime: ns('2006-01-01T00:00:00Z'),
+          precision: TimePrecision.YEAR,
           description: 'The real-era prologue: the hibernation experiment that freezes Joe Bauers and Rita.',
         },
       },
@@ -121,6 +122,7 @@ export const idiocracyUniverse: Universe = {
           epochId: 'idiocracy:awakening',
           startTime: ns('2505-01-01T00:00:00Z'),
           endTime: ns('2506-01-01T00:00:00Z'),
+          precision: TimePrecision.YEAR,
           description:
             "The 26th-century present. This epoch carries the universe's zero-point: the awakening, the first future moment the film dates.",
         },

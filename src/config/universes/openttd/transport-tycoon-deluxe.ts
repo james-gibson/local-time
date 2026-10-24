@@ -1,5 +1,6 @@
 import { createGameUniverseId } from '../../../core/universe-ids';
 import { KeyframeType, TimePrecision, Universe, UniverseType } from '../../../core/types';
+import { creatorRefs } from '../../../core/creators';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
@@ -89,9 +90,9 @@ export const transportTycoonDeluxeUniverse = {
       year: 1995,
       status: 'active',
     },
-    creators: {
+    creators: creatorRefs({
       director: ['Chris Sawyer (designer, programmer)'],
-    },
+    }),
     citations_required: false,
     usage_restrictions: [
       'Proprietary. Re-published by Atari Interactive; © 2025 Atari Interactive, Inc.',

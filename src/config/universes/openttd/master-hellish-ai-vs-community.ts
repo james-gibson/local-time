@@ -1,4 +1,5 @@
 import { KeyframeType, TimePrecision, Universe, UniverseType } from '../../../core/types';
+import { creatorRefs } from '../../../core/creators';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
@@ -264,10 +265,10 @@ export const masterHellishAiVsCommunityUniverse = {
       year: 2026,
       status: 'active',
     },
-    creators: {
+    creators: creatorRefs({
       director: ['Master Hellish'],
       writer: ['Master Hellish'],
-    },
+    }),
     citations_required: true,
     usage_restrictions: [
       'Copyrighted video. This record contains no footage, audio or transcript excerpt beyond short quotations for identification and analysis.',
