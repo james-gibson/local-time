@@ -1,246 +1,48 @@
+/**
+ * `npm run db:seed` — the CLI entry point.
+ *
+ * The seeding itself lives in `./seed-database.ts` so that `tests/prisma/seed.test.ts`
+ * can run it against a throwaway SQLite file without spawning a script
+ * (james-gibson/local-time#58). Nothing in this file should grow beyond wiring.
+ *
+ * `tsx` does not read `.env` the way the Prisma CLI does, so a bare `npm run db:seed`
+ * would otherwise fail on a missing `DATABASE_URL`. The default matches what
+ * `prisma db push` writes for `.env.example`'s `file:./dev.db`, resolved from the repo
+ * root (the CLI resolves it from `prisma/`).
+ */
 import { PrismaClient } from '@prisma/client';
-import { allUniverses, allNetworks } from '../src/config/universes/index';
+import { seedDatabase } from './seed-database.js';
 
-const prisma = new PrismaClient();
+const databaseUrl = process.env.DATABASE_URL ?? 'file:./prisma/dev.db';
+const prisma = new PrismaClient({ datasourceUrl: databaseUrl });
 
-async function main() {
-  console.log('🌱 Seeding database with universe data...');
+console.log(`🌱 Seeding ${databaseUrl}`);
 
-  // Clear existing data
-  await prisma.queryIndex.deleteMany();
-  await prisma.universeSearchView.deleteMany();
-  await prisma.referenceChainConnection.deleteMany();
-  await prisma.referenceChain.deleteMany();
-  await prisma.temporalReference.deleteMany();
-  await prisma.universeNetworkMembership.deleteMany();
-  await prisma.universeNetwork.deleteMany();
-  await prisma.temporalKeyframe.deleteMany();
-  await prisma.temporalSegment.deleteMany();
-  await prisma.temporalStructure.deleteMany();
-  await prisma.temporalWindow.deleteMany();
-  await prisma.temporalEpoch.deleteMany();
-  await prisma.temporalLayer.deleteMany();
-  await prisma.universe.deleteMany();
+seedDatabase(prisma)
+  .then((summary) => {
+    console.log(
+      [
+        '✅ Database seeded.',
+        `   universes   ${summary.universes}`,
+        `   layers      ${summary.layers}`,
+        `   epochs      ${summary.epochs}`,
+        `   windows     ${summary.windows}`,
+        `   segments    ${summary.segments}`,
+        `   keyframes   ${summary.keyframes}`,
+        `   networks    ${summary.networks}`,
+        `   memberships ${summary.memberships}`,
+      ].join('\n'),
+    );
 
-  // Seed universes
-  for (const universe of allUniverses) {
-    console.log(`📚 Seeding universe: ${universe.universeId}`);
-    
-    // Create universe
-    const createdUniverse = await prisma.universe.create({
-      data: {
-        id: universe.universeId,
-        type: universe.type,
-        canonicalName: universe.metadata?.canonicalName,
-        culturalSignificance: universe.metadata?.cultural_significance,
-        identifiers: universe.identifiers as any,
-        realityRelation: universe.realityRelation as any,
-        attribution: universe.attribution as any,
-        metadata: universe.metadata as any,
-      }
-    });
-
-    // Create temporal layers
-    for (const layer of universe.layers) {
-      const createdLayer = await prisma.temporalLayer.create({
-        data: {
-          layerId: layer.layerId,
-          type: layer.type,
-          universeId: universe.universeId,
-          contains: layer.contains as any,
-          realityCorrespondence: layer.reality_correspondence as any,
-          // `TemporalLayer.subuniverses` was retired in favour of first-class
-          // containment (`Universe.connections.natural.parentUniverses`,
-          // james-gibson/local-time#74) and was never populated, so nothing is
-          // written here. The `subuniverses` column is left in the schema for now.
-        }
-      });
-
-      // Create epochs for this layer
-      for (const [epochKey, epoch] of Object.entries(layer.epochs)) {
-        await prisma.temporalEpoch.create({
-          data: {
-            epochId: epoch.epochId || epochKey,
-            startTime: (epoch.startTime || epoch.start)?.toString(),
-            endTime: (epoch.endTime || epoch.end)?.toString(),
-            precision: epoch.precision,
-            description: epoch.description,
-            layerId: createdLayer.id,
-            // Zero-reference fields if present
-            zeroPoint: (epoch as any).zeroPoint?.toString(),
-            zeroEvent: (epoch as any).zeroEvent,
-            beforePrefix: (epoch as any).beforePrefix,
-            afterPrefix: (epoch as any).afterPrefix,
-            relativeFormat: (epoch as any).relativeFormat,
-          }
-        });
-      }
+    if (summary.unresolvedMemberships > 0) {
+      console.warn(
+        `⚠️  ${summary.unresolvedMemberships} network member(s) name a universe that is not ` +
+          'registered, so no membership row was written.',
+      );
     }
-
-    // Create temporal windows
-    if (universe.temporalWindows) {
-      for (const window of universe.temporalWindows) {
-        await prisma.temporalWindow.create({
-          data: {
-            windowId: window.windowId,
-            startTime: window.startTime.toString(),
-            endTime: window.endTime.toString(),
-            precision: window.precision,
-            type: window.type,
-            universeId: universe.universeId,
-            aliases: window.aliases as any,
-            metadata: window.metadata as any,
-          }
-        });
-      }
-    }
-
-    // Create temporal structure
-    if (universe.temporalStructure) {
-      const structure = await prisma.temporalStructure.create({
-        data: {
-          universeId: universe.universeId,
-          windows: universe.temporalStructure.windows as any,
-        }
-      });
-
-      // Create segments
-      for (const segment of universe.temporalStructure.segments) {
-        await prisma.temporalSegment.create({
-          data: {
-            segmentId: segment.id,
-            start: segment.start.toString(),
-            end: segment.end.toString(),
-            type: segment.type,
-            status: segment.status,
-            jurisdiction: segment.jurisdiction,
-            structureId: structure.id,
-          }
-        });
-      }
-
-      // Create keyframes
-      for (const keyframe of universe.temporalStructure.keyframes) {
-        await prisma.temporalKeyframe.create({
-          data: {
-            keyframeId: keyframe.id,
-            timestamp: keyframe.timestamp.toString(),
-            significance: keyframe.significance,
-            certainty: keyframe.certainty,
-            structureId: structure.id,
-            tags: keyframe.tags as any,
-            dateRange: keyframe.dateRange as any,
-          }
-        });
-      }
-    }
-
-    // Create search view entry
-    await createSearchViewEntry(universe);
-  }
-
-  // Seed networks
-  for (const network of allNetworks) {
-    console.log(`🌐 Seeding network: ${network.networkId}`);
-    
-    const createdNetwork = await prisma.universeNetwork.create({
-      data: {
-        networkId: network.networkId,
-        sharedEpochs: network.sharedEpochs as any,
-        eras: network.eras as any,
-      }
-    });
-
-    // Create network memberships
-    for (const universeId of network.universes) {
-      // Check if universe exists
-      const universeExists = await prisma.universe.findUnique({
-        where: { id: universeId }
-      });
-
-      if (universeExists) {
-        await prisma.universeNetworkMembership.create({
-          data: {
-            universeId: universeId,
-            networkId: createdNetwork.id,
-          }
-        });
-      }
-    }
-  }
-
-  console.log('✅ Database seeded successfully!');
-}
-
-async function createSearchViewEntry(universe: any) {
-  // Extract searchable content
-  const searchText = [
-    universe.metadata?.canonicalName,
-    universe.identifiers?.aliases?.join(' '),
-    universe.metadata?.creators?.join(' '),
-    // Attribution creators are keyed by person (#148): project the names, not a role list.
-    universe.attribution?.creators?.map((creator: { name: string }) => creator.name).join(' '),
-  ].filter(Boolean).join(' ');
-
-  // Extract tags from keyframes
-  const tags = universe.temporalStructure?.keyframes
-    ?.flatMap((kf: any) => kf.tags)
-    ?.join(', ') || '';
-
-  // Extract year from universe ID or metadata
-  const yearMatch = universe.universeId.match(/:(\d{4})(?:$|:)/);
-  const createdYear = yearMatch ? parseInt(yearMatch[1]) : 
-    universe.attribution?.copyright?.year ||
-    universe.metadata?.released?.getFullYear();
-
-  // Calculate temporal bounds
-  let earliestTime: string | undefined;
-  let latestTime: string | undefined;
-
-  for (const layer of universe.layers) {
-    for (const epoch of Object.values(layer.epochs)) {
-      const start = (epoch as any).startTime || (epoch as any).start;
-      const end = (epoch as any).endTime || (epoch as any).end;
-      
-      if (start) {
-        const startStr = start.toString();
-        if (!earliestTime || startStr < earliestTime) {
-          earliestTime = startStr;
-        }
-      }
-      
-      if (end) {
-        const endStr = end.toString();
-        if (!latestTime || endStr > latestTime) {
-          latestTime = endStr;
-        }
-      }
-    }
-  }
-
-  await prisma.universeSearchView.create({
-    data: {
-      universeId: universe.universeId,
-      canonicalName: universe.metadata?.canonicalName || 'Unknown',
-      type: universe.type,
-      culturalSignificance: universe.metadata?.cultural_significance,
-      realityType: universe.realityRelation.type,
-      fictionalizationDegree: universe.realityRelation.fictionalizationDegree,
-      hasPublicDomain: universe.attribution.public_domain || false,
-      createdYear,
-      searchText,
-      tags,
-      earliestTime,
-      latestTime,
-    }
-  });
-}
-
-main()
-  .catch((e) => {
-    console.error('❌ Error seeding database:', e);
-    process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch((error: unknown) => {
+    console.error('❌ Error seeding database:', error);
+    process.exitCode = 1;
+  })
+  .finally(() => prisma.$disconnect());
