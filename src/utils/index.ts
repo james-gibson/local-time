@@ -4,3 +4,4 @@ export * from './attribution-engine';
 export * from './reality-gradient';
 export * from './biographical-query';
 export * from './temporal-conversion';
+export * from './clock-drift';
