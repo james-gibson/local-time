@@ -6,17 +6,20 @@ import {
 import { beckPamphletTranscriptUniverse } from './beck-pamphlet-transcript';
 import { beckDoublespeakUniverse } from './beck-doublespeak';
 import { dreyTheranosUniverse } from './drey-theranos';
+import { cartoonPhysicsUniverse } from './cartoon-physics';
 
 /**
  * The `youtube/` namespace barrel.
  *
  * One pair of works that share a clock — a clip, the response video that plays it, and
  * the drift between their runtimes — plus the transcription record for the passage the
- * response replays, and one publication-anchored video essay whose keyframes are
- * absolute instants inside its own runtime. The drift is not a universe either: it is the
- * *relation* between the two clocks, so it lives with them (see
- * `beck-responder-clocks.ts` and `src/utils/clock-drift.ts`), and the transcript hangs
- * off the pair because every line of it is addressed on one or both of those clocks.
+ * response replays, the doublespeak cut of that passage, one publication-anchored video
+ * essay whose keyframes are absolute instants inside its own runtime, and one essay whose
+ * five chapters and nineteen keyframes are measured offsets from its auto-caption track.
+ * The drift is not a universe either: it is the *relation* between the two clocks, so it
+ * lives with them (see `beck-responder-clocks.ts` and `src/utils/clock-drift.ts`), and the
+ * transcript hangs off the pair because every line of it is addressed on one or both of
+ * those clocks.
  *
  * Spread into `allUniverses` — never nest it (#45, #68). There must be no `youtube.ts`
  * file alongside this directory (#67: a file wins over a directory and silently excludes
@@ -28,6 +31,7 @@ export const youtubeUniverses: Universe[] = [
   beckPamphletTranscriptUniverse,
   beckDoublespeakUniverse,
   dreyTheranosUniverse,
+  cartoonPhysicsUniverse,
 ];
 
 export {
@@ -75,3 +79,13 @@ export {
 } from './drey-theranos';
 
 export type { NamedSubject } from './drey-theranos';
+
+export {
+  cartoonPhysicsUniverse,
+  cartoonPhysicsChapters,
+  cartoonPhysicsCaptionArtifacts,
+  cartoonPhysicsPresumedAnchors,
+  CARTOON_PHYSICS_UNIVERSE_ID,
+  CARTOON_PHYSICS_PUBLISHED,
+  CARTOON_PHYSICS_RUNTIME_SECONDS,
+} from './cartoon-physics';
