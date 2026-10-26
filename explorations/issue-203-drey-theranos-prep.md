@@ -1,9 +1,16 @@
 # Prep for james-gibson/local-time#203 — "Theranos Isn't About Elizabeth Holmes."
 
-**Status:** prepared, not implemented.
+**Status:** prepared and implemented.
 **Branch:** `feat/issue-203-drey-theranos` (from `origin/main` @ `7bf0175`, 2026-10-25).
 **Ticket:** https://github.com/james-gibson/local-time/issues/203
 **Guide:** [`kagi.md`](../../kagi.md), checked 2026-10-25.
+
+**Decisions taken (2026-10-25):** `metadata.people` roster added with a test;
+`fictionalizationDegree` 0.0; container parents `US_HISTORY` + `US_GOVERNMENT`; thesis
+significance derived from the claims it rests on and capped at
+`THESIS_CLAIM_CERTAINTY` (0.55), never hand-set. Files:
+`src/config/universes/youtube/drey-theranos.ts`, `src/config/universes/youtube/index.ts`,
+`tests/youtube/drey-theranos.test.ts`.
 
 This document exists because the ticket was written against an assumed shape of the
 repo, and a fair amount of that shape does not exist. Everything below was checked
@@ -133,7 +140,7 @@ Named people are modelled two ways in this corpus:
   historical_advisor, participant, actor, composer);
 - keyframe `tags` for who appears in a moment.
 
-The ticket's 23 people are **subjects of the argument**, not credits. Filing all 23 as
+The ticket's 21 people are **subjects of the argument**, not credits. Filing all 21 as
 `Creators` would misuse `participant`; filing them nowhere loses the roster.
 
 **Do instead (pick one, and say which in the PR):**
@@ -212,12 +219,13 @@ covers the git-ignored `imported/` tree. Hand-written universes are not audited 
 dangling parents. Referencing #92 in the ticket suggests the lore pipeline, not this
 repo.
 
-### C-10 — "36 keyframes", "21 named people", "10 documents" are all wrong counts
+### C-10 — "36 keyframes" and "10 documents" are wrong; "21 people" is right
 
-From the ticket's own tables: **34** keyframe rows (§4.3), **23** people (§5),
-**12** documents (§6), **12** segments (§4.2). §12 says "36 keyframe id +
-description". Fix the numbers in the acceptance criteria or the test will encode a
-phantasy.
+From the ticket's own tables: **34** keyframe rows (§4.3), **21** people (§5 — the
+acceptance criterion is correct; an earlier draft of this note miscounted the table
+header as a row), **13** documents (§6), **12** segments (§4.2). §12 says "36 keyframe
+id + description" and §14 says "all 10 signatories". Fix the numbers in the
+acceptance criteria or the test will encode a phantasy.
 
 ### C-11 — The thesis-keyframe significance contradicts C-12
 
@@ -374,8 +382,9 @@ hundred-tag universe.
       `metadata.description`; if recorded, it is `contradicts` with its evidence.
 - [ ] C-14 ("first full day" vs "second day") is recorded verbatim in a deviations
       list, not silently normalised.
-- [ ] 23 named people are carried by whichever roster mechanism §2 C-5 chooses.
-- [ ] 12 documents in §6 exist as keyframes with signatory tags
+- [ ] 21 named people are carried by `metadata.people` (`name`, `role`,
+      `firstMentionSeconds`).
+- [ ] 13 documents in §6 exist as keyframes with signatory tags
       (`signed:andrea_gothing`, etc.).
 - [ ] Attribution: holders, year, `citations_required: true`, non-empty
       `usage_restrictions`, ≥3 independent sources (video + mirror = one work).
