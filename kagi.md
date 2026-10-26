@@ -100,10 +100,12 @@ Identify hierarchical relationships automatically:
 
   ```ts
   .addDateKeyframe('2023-04-27', 'sheeran_guitar_testimony', 1.0, ['testimony'],
-    { certainty: 0.95, type: KeyframeType.TESTIMONY })
+    { certainty: 0.95, type: KeyframeType.PUBLIC_STATEMENT })
   ```
 
   A keyframe that is one of several events of a kind should carry `type` (`KeyframeType`); "the release" is never a well-defined target on its own.
+
+  **`KeyframeType` is a closed enum, and `TESTIMONY` is not a member.** This example carried `TESTIMONY` until the 2026-10 audit, and every draft written from it inherited the error — including six modules in #200 that could not have compiled as written. The members are the structural ones: `FOUNDING`, `INCORPORATION`, `DISSOLUTION`, `SHUTDOWN`, `MERGER`, `ACQUISITION`, `SPIN_OFF`, `RELEASE`, `PUBLICATION`, `LAUNCH`, `CONTRACT`, `BREACH`, `AMENDMENT`, `LEGISLATION`, `RULING`, `REGULATION`, `ELECTION`, `ANNOUNCEMENT`, `PUBLIC_STATEMENT`, `APOLOGY`, `CASTING`, `AWARD`, `NOMINATION`, `MARKET_EVENT`, `MILESTONE`, `ZERO_POINT`. Map a finding to `MILESTONE`, an on-air remark to `PUBLIC_STATEMENT`, a statute to `LEGISLATION`, a court's authority to `RULING`.
 - `addRuntimeKeyframe(minutes, seconds, id, significance, tags, description?)` — the second argument is **seconds within the minute**, not a duration: `(5, 30, …)` is 5m30s. The trailing `description` is stored on the keyframe: `TemporalKeyframe.description?: string` exists, and the builder forwards the value through `addKeyframe`'s `options` bag. Put the moment's one sentence here rather than in `metadata` — at retrieval time the description is the corpus and the tags are not (james-gibson/local-time#77).
 
 ### Attribution Requirements
@@ -111,6 +113,24 @@ Identify hierarchical relationships automatically:
 - Full copyright structure (holders, year, status)
 - Public domain marking for government/historical content
 - Include `citations_required` boolean and `usage_restrictions` array (always include the array)
+
+The shape is `Attribution`:
+
+```typescript
+attribution: {
+  copyright: {                       // optional; omit entirely for compiled analysis
+    holders: ['Studio Name', 'Production Company'],
+    year: 2024,
+    status: 'active',                // 'active' | 'expired' | 'public_domain' | 'invalid'
+  },
+  public_domain: false,
+  citations_required: true,
+  usage_restrictions: [],            // always include the array
+  sources: ['Source 1', 'Source 2'],
+},
+```
+
+There is no `copyright_holder`, `copyright_year` or `copyright_status` field. Those flattened names do not exist, and because the module is cast (`as unknown as Universe`) they compile while the copyright block stays empty. `status` has no `not_applicable`: a compiled analysis that owns no copyright omits `copyright` rather than inventing a status (james-gibson/local-time#205).
 
 ### Reality Relations — and the two different "anchor" shapes
 
@@ -286,7 +306,10 @@ export const [eventName]Universe: Universe = {
   type: UniverseType.HISTORICAL_EVENT,
   epochs: undefined,
   identifiers: {
-    primary: 'event:category:identifier',
+    // primary is the universe's own address. A second scheme (an external
+    // catalogue key, a fragment anchor) belongs in `aliases` — two primaries
+    // give the same instant two addresses and two chances to drift (#200, #205).
+    primary: 'history:event_name:year',
     aliases: ['alternative_name']
   },
   realityRelation: {
@@ -395,6 +418,30 @@ export const [camelCaseName]Universe = new UniverseBuilder()
   .build();
 ```
 
+## The cast hides shape errors — the 2026-10 audit (#200, #202, #205)
+
+`as unknown as Universe` is necessary: `metadata` is `Partial<UniverseMetadata>`, and modules extend it with credit tables, credences and research notes. But it also means **a wrong field name compiles**. Every defect below shipped in a generated draft, passed type-checking, and was caught only by reading the interfaces and running the registry:
+
+1. **Invented enum members.** `KeyframeType.TESTIMONY`, `.STATUTORY_CHANGE`, `.LEGAL_PROCEEDING` and `UniverseType.DOCUMENTARY` are not members. A closed union is closed even when this document does not quote it, and an invented member survives the cast because nothing reads it until a query does. `UniverseType` is exactly: `TECHNOLOGY`, `FILM`, `SERIES`, `BOOK`, `GAME`, `PATENT`, `HISTORICAL_EVENT`, `PERSONAL_EXPERIENCE`, `SIMULATION`, `MISSION`, `MEDICAL_PROCEDURE`, `BIOGRAPHY`, `LEGAL_TIMELINE`, `INSTITUTIONAL_PERIOD`, `TECHNICAL_SPECIFICATION`, `TECHNICAL_LOG`, `ABSTRACT_CONCEPT`. There is no `DOCUMENTARY`; a documentary *work* is `SERIES` or `FILM` with `realityRelation.type: 'documentary'`.
+2. **A second spelling of an existing field.** `copyright_holder` / `copyright_year` / `copyright_status` are not `Attribution`; the block is `copyright: { holders, year, status }` (see Attribution, above).
+3. **The builder's `connections` shape on a hand-authored literal.** `connections: [{ type: 'member_of', targetUniverseId }]` is what `UniverseBuilder.addConnection` writes to `metadata.connections`. A literal declares containment in `connections.natural.parentUniverses`; the array form is not read, so the membership is silently invisible — the same failure mode as registration, one level down.
+   The same rule applies to the header comment: a `Hierarchical Context:` line that names `derives_from` a module the file does not declare is a claim with no edge behind it. Either declare it in `references` or say in the comment that the module was not landed.
+4. **An id that names the medium instead of the namespace.** Video is `series:<channel>:<title>:<year>` (or `tv:` / `netflix:` / …), and rows for it live in `src/config/universes/youtube/`. `youtube:` is a directory name, not a namespace, and `media/` is neither. Before inventing a path, list `src/config/universes/` and use a namespace that exists.
+5. **`identifiers.primary` diverging from `universeId`.** Two addresses for one instant is two chances to drift, and a lookup by primary fails while the universe is registered. Use `primary: UNIVERSE_ID`; keep external keys and fragment anchors in `aliases`.
+6. **Edges to modules that were not landed.** `references[].targetUniverseId` pointing at an id no module owns is worse than no edge: `graph.dangling` (#92) reports it to *readers*, and readers read it as evidence of a module that is not there. Land the family together, or record the unlanded sibling in `metadata.threadSiblings` and do not declare the edge.
+7. **A restated instant instead of an imported one.** If another module owns a publication instant, a drift model or an id, import it. Restating offsets by hand is what produced four stale rows in #202 — the drift model disagreed with the table it was supposed to agree with.
+8. **A derived slice inheriting its parent's `cultural_significance`.** Re-slicing a work is not new cultural weight. A derived pass carries its own, lower rating (0.30–0.35 is the corpus norm) with a justification that says *derived*.
+9. **A verification claim without its instruments.** "Re-verified", "measured" and "from the audio" are claims about method. Name the instruments (caption track, ASR pass, embedding models, chapter list) and the date — or declare the failure and the confidence cap it imposes on every reading, as `texas_mailer_ambiguity_tolerant_form` does at 0.55.
+
+The rule behind all nine: **the cast is for extension, not for shape.** Anything the interfaces already declare — `Attribution`, `UniverseConnections`, keyframe `type`, `UniverseType` — must use the declared shape, and a test should read the fields back rather than trust that it compiled. A minimal test for a new module or family:
+
+- every id is in `allUniverses` and retrievable from a fresh `UniverseRegistry`;
+- `connections` is an object with `natural.parentUniverses` and `references`, not an array;
+- every declared parent resolves through `CommonUniverseIds.resolveDeclaredName`;
+- every `references[].targetUniverseId` is registered or a declared container;
+- every keyframe `type`, when present, is a `KeyframeType` member;
+- any `metadata.threadSiblings` id is **not** registered — that is what "not landed" means, and the assertion fails the day it is.
+
 ## Validation Checklist
 
 - [ ] Universe ID follows branded type pattern and passes `isValidUniverseId`
@@ -407,11 +454,20 @@ export const [camelCaseName]Universe = new UniverseBuilder()
 - [ ] **CRITICAL**: window `strategy` is one of the four valid values and `avgWindowSize` is a `bigint`
 - [ ] **CRITICAL**: `realityAnchors` use `RealityAnchor` (`realEventId`/`relationshipType`/`confidence`/`evidence`), not `TemporalAnchor`
 - [ ] **CRITICAL**: every epoch carries an explicit `epochId` (#19)
+- [ ] **CRITICAL**: `type` on the universe is a `UniverseType` member, and `type` on a keyframe is a `KeyframeType` member — both closed; `DOCUMENTARY`, `TESTIMONY`, `STATUTORY_CHANGE` and `LEGAL_PROCEEDING` are not members
+- [ ] **CRITICAL**: attribution uses `copyright: { holders, year, status }`; no flattened `copyright_*` field
+- [ ] **CRITICAL**: a literal's `connections` is object-form (`natural.parentUniverses` / `references`), never the builder's array form
+- [ ] `identifiers.primary` is the `universeId`; external keys and fragment anchors are `aliases`
+- [ ] Every `references[].targetUniverseId` is registered or a declared container; unlanded siblings are `metadata.threadSiblings`, not edges
+- [ ] Instants, ids and counts another module owns are imported or derived, never restated
+- [ ] A derived slice carries its own, lower `cultural_significance` — not the parent's
+- [ ] Any "re-verified" / "measured" claim names its instruments, or declares the failure and the confidence cap it imposes
 - [ ] Keyframe significance ratings justified
 - [ ] Attribution complete with proper copyright status, `citations_required` and `usage_restrictions`
 - [ ] Reality anchors include confidence levels and evidence
 - [ ] Cultural significance rating justified if >0.9
 - [ ] Cross-universe connections identified and documented with confidence levels
+- [ ] A `Hierarchical Context:` line names only edges the file actually declares — prose that claims an edge the literal does not carry is the same defect as the array-form `connections`
 - [ ] All timestamps within epoch boundaries; BigInt math checked
 - [ ] TypeScript compiles without errors
 - [ ] Manual Universe objects cast with `as unknown as Universe` where needed
@@ -430,7 +486,7 @@ export const [camelCaseName]Universe = new UniverseBuilder()
 Before generating any universe code:
 
 1. **Check the actual type definitions** in `src/core/types.ts`
-2. **Verify allowed enum values** for `TemporalSegment.type`, window `strategy`, `realityRelation.type`, `relationshipType` and `ReferenceType`
+2. **Verify allowed enum values** for `TemporalSegment.type`, window `strategy`, `realityRelation.type`, `relationshipType` and `ReferenceType` — and for `KeyframeType` and `UniverseType`, which are closed too. Read them from `src/core/types.ts`; this document's own keyframe example carried a non-member (`TESTIMONY`) until 2026-10, and six drafts inherited it (#200)
 3. **Confirm which anchor shape you are filling** — `RealityAnchor` (reality relations) vs `TemporalAnchor` (references)
 4. **Validate import paths** by examining existing files at the same directory depth
 5. **Cross-reference with working examples** from the provided universe files
@@ -542,7 +598,8 @@ Always document discovered connections:
 | #45 | `build()` validates; module-scope build failures take the barrel down |
 | #67 | A file shadows a same-named directory; the subtree never loads |
 | #70 | `historical()` slugifies punctuation to `_` and throws on an id the validator rejects |
-| #71 | `npm run lint` has no config — do not treat it as a gate |
+| #71 | `npm run lint` had no config, so it was not a gate |
+| #166 | A flat ESLint config exists and the tree passes it; `npm run lint` is a gate again — run it |
 | #74 | Containment: one owner, many memberships (`parentUniverses`/`contains`) |
 | #75 | Composition: overlay layers with `reality_correspondence`; record collisions |
 | #76 | Projections: corpus / weights / charges derived from the definitions |
@@ -551,6 +608,9 @@ Always document discovered connections:
 | #92 | Signed edges: the walk uses `|w|`, the sign is carried in `affinity` (`contradicts` is not a vote) |
 | #92 | A referenced id that is not registered is reported in `graph.dangling`, never silently redistributed away |
 | #92 | A ranking score must be explainable by its contributing edges (`explainRank`), like a composition that shows its deviations |
+| #200 | Six drafts used `KeyframeType.TESTIMONY` / `.STATUTORY_CHANGE` / `.LEGAL_PROCEEDING` and `UniverseType.DOCUMENTARY` — members that do not exist. Verify an enum against the source; never copy an example's value |
+| #202 | Response offsets are derived from the drift model; a restated table went stale by 35.5–36.5 s at the first pause |
+| #205 | A literal's connections are object-form; an unlanded sibling is a note, not an edge; video is `series:` and lives in `youtube/` |
 
 **Design rationale.** The pre-implementation transcripts these rules derive from are indexed in
 [`explorations/README.md`](explorations/README.md) — including the constructs designed but never

@@ -5,6 +5,7 @@ import {
 } from './beck-responder-clocks';
 import { beckPamphletTranscriptUniverse } from './beck-pamphlet-transcript';
 import { texasPaulTtsuMailersUniverse } from './texas-paul-ttsu-mailers';
+import { beckDoublespeakUniverse } from './beck-doublespeak';
 import { dreyTheranosUniverse } from './drey-theranos';
 
 /**
@@ -26,6 +27,7 @@ export const youtubeUniverses: Universe[] = [
   beckMailClipUniverse,
   timWhitakerResponseUniverse,
   beckPamphletTranscriptUniverse,
+  beckDoublespeakUniverse,
   dreyTheranosUniverse,
   texasPaulTtsuMailersUniverse,
 ];
@@ -44,6 +46,8 @@ export {
 } from './beck-responder-clocks';
 
 export type { AlignedEvent } from './beck-responder-clocks';
+
+export { beckDoublespeakUniverse, beckDoublespeakUniverses } from './beck-doublespeak';
 
 export {
   beckPamphletTranscriptUniverse,
