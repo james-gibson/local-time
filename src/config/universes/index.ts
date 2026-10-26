@@ -66,6 +66,9 @@ import {filmStudioUniverses} from "./studios"
 import {williamsDisneyAladdinDisputeUniverse} from "./historical"
 import {homeEnergyLogSept2025Universe} from "./james/solar"
 import {damPodcastEpisodeUniverse} from "./podcast/hydrology-impacts"
+// The `youtube/` namespace: a clip and the response video that plays it, with the
+// measured drift between their runtime clocks. Two universes, one drift record.
+import {youtubeUniverses} from "./youtube"
 export const allUniverses = [
     ...filmUniverses,
   ...filmStudioUniverses,
@@ -140,6 +143,8 @@ export const allUniverses = [
   // anchors. *Back to the Future* is a member too, but it is owned by the film
   // namespace and appears in `filmUniverses` — never here (#74).
   ...tropesUniverses,
+  // The clip and the response video that plays it, with the drift between their clocks.
+  ...youtubeUniverses,
 ];
 
 export const allNetworks = [
@@ -171,5 +176,6 @@ export {
   globalPoliticsUniverses,
   usPoliticsUniverses,
   post911SkyscraperShiftUniverse,
-  enronCollapseUniverse
+  enronCollapseUniverse,
+  youtubeUniverses
 };
