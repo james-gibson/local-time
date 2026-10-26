@@ -3,14 +3,17 @@ import {
   beckMailClipUniverse,
   timWhitakerResponseUniverse,
 } from './beck-responder-clocks';
+import { beckPamphletTranscriptUniverse } from './beck-pamphlet-transcript';
 
 /**
  * The `youtube/` namespace barrel.
  *
- * One pair of works that share a clock: a clip, the response video that plays it, and
- * the drift between their runtimes. The drift is not a universe — it is the *relation*
- * between these two — so it lives with them (see `beck-responder-clocks.ts` and
- * `src/utils/clock-drift.ts`).
+ * One pair of works that share a clock — a clip, the response video that plays it, and
+ * the drift between their runtimes — plus the transcription record for the passage the
+ * response replays. The drift is not a universe either: it is the *relation* between the
+ * two clocks, so it lives with them (see `beck-responder-clocks.ts` and
+ * `src/utils/clock-drift.ts`), and the transcript hangs off the pair because every line
+ * of it is addressed on one or both of those clocks.
  *
  * Spread into `allUniverses` — never nest it (#45, #68). There must be no `youtube.ts`
  * file alongside this directory (#67: a file wins over a directory and silently excludes
@@ -19,6 +22,7 @@ import {
 export const youtubeUniverses: Universe[] = [
   beckMailClipUniverse,
   timWhitakerResponseUniverse,
+  beckPamphletTranscriptUniverse,
 ];
 
 export {
@@ -35,3 +39,20 @@ export {
 } from './beck-responder-clocks';
 
 export type { AlignedEvent } from './beck-responder-clocks';
+
+export {
+  beckPamphletTranscriptUniverse,
+  beckAuditedPassage,
+  beckAddressReadings,
+  beckSpeakerAttribution,
+  beckLaughterMarks,
+  beckCaptionArtifacts,
+  beckSecondaryFinding,
+  deriveResponseSeconds,
+} from './beck-pamphlet-transcript';
+
+export type {
+  TranscriptSpeaker,
+  TranscriptUtterance,
+  AddressReading,
+} from './beck-pamphlet-transcript';
