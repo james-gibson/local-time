@@ -1,6 +1,6 @@
 import { KeyframeType, TimePrecision, Universe, UniverseType } from '../../../core/types';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
-import { ClockDrift } from '../../../utils/clock-drift';
+import { ClockDrift, totalDrift } from '../../../utils/clock-drift';
 
 /**
  * Two clocks over one segment, and the drift between them.
@@ -413,7 +413,7 @@ export const beckMailClipUniverse = {
     /** The clock record. Seconds are the readable form; the model holds nanoseconds. */
     clockDrift: {
       role: 'source',
-      runtimeSeconds: 663,
+      runtimeSeconds: Number(CLIP_RUNTIME / 1_000_000_000n),
       derivedUniverseId: RESPONDER_ID,
       derivation: 'beckResponderDrift (src/utils/clock-drift.ts)',
     },
@@ -581,11 +581,11 @@ export const timWhitakerResponseUniverse = {
     cultural_significance: 0.45,
     clockDrift: {
       role: 'derived',
-      runtimeSeconds: 3768,
+      runtimeSeconds: Number(RESPONDER_RUNTIME / 1_000_000_000n),
       sourceUniverseId: CLIP_ID,
       embedAtSeconds: SEGMENT_EMBED_AT,
       pauseCount: PAUSES.length,
-      totalDriftSeconds: 333.39,
+      totalDriftSeconds: Number(totalDrift(beckResponderDrift)) / 1e9,
       publicationLagSeconds: Number(
         (RESPONDER_PUBLISHED - CLIP_PUBLISHED) / 1_000_000_000n,
       ),
