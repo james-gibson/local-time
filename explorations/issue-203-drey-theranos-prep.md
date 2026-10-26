@@ -377,7 +377,9 @@ hundred-tag universe.
       one-sentence `description`; `certainty` on every claim drawn from §8 of the
       ticket.
 - [ ] Both `thesis`-tagged keyframes have significance < 0.9.
-- [ ] `realityAnchors` use the `RealityAnchor` shape with ≥1 `evidence` string each.
+- [ ] `realityAnchors` use the `RealityAnchor` shape with ≥1 `evidence` string each;
+      targets that are not registered carry `hydration: 'presumed'` and appear in
+      `metadata.presumed` claiming no charge.
 - [ ] C-13 (Ellison on the board, certainty 0.4) is not asserted in
       `metadata.description`; if recorded, it is `contradicts` with its evidence.
 - [ ] C-14 ("first full day" vs "second day") is recorded verbatim in a deviations

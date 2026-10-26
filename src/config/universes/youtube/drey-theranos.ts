@@ -1,5 +1,6 @@
 import {
   KeyframeType,
+  RealityAnchor,
   TimePrecision,
   UniverseType,
 } from '../../../core/types';
@@ -46,12 +47,15 @@ import { dateToNanoseconds } from '../../../utils/temporal-conversion';
  * internal inconsistency (C-14, "first full day" vs "second day in office") is recorded
  * verbatim in `metadata.deviations` rather than normalised away.
  *
- * NO REALITY ANCHORS YET. Every subject this work documents — Theranos, the CIA STAR
- * GATE programme, BioWatch, the Stargate LLC consortium — is unregistered in this
- * corpus. A `realAnchor` to an invented id is a permanent dangling edge
- * (james-gibson/local-time#112 §11.5, #129), so the evidence lives in
- * `attribution.sources` until the historical universes exist. The test asserts that any
- * anchor added later resolves.
+ * PRESUMED ANCHORS. Every subject this work documents — Theranos, the CIA STAR GATE
+ * programme, BioWatch, the Stargate LLC consortium — is referenced but not yet declared
+ * in this corpus. The reference is kept visible rather than dropped: each anchor carries
+ * `hydration: 'presumed'`, meaning the id is an address awaiting a declaration, not a
+ * verified link to a registered universe. `metadata.presumed` is the ledger of the same
+ * ids, with what would hydrate them. The test asserts a presumed id is *not* registered
+ * yet — so the day one of these universes lands, the failure is the reminder to flip the
+ * marker rather than a silent entry into the charge graph. (A presumed compendium has no
+ * plane and therefore contributes no charge; see the presumed-universes skill.)
  *
  * CONTAINMENT. One owner, many memberships (#74): the work is a member of the US history
  * and US government containers because its subject matter is a US company, US courts and
@@ -162,6 +166,85 @@ export const dreyTheranosPeople: NamedSubject[] = [
 ];
 
 /* ------------------------------------------------------------------ *
+ * Presumed anchors — referenced, not yet hydrated
+ * ------------------------------------------------------------------ */
+
+/**
+ * A reality anchor whose target is an address, not yet a universe.
+ *
+ * `hydration: 'presumed'` is the honest state for "this work documents a real thing
+ * that has no declaration here yet". It is deliberately *not* a plain `RealityAnchor`:
+ * a reader must be able to tell a verified link from an awaiting one without checking
+ * the registry, and the suite pins that a presumed id is still unregistered.
+ */
+export type PresumedAnchor = RealityAnchor & { hydration: 'presumed' };
+
+/**
+ * The six subjects the work documents. Every id is well-formed
+ * (`history:<subject>:<year|range>`) and none is registered; the `evidence` is what the
+ * work itself cites, and hydrating one means authoring its universe, not editing this
+ * file.
+ */
+export const dreyTheranosPresumedAnchors: PresumedAnchor[] = [
+  {
+    realEventId: 'history:theranos_founded:2003',
+    relationshipType: 'documents',
+    confidence: 0.95,
+    hydration: 'presumed',
+    evidence: [
+      'Trial Exhibit 7051 — the 2003 provisional application',
+      'US 7,291,497 (Theranos patent family)',
+    ],
+  },
+  {
+    realEventId: 'history:us_v_holmes:2018-2022',
+    relationshipType: 'documents',
+    confidence: 0.95,
+    hydration: 'presumed',
+    evidence: [
+      'N.D. Cal. 18-cr-258 exhibit set, including the encrypted-database order',
+      'January 2022 verdict and the $452M restitution order',
+    ],
+  },
+  {
+    realEventId: 'history:cia_stargate_program:1972-1995',
+    relationshipType: 'documents',
+    confidence: 0.85,
+    hydration: 'presumed',
+    evidence: [
+      'CIA Reading Room STAR GATE collection',
+      '1994 human-subjects determination',
+      '1995 AIR evaluation',
+    ],
+  },
+  {
+    realEventId: 'history:stargate_llc_announcement:2025',
+    relationshipType: 'documents',
+    confidence: 0.98,
+    hydration: 'presumed',
+    evidence: [
+      'White House transcript, 2025-01-21 (DCPD-202500157)',
+      'AP/Reuters pool coverage of the Roosevelt Room announcement',
+      'OpenAI announcement naming Oracle, SoftBank, MGX and OpenAI',
+    ],
+  },
+  {
+    realEventId: 'history:anthrax_letters:2001',
+    relationshipType: 'documents',
+    confidence: 0.85,
+    hydration: 'presumed',
+    evidence: ['DOJ Amerithrax investigative summary'],
+  },
+  {
+    realEventId: 'history:biowatch:2003',
+    relationshipType: 'documents',
+    confidence: 0.85,
+    hydration: 'presumed',
+    evidence: ['2003 State of the Union', 'CRS report RL32152'],
+  },
+];
+
+/* ------------------------------------------------------------------ *
  * The universe
  * ------------------------------------------------------------------ */
 
@@ -184,9 +267,8 @@ export const dreyTheranosUniverse = {
     // Nothing is invented. The interpretive weight is carried by the thesis
     // keyframes' certainty and by metadata.disputedClaims, not by this number.
     fictionalizationDegree: 0.0,
-    // Deliberately empty: no subject of this work is registered yet, and an anchor to
-    // an invented id is a dangling edge. See the header note.
-    realityAnchors: [],
+    // Referenced, not yet declared. See `PresumedAnchor`: the marker is the point.
+    realityAnchors: dreyTheranosPresumedAnchors,
   },
 
   attribution: {
@@ -786,6 +868,22 @@ export const dreyTheranosUniverse = {
 
     /** Subjects, not credits. See `NamedSubject` and `dreyTheranosPeople`. */
     people: dreyTheranosPeople,
+
+    /**
+     * The presumption ledger for the anchors above. These ids are referenced by the
+     * corpus and declared by nothing; they carry no plane and contribute no charge until
+     * a universe owns them. `derivedFrom` is built from `dreyTheranosPresumedAnchors`, so
+     * the ledger cannot drift from the anchors it describes.
+     */
+    presumed: dreyTheranosPresumedAnchors.map((anchor) => ({
+      universeId: anchor.realEventId,
+      hydration: anchor.hydration,
+      referredBy: DREY_THERANOS_UNIVERSE_ID,
+      contributesCharge: false,
+      revisitIf:
+        'Author the universe, then flip this anchor to hydration: "declared" — the ' +
+        'suite fails while a declared id is still marked presumed.',
+    })),
 
     /**
      * C-13 — disputed, and recorded rather than embedded. Most reporting describes

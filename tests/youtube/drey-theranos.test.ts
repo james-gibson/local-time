@@ -259,17 +259,55 @@ describe('the Drey Dossier essay — roster and edges', () => {
     ).toEqual([]);
   });
 
-  test('every reality anchor resolves — none may be invented', () => {
+  test('reality anchors are visible, well-formed and marked presumed, not declared', () => {
     const registered = new Set(allUniverses.map((entry) => keys(entry.universeId)));
-    const anchors = universe.realityRelation.realityAnchors;
+    const anchors = universe.realityRelation.realityAnchors as Array<{
+      realEventId: string;
+      hydration?: string;
+      evidence?: string[];
+    }>;
 
-    // Empty today by design: Theranos, STAR GATE, BioWatch and Stargate LLC have no
-    // universe yet, and a dangling anchor is worse than an absent one (#112 §11.5).
-    expect(anchors).toEqual([]);
+    // The six subjects of the work. Referenced on purpose — dropping them would make
+    // the graph look complete; declaring them without a universe would be invention.
+    expect(anchors).toHaveLength(6);
+    expect(anchors.map((anchor) => anchor.realEventId)).toEqual([
+      'history:theranos_founded:2003',
+      'history:us_v_holmes:2018-2022',
+      'history:cia_stargate_program:1972-1995',
+      'history:stargate_llc_announcement:2025',
+      'history:anthrax_letters:2001',
+      'history:biowatch:2003',
+    ]);
+
     for (const anchor of anchors) {
-      expect(registered.has(anchor.realEventId)).toBe(true);
+      expect(isValidUniverseId(anchor.realEventId)).toBe(true);
       expect(anchor.evidence?.length ?? 0).toBeGreaterThan(0);
+
+      // A presumed id must still be unhydrated; a declared one must resolve. The day
+      // one of these universes lands, this fails until the marker is flipped.
+      if (anchor.hydration === 'presumed') {
+        expect(registered.has(anchor.realEventId)).toBe(false);
+      } else if (anchor.hydration === 'declared') {
+        expect(registered.has(anchor.realEventId)).toBe(true);
+      } else {
+        throw new Error(`anchor ${anchor.realEventId} has no hydration marker`);
+      }
     }
+  });
+
+  test('the presumption ledger lists exactly the anchored ids and claims no charge', () => {
+    const anchors = universe.realityRelation.realityAnchors.map((anchor) =>
+      keys(anchor.realEventId),
+    );
+    const ledger = universe.metadata.presumed as Array<{
+      universeId: string;
+      hydration: string;
+      contributesCharge: boolean;
+    }>;
+
+    expect(ledger.map((entry) => entry.universeId)).toEqual(anchors);
+    expect(ledger.every((entry) => entry.contributesCharge === false)).toBe(true);
+    expect(ledger.every((entry) => entry.hydration === 'presumed')).toBe(true);
   });
 
   test('the non-fiction claim is documentary at zero fictionalization', () => {
