@@ -4,6 +4,7 @@ import {
   timWhitakerResponseUniverse,
 } from './beck-responder-clocks';
 import { beckPamphletTranscriptUniverse } from './beck-pamphlet-transcript';
+import { texasPaulTtsuMailersUniverse } from './texas-paul-ttsu-mailers';
 import { dreyTheranosUniverse } from './drey-theranos';
 
 /**
@@ -26,6 +27,7 @@ export const youtubeUniverses: Universe[] = [
   timWhitakerResponseUniverse,
   beckPamphletTranscriptUniverse,
   dreyTheranosUniverse,
+  texasPaulTtsuMailersUniverse,
 ];
 
 export {
@@ -71,3 +73,8 @@ export {
 } from './drey-theranos';
 
 export type { NamedSubject } from './drey-theranos';
+
+export {
+  texasPaulTtsuMailersUniverse,
+  texasPaulTtsuMailersUniverses,
+} from './texas-paul-ttsu-mailers';

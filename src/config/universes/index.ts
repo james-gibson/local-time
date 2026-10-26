@@ -18,6 +18,8 @@ import {
 } from './us-gov';
 import {gamesUniverses, pokemonUniverses} from './games';
 import {historicalUniverses} from './historical/jfk';
+// The Texas TTSU/"student union" mailer controversy (#207).
+import {texasTtsuMailersUniverses} from './historical/texas-ttsu-mailers';
 import {
   usMilitaryOperationsUniverse,
   usNativeAmericanPolicyUniverse,
@@ -110,6 +112,7 @@ export const allUniverses = [
   ...versionControlUniverses,
   ...wikidataTypologyUniverses,
   ...gamestopUniverses,
+  ...texasTtsuMailersUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
   // The PageRank timeline: one container plus five era universes (#103). Spread,
@@ -167,6 +170,7 @@ export {
   pixarFilmUniverses,
   versionControlUniverses,
   gamestopUniverses,
+  texasTtsuMailersUniverses,
   costcoUniverses,
   idiocracyUniverse,
   robinWilliamsFilmography,
