@@ -18,6 +18,8 @@ import {
 } from './us-gov';
 import {gamesUniverses, pokemonUniverses} from './games';
 import {historicalUniverses} from './historical/jfk';
+// The 2026 Texas mailer analysis family (#200). Spread, never nested (#45, #68).
+import {texasMailerUniverses} from './historical/texas-mailer';
 import {
   usMilitaryOperationsUniverse,
   usNativeAmericanPolicyUniverse,
@@ -110,6 +112,7 @@ export const allUniverses = [
   ...versionControlUniverses,
   ...wikidataTypologyUniverses,
   ...gamestopUniverses,
+  ...texasMailerUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
   // The PageRank timeline: one container plus five era universes (#103). Spread,
@@ -167,6 +170,7 @@ export {
   pixarFilmUniverses,
   versionControlUniverses,
   gamestopUniverses,
+  texasMailerUniverses,
   costcoUniverses,
   idiocracyUniverse,
   robinWilliamsFilmography,
