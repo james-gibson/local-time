@@ -18,6 +18,8 @@ import {
 } from './us-gov';
 import {gamesUniverses, pokemonUniverses} from './games';
 import {historicalUniverses} from './historical/jfk';
+// The Texas TTSU/"student union" mailer controversy (#207).
+import {texasTtsuMailersUniverses} from './historical/texas-ttsu-mailers';
 // The 2026 Texas mailer analysis family (#200). Spread, never nested (#45, #68).
 import {texasMailerUniverses} from './historical/texas-mailer';
 import {
@@ -112,6 +114,7 @@ export const allUniverses = [
   ...versionControlUniverses,
   ...wikidataTypologyUniverses,
   ...gamestopUniverses,
+  ...texasTtsuMailersUniverses,
   ...texasMailerUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
@@ -170,6 +173,7 @@ export {
   pixarFilmUniverses,
   versionControlUniverses,
   gamestopUniverses,
+  texasTtsuMailersUniverses,
   texasMailerUniverses,
   costcoUniverses,
   idiocracyUniverse,
