@@ -10,6 +10,10 @@ import {
   texasMailerDominatedChoiceUniverse,
   texasMailerProductionValueUniverse,
   texasMailerAmbiguityTolerantFormUniverse,
+  texasMailerPayerLedgerUniverse,
+  texasMailerOperatorProfileUniverse,
+  texasMailerStationarityDomicileUniverse,
+  texasMailerFivePostulatesUniverse,
 } from './index';
 import { beckDoublespeakUniverse } from '../../youtube/beck-doublespeak';
 
@@ -49,12 +53,16 @@ const EXPECTED_IDS = [
   'history:texas_mailer_preference_vector:2026',
   'history:texas_mailer_production_value:2026',
   'history:texas_mailer_solo_limit:2026',
+  'history:texas_mailer_payer_ledger:2026',
+  'history:texas_mailer_operator_profile:2026',
+  'history:texas_mailer_stationarity_domicile:2026',
+  'history:texas_mailer_five_postulates:2026',
 ];
 
 describe('the Texas mailer analysis family (#200)', () => {
-  test('lands six history universes, each owned exactly once', () => {
-    expect(universes).toHaveLength(6);
-    expect(universes.map(idOf).sort()).toEqual(EXPECTED_IDS);
+  test('lands ten history universes, each owned exactly once', () => {
+    expect(universes).toHaveLength(EXPECTED_IDS.length);
+    expect(universes.map(idOf).sort()).toEqual([...EXPECTED_IDS].sort());
     for (const id of EXPECTED_IDS) {
       expect(registered.has(id)).toBe(true);
     }
@@ -202,6 +210,117 @@ describe('the Texas mailer analysis family (#200)', () => {
     expect(idOf(texasMailerAmbiguityTolerantFormUniverse)).toBe(
       'history:texas_mailer_ambiguity_tolerant_form:2026',
     );
+  });
+
+  test('the four modules that landed with #221 cover their clocks gaplessly', () => {
+    const tranche = [
+      texasMailerPayerLedgerUniverse,
+      texasMailerOperatorProfileUniverse,
+      texasMailerStationarityDomicileUniverse,
+      texasMailerFivePostulatesUniverse,
+    ];
+
+    for (const u of tranche) {
+      const segments = ((u.temporalStructure as any)?.segments ?? []) as Array<{
+        id: string;
+        start: bigint;
+        end: bigint;
+      }>;
+
+      expect(segments.length).toBeGreaterThan(1);
+      for (let i = 1; i < segments.length; i += 1) {
+        expect(segments[i].start).toBe(segments[i - 1].end);
+        expect(segments[i].end).toBeGreaterThanOrEqual(segments[i].start);
+      }
+
+      // A keyframe before the first segment is outside the timeline it is supposed to
+      // explain; the operator profile's base-rate precedents were exactly that until the
+      // partition was extended back to them.
+      const first = segments[0].start;
+      const last = segments[segments.length - 1].end;
+      for (const kf of keyframes(u)) {
+        expect(kf.timestamp).toBeGreaterThanOrEqual(first);
+        expect(kf.timestamp).toBeLessThanOrEqual(last);
+      }
+    }
+  });
+
+  test('the #221 tranche keeps the verdicts the thread reached', () => {
+    expect(metadata(texasMailerPayerLedgerUniverse).payerStatus).toBe(
+      'unidentified as of 2026-10-26',
+    );
+    expect(metadata(texasMailerPayerLedgerUniverse).motives.H4_political_deniability.prior)
+      .toBe(0.5);
+
+    expect(
+      metadata(texasMailerOperatorProfileUniverse).hypothesisLedger.H6_the_prop_hypothesis.status,
+    ).toBe('SURVIVES');
+    expect(
+      metadata(texasMailerOperatorProfileUniverse).hypothesisLedger
+        .H4_activity_predates_the_retention_change.status,
+    ).toContain('REFUTED');
+
+    expect(metadata(texasMailerStationarityDomicileUniverse).doseLedger.months_no_domestic_obligation)
+      .toBe(17);
+    expect(metadata(texasMailerStationarityDomicileUniverse).doseLedger.marginal_effect_of_final_rule_on_capability)
+      .toBe('zero');
+
+    expect(
+      metadata(texasMailerFivePostulatesUniverse).postulateLedger.P5_campaign_was_managed.status,
+    ).toContain('CONFIRMED');
+    expect(
+      metadata(texasMailerFivePostulatesUniverse).postulateLedger.P4_printer_cleans_money.status,
+    ).toBe('REFUTED');
+  });
+
+  test('the stationarity revision names the keyframe it withdraws, and it exists', () => {
+    const supersede = references(texasMailerStationarityDomicileUniverse).find(
+      (ref) => ref.type === 'SUPERSEDES' && (ref as any).targetKeyframeId,
+    ) as { targetUniverseId: string; targetKeyframeId: string } | undefined;
+
+    expect(supersede).toBeDefined();
+    expect(supersede!.targetUniverseId).toBe(
+      'history:texas_mailer_operator_profile:2026',
+    );
+
+    const target = keyframes(texasMailerOperatorProfileUniverse).find(
+      (kf) => kf.id === supersede!.targetKeyframeId,
+    );
+    expect(target).toBeDefined();
+  });
+
+  test('every reality anchor in the #221 tranche uses a relationship type the type defines', () => {
+    const allowed = new Set([
+      'depicts',
+      'inspired_by',
+      'reinterprets',
+      'contradicts',
+      'reimagines',
+      'documents',
+      'experienced',
+    ]);
+
+    // Scoped to the modules ported here. The same guard over the whole family fails on
+    // two pre-existing values in `discovery_reach` (`interprets`, `derives_from`); those
+    // are instances of james-gibson/local-time#143 and are recorded there rather than
+    // fixed in a porting PR.
+    const tranche = [
+      texasMailerPayerLedgerUniverse,
+      texasMailerOperatorProfileUniverse,
+      texasMailerStationarityDomicileUniverse,
+      texasMailerFivePostulatesUniverse,
+    ];
+
+    const offenders: string[] = [];
+    for (const u of tranche) {
+      for (const anchor of u.realityRelation.realityAnchors ?? []) {
+        const kind = (anchor as { relationshipType?: string }).relationshipType;
+        if (!kind || !allowed.has(kind)) {
+          offenders.push(`${idOf(u)}#${anchor.realEventId}: ${String(kind)}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 });
 

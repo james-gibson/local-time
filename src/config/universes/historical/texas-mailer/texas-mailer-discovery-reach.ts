@@ -436,12 +436,6 @@ export const texasMailerDiscoveryReachUniverse = {
       'Shield-law analysis is 0.6 and jurisdiction-specific; a federal forum would change it.',
       'Hearing date is inferred from ordinary Rule 202 scheduling practice, not from a docket entry.',
     ],
-    threadSiblings: [
-      {
-        id: 'history:texas_mailer_payer_ledger:2026',
-        note: 'the ledger this reach map is drawn against; proposed in #200, not landed',
-      },
-    ],
   },
 
   connections: {
@@ -452,6 +446,15 @@ export const texasMailerDiscoveryReachUniverse = {
       ],
     },
     references: [
+      {
+        type: 'DOCUMENTS',
+        targetUniverseId: 'history:texas_mailer_payer_ledger:2026',
+        confidence: 0.9,
+        description:
+          'The ledger this reach map is drawn against: the artefacts it says a payer must ' +
+          'have generated are what the channels below can reach. Landed with #221, so the ' +
+          'note that used to stand here is now an edge.',
+      },
       {
         type: 'DOCUMENTS',
         targetUniverseId: BECK_EXCERPT_ID,
