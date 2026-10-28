@@ -41,6 +41,12 @@ import { RESPONSE_PUBLICATION_INSTANT } from './beck-responder-clocks';
  *       appears here as a claim with a measured voice rather than as a block — but the
  *       draft's attribution must not be reintroduced through this map.
  *
+ *       THE PRECEDENCE IS NOT SYMMETRIC. The first attribution was made under
+ *       uncertainty — an unlabelled machine transcript, no speaker marks — and the second
+ *       pass re-checked it against the audio and decided it. The earlier record is kept in
+ *       `beckReadingCorrections` as history, not as standing: a pass that verifies an
+ *       uncertain claim outranks it, and the two are not rival opinions to be weighed.
+ *
  *   C2  THE ADDRESS FIELD WAS READ ALOUD, TWICE, BY THE RECIPIENT: "this is coming to the
  *       house of students of the Glenn Beck family" (04:42 on the clip) and "if it's
  *       addressed directly to them, students of the Glenn Beck household" (05:11). A
