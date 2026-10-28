@@ -1,3 +1,4 @@
+
 >Disclaimer: This project is me learning how to paint with a llm. If it's helpful let me know!
 >
 > The Disclaimers Disclaimer: I've tried to take my time sourcing the reference material underlying the metadata in this project. Truth be told, mistakes can and likely will slip in as I go however. This project uses declarative identifiers as internal symbol names of universes and events, the intent is even if a refactor or bug broke this project the intention anything built on it wasn't lost. In that spirit, be prepared to pin to a specific SHA if you did run into a problem. File an issue and we shall get it sorted, ideally
