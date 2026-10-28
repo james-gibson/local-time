@@ -4,6 +4,7 @@ import {
   timWhitakerResponseUniverse,
 } from './beck-responder-clocks';
 import { beckPamphletTranscriptUniverse } from './beck-pamphlet-transcript';
+import { beckPamphletReadingUniverse } from './beck-pamphlet-reading';
 import { texasPaulTtsuMailersUniverse } from './texas-paul-ttsu-mailers';
 import { beckDoublespeakUniverse } from './beck-doublespeak';
 import { dreyTheranosUniverse } from './drey-theranos';
@@ -14,7 +15,8 @@ import { cartoonPhysicsUniverse } from './cartoon-physics';
  *
  * One pair of works that share a clock — a clip, the response video that plays it, and
  * the drift between their runtimes — plus the transcription record for the passage the
- * response replays, the doublespeak cut of that passage, one publication-anchored video
+ * response replays, a reading-order map of the pamphlet that passage reads aloud, the
+ * doublespeak cut of that passage, one publication-anchored video
  * essay whose keyframes are absolute instants inside its own runtime, and one essay whose
  * five chapters and nineteen keyframes are measured offsets from its auto-caption track.
  * The drift is not a universe either: it is the *relation* between the two clocks, so it
@@ -30,6 +32,7 @@ export const youtubeUniverses: Universe[] = [
   beckMailClipUniverse,
   timWhitakerResponseUniverse,
   beckPamphletTranscriptUniverse,
+  beckPamphletReadingUniverse,
   beckDoublespeakUniverse,
   dreyTheranosUniverse,
   texasPaulTtsuMailersUniverse,
@@ -69,6 +72,29 @@ export type {
   TranscriptUtterance,
   AddressReading,
 } from './beck-pamphlet-transcript';
+
+export {
+  beckPamphletReadingUniverse,
+  beckPamphletReadingUniverses,
+  beckReadingBlocks,
+  beckReadingSegments,
+  beckReadingKeyframes,
+  beckReadingCaptionArtifacts,
+  beckReadingCorrections,
+  beckReadingClaimInventory,
+  BECK_PAMPHLET_READING_UNIVERSE_ID,
+  BECK_READING_CLIP_ID,
+  BECK_READING_DOCUMENT_ID,
+  BECK_READING_EXCERPT_ID,
+  BECK_READING_PARENT_ID,
+} from './beck-pamphlet-reading';
+
+export type {
+  ReadingBlock,
+  ReadingSegment,
+  ReadingVoice,
+  PrintedSlot,
+} from './beck-pamphlet-reading';
 
 export {
   dreyTheranosUniverse,
