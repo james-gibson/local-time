@@ -62,7 +62,7 @@ model TemporalEpoch {
   epochId     String?
   startTime   String? // BigInt as string
   endTime     String? // BigInt as string
-  precision   String? // TimePrecision as its enum name, e.g. 'DAY'; null when the epoch declares none
+  precision   String  // TimePrecision as its enum name, e.g. 'DAY'. NOT NULL since #193
   description String?
   layerId     String
 

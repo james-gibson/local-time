@@ -188,24 +188,36 @@ describe('seedDatabase', () => {
     expect(checked).toBe(allUniverses.length);
   });
 
-  test('precision is stored as a TimePrecision name, or null when undeclared', async () => {
+  test('every epoch stores a TimePrecision name, and the column admits no null (#193)', async () => {
     const names = new Set(
       Object.values(TimePrecision).filter((value): value is string => typeof value === 'string'),
     );
     const epochs = await prisma.temporalEpoch.findMany({ select: { precision: true } });
 
-    const undeclared = epochs.filter((epoch) => epoch.precision === null).length;
+    expect(epochs.length).toBe(summary.epochs);
+    expect(epochs.length).toBeGreaterThan(0);
     for (const epoch of epochs) {
-      if (epoch.precision === null) continue;
       expect(names.has(epoch.precision)).toBe(true);
     }
 
     // The enum's numeric value is a nanosecond span — DAY is 86_400_000_000_000 — so it
     // fits neither `Int` nor, at MILLION_YEARS, SQLite's 64-bit INTEGER. The name is the
-    // storage form; `undeclared` is the visible count of epochs that carry no precision,
-    // which is older data debt (#58 follow-up), not something this seed may invent.
-    expect(undeclared).toBeLessThan(epochs.length);
-    expect(epochs.length).toBe(summary.epochs);
+    // storage form. Since #193 every epoch declares one: the 26 that did not were given
+    // the resolution they actually have (YEAR), and the column is NOT NULL, so a null
+    // here means the static set regressed rather than that the seed may invent a value.
+    const [{ undeclared }] = await prisma.$queryRaw<Array<{ undeclared: bigint | number }>>`
+      SELECT COUNT(*) AS undeclared FROM temporal_epochs WHERE precision IS NULL`;
+    expect(Number(undeclared)).toBe(0);
+
+    // And the column itself admits no null: the count above would also be zero against a
+    // nullable column that happened to be filled. `db push` applied this schema, so this
+    // is the constraint, not a coincidence of the data.
+    const columns = await prisma.$queryRaw<
+      Array<{ name: string; notnull: bigint | number }>
+    >`PRAGMA table_info(temporal_epochs)`;
+    const column = columns.find((entry) => entry.name === 'precision');
+    expect(column).toBeDefined();
+    expect(Number(column!.notnull)).toBe(1);
   });
 
   test('re-seeding replaces the previous contents instead of duplicating them', async () => {

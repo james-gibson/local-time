@@ -1,5 +1,5 @@
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
-import { Universe, UniverseType } from '../../../core';
+import { Universe, UniverseType, TimePrecision } from '../../../core';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
@@ -67,6 +67,7 @@ export const costcoUniverse: Universe = {
           epochId: 'costco:founding',
           startTime: ns('1983-01-01T00:00:00Z'),
           endTime: ns('1993-01-01T00:00:00Z'),
+          precision: TimePrecision.YEAR,
           description: 'Warehouse-club formation era, from founding to the Price Club merger.',
         },
       },

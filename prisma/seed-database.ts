@@ -72,16 +72,24 @@ type SegmentLike = TemporalSegment & {
  *
  * The input is `unknown` rather than `TimePrecision` on purpose. `TemporalEpoch.precision`
  * is declared as the numeric enum, but the static data authors it **both** ways: most
- * epochs carry `TimePrecision.DAY`, and the zero-reference epochs (`film:pixar:toy_story
- * _2:1999`'s `zero_ref`, the studio containers) carry the string `'MINUTE'`. Nothing
- * validates the literal — `as unknown as Universe` erases the distinction — so the
- * conversion accepts either and returns the name. This is the same class of drift as
- * the two segment shapes below.
+ * epochs carry `TimePrecision.DAY`, and some zero-reference epochs carry the string
+ * `'MINUTE'`. Nothing validates the literal — `as unknown as Universe` erases the
+ * distinction — so the conversion accepts either and returns the name. This is the same
+ * class of drift as the two segment shapes below.
+ *
+ * An epoch with *no* precision is not a value to store. The column is NOT NULL since
+ * #193: the 26 epochs that omitted it were given the resolution they actually have, and
+ * this throws instead of writing the string `"undefined"` if one reappears.
  */
 const precisionName = (precision: unknown): string => {
-  if (typeof precision === 'string') return precision;
-  if (typeof precision === 'number') return TimePrecision[precision] ?? String(precision);
-  return String(precision);
+  if (typeof precision === 'string' && precision.length > 0) return precision;
+  if (typeof precision === 'number') {
+    const name = TimePrecision[precision];
+    if (name !== undefined) return name;
+  }
+  throw new Error(
+    'Epoch declares no TimePrecision; temporal_epochs.precision is NOT NULL (#193)',
+  );
 };
 
 export interface SeedSummary {
@@ -270,7 +278,7 @@ async function seedUniverse(
           epochId: epoch.epochId ?? epochKey,
           startTime: (epoch.startTime ?? epoch.start)?.toString() ?? null,
           endTime: (epoch.endTime ?? epoch.end)?.toString() ?? null,
-          precision: epoch.precision === undefined ? null : precisionName(epoch.precision),
+          precision: precisionName(epoch.precision),
           description: epoch.description ?? null,
           layerId: createdLayer.id,
           zeroPoint: epoch.zeroPoint?.toString() ?? null,
