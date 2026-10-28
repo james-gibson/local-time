@@ -60,3 +60,10 @@ jobs:
 
       - name: Test the lore pipeline scripts
         run: npm run test:scripts
+
+      # `docs/site/` is a build artefact from a sibling project, so no other step
+      # reads it. This is what notices a half-written Hugo build, a nav entry for
+      # a section that was not generated, or a subpath applied twice
+      # (james-gibson/local-time#226).
+      - name: Check the committed documentation site
+        run: npm run check:docs

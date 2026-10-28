@@ -17,19 +17,25 @@
 
 > The documentation tree for the Local Time System: guides, reference, lore, and resources.
 
-- [Personal Docs Site](https://james-gibson.github.io/local-time/docs/site/docs/lore/personal-docs-2026/): The Doks/Hugo site in personal/docs. Its pages are generated from this universe's timeline, so the documentation stems from one recorded source instead o…
+- [Lore](https://james-gibson.github.io/local-time/docs/site/docs/lore/): The lore universes the site renders: one section per enrolled universe, with a page for every keyframe on its timeline.
 - [Guides](https://james-gibson.github.io/local-time/docs/site/docs/guides/): Explore step-by-step guides that walk you through common tasks, from setup to advanced workflows, helping you learn and use this project with confidence.
 - [Reference](https://james-gibson.github.io/local-time/docs/site/docs/reference/): Find detailed, structured reference pages that explain concepts, configuration options, and behavior so you can quickly look up precise information as you work.
 - [Resources](https://james-gibson.github.io/local-time/docs/site/docs/resources/): Discover curated links to official docs, tools, templates, and learning materials that help you deepen your knowledge and get more from this project.
 
-### Personal Docs Site
+### Lore
 
-> The Doks/Hugo site in personal/docs. Its pages are generated from this universe's timeline, so the documentation stems from one recorded source instead o…
+> The lore universes the site renders: one section per enrolled universe, with a page for every keyframe on its timeline.
 
-- [Doks Scaffold](https://james-gibson.github.io/local-time/docs/site/docs/lore/personal-docs-2026/doks-scaffold/): The Doks template is scaffolded in personal/docs with the non-interactive create-thulite CLI. Part of the personal:docs:2026 timeline, bootstrap segment.
-- [Toolchain Installed](https://james-gibson.github.io/local-time/docs/site/docs/lore/personal-docs-2026/toolchain-installed/): Hugo (extended) and Dart Sass are installed, so the theme's SCSS pipeline resolves. Part of the personal:docs:2026 timeline, bootstrap segment.
-- [Docs Universe Declared](https://james-gibson.github.io/local-time/docs/site/docs/lore/personal-docs-2026/docs-universe-declared/): This universe is declared in lore and enrolled in the local-time sync. Part of the personal:docs:2026 timeline, bootstrap segment.
-- [Content From Lore](https://james-gibson.github.io/local-time/docs/site/docs/lore/personal-docs-2026/content-from-lore/): The site's docs pages are generated from this timeline, so content stems from the universe rather than being authored beside it.
+- [Personal Docs Site](https://james-gibson.github.io/local-time/docs/site/docs/lore/personal-docs-2026/): The Doks/Hugo site in personal/docs. Its pages are generated from this universe's timeline, so the documentation stems from one recorded source instead o…
+- [Costco Wholesale](https://james-gibson.github.io/local-time/docs/site/docs/lore/history-costco-1983/): The American warehouse-club retailer founded in Seattle in 1983, from the first warehouse to the Price Club merger and the Kirkland Signature house brand.
+- [The GameStop Short Squeeze (Gamestonk)](https://james-gibson.github.io/local-time/docs/site/docs/lore/history-gamestop-squeeze-2021/): The January 2021 retail-driven short squeeze in GameStop (GME) stock, coordinated on r/WallStreetBets, and its regulatory aftermath.
+- [Standard Oil and the Founding of the Modern Oil Industry](https://james-gibson.github.io/local-time/docs/site/docs/lore/history-standard-oil-1870/): The rise of Standard Oil from its 1870 founding through its 1911 breakup, as the foundational case study of American corporate power.
+- [Concurrent Versions System (CVS)](https://james-gibson.github.io/local-time/docs/site/docs/lore/technology-cvs-1986/): The first widely adopted version-control system for distributed teams, adding a shared repository and concurrent editing over RCS.
+- [Git](https://james-gibson.github.io/local-time/docs/site/docs/lore/technology-git-2005/): A distributed version-control system created for the Linux kernel, now the standard for software development worldwide.
+- [Apache Subversion (SVN)](https://james-gibson.github.io/local-time/docs/site/docs/lore/technology-subversion-2000/): A centralized version-control system created as a more capable CVS, offering atomic commits and versioned directories.
+- [Dead Poets Society](https://james-gibson.github.io/local-time/docs/site/docs/lore/touchstone-pictures-dead-poets-society-1989/): Peter Weir's 1959 New England prep-school drama, and Robin Williams' turn as the inspirational teacher John Keating.
+- [United States Constitutional Amendments](https://james-gibson.github.io/local-time/docs/site/docs/lore/us-amendments-1791/): All 27 ratified amendments to the U.S. Constitution, from the Bill of Rights through the Congressional Pay Raises amendment.
+- [United States Constitution and Bill of Rights](https://james-gibson.github.io/local-time/docs/site/docs/lore/us-constitution-1787/): The foundational legal documents of the U.S. federal government, from drafting through ratification of the Bill of Rights.
 
 ### Guides
 
