@@ -1,5 +1,5 @@
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
-import { Universe, UniverseType, UniverseId, KeyframeType } from '../../../core';
+import { Universe, UniverseType, UniverseId, KeyframeType, TimePrecision } from '../../../core';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
 /**
@@ -88,6 +88,7 @@ export const williamsDisneyAladdinDisputeUniverse: Universe = {
           epochId: 'williams_disney_aladdin_dispute:dispute',
           startTime: ns('1991-01-01T00:00:00Z'),
           endTime: ns('1996-12-31T23:59:59Z'),
+          precision: TimePrecision.YEAR,
           description:
             'From the 1991 contract through the 1996 reconciliation; the first film is made under the disputed terms.',
         },

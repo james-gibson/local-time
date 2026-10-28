@@ -1,4 +1,4 @@
-import { Universe, UniverseType, ReferenceType } from '../../../core/types';
+import { Universe, UniverseType, ReferenceType, TimePrecision } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import {
   createFilmStudioUniverseId,
@@ -203,6 +203,10 @@ function buildFilmStudioUniverse(
                 ? '2026-01-01T00:00:00Z'
                 : `${spec.endedYear}-12-31T23:59:59Z`,
             ),
+            // Both bounds are year edges: 1 January of the founding year to 31 December
+            // of the closing year (or the corpus horizon). Nothing in the container
+            // narrows them further, so YEAR is the resolution it actually has.
+            precision: TimePrecision.YEAR,
             description: `Corporate history of ${spec.displayName}.`,
           },
         },
