@@ -28,7 +28,7 @@ This README is the front door. The deeper material:
 
 **Elsewhere**
 
-- **[Generated documentation site](docs/site/)** — Hugo/Doks, rebuilt on local sync from the docs project.
+- **[Documentation site](https://james-gibson.github.io/local-time/docs/site/)** — Hugo/Doks, generated from the lore universes and published here from `docs/site/`. That directory is a committed build artefact, not hand-written: the source is the sibling `personal/docs` project, and `npm run check:docs` validates the artefact in CI.
 - **[Open issues](https://github.com/james-gibson/local-time/issues)** — the live work.
 
 ## Features
