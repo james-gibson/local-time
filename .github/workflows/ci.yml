@@ -34,6 +34,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
+      # `postinstall` runs `prisma generate`, so the generated client exists before Lint
+      # and Typecheck read `prisma/` (both cover it now — tsconfig.scripts.json,
+      # james-gibson/local-time#161). Test runs the seed round-trip against a throwaway
+      # SQLite file, so no DATABASE_URL is needed anywhere in this job.
       - name: Install
         run: npm ci
 
@@ -56,3 +60,10 @@ jobs:
 
       - name: Test the lore pipeline scripts
         run: npm run test:scripts
+
+      # `docs/site/` is a build artefact from a sibling project, so no other step
+      # reads it. This is what notices a half-written Hugo build, a nav entry for
+      # a section that was not generated, or a subpath applied twice
+      # (james-gibson/local-time#226).
+      - name: Check the committed documentation site
+        run: npm run check:docs

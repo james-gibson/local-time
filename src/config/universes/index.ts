@@ -18,6 +18,10 @@ import {
 } from './us-gov';
 import {gamesUniverses, pokemonUniverses} from './games';
 import {historicalUniverses} from './historical/jfk';
+// The Texas TTSU/"student union" mailer controversy (#207).
+import {texasTtsuMailersUniverses} from './historical/texas-ttsu-mailers';
+// The 2026 Texas mailer analysis family (#200). Spread, never nested (#45, #68).
+import {texasMailerUniverses} from './historical/texas-mailer';
 import {
   usMilitaryOperationsUniverse,
   usNativeAmericanPolicyUniverse,
@@ -69,6 +73,9 @@ import {filmStudioUniverses} from "./studios"
 import {williamsDisneyAladdinDisputeUniverse} from "./historical"
 import {homeEnergyLogSept2025Universe} from "./james/solar"
 import {damPodcastEpisodeUniverse} from "./podcast/hydrology-impacts"
+// The `youtube/` namespace: a clip and the response video that plays it, with the
+// measured drift between their runtime clocks. Two universes, one drift record.
+import {youtubeUniverses} from "./youtube"
 export const allUniverses = [
     ...filmUniverses,
   ...filmStudioUniverses,
@@ -111,6 +118,8 @@ export const allUniverses = [
   ...wikidataTypologyUniverses,
   ...referenceUniverses,
   ...gamestopUniverses,
+  ...texasTtsuMailersUniverses,
+  ...texasMailerUniverses,
   idiocracyUniverse,
   ...costcoUniverses,
   // The PageRank timeline: one container plus five era universes (#103). Spread,
@@ -144,6 +153,8 @@ export const allUniverses = [
   // anchors. *Back to the Future* is a member too, but it is owned by the film
   // namespace and appears in `filmUniverses` — never here (#74).
   ...tropesUniverses,
+  // The clip and the response video that plays it, with the drift between their clocks.
+  ...youtubeUniverses,
 ];
 
 export const allNetworks = [
@@ -166,6 +177,8 @@ export {
   pixarFilmUniverses,
   versionControlUniverses,
   gamestopUniverses,
+  texasTtsuMailersUniverses,
+  texasMailerUniverses,
   costcoUniverses,
   idiocracyUniverse,
   robinWilliamsFilmography,
@@ -175,5 +188,6 @@ export {
   globalPoliticsUniverses,
   usPoliticsUniverses,
   post911SkyscraperShiftUniverse,
-  enronCollapseUniverse
+  enronCollapseUniverse,
+  youtubeUniverses
 };

@@ -1,0 +1,33 @@
+{
+  "//": [
+    "Type-checks the files that are neither shipped `src/` nor tests — the Prisma layer and",
+    "the scripts — which `tsconfig.json` and `tsconfig.test.json` never examined",
+    "(james-gibson/local-time#161).",
+    "",
+    "The blind spot this closes, concretely: `prisma/seed.ts` read",
+    "`universe.attribution?.creators?.director?.join(' ')` and would have thrown at runtime",
+    "when #148 made `creators` person-keyed. `npm run typecheck` (src + tests), `npm run",
+    "lint` (`eslint src`) and `npx jest` all stayed green; the break was found by grepping",
+    "for the field. The same applies to every `.ts` under `scripts/`.",
+    "",
+    "`rootDir` is `.` rather than `src` for the same reason `tsconfig.test.json` sets it:",
+    "`prisma/` and `scripts/` are outside `src`, and inheriting `rootDir: src` makes TS6059",
+    "a build-layout complaint in every file. There is no `outDir` because this project is",
+    "only ever used with `--noEmit`; the shipped build stays `tsconfig.json`.",
+    "",
+    "`.js` scripts under `scripts/` are still unchecked here. They run under `node --test`",
+    "and `tsc` would need `allowJs` + `checkJs` to see them; that is its own change, not",
+    "this gate.",
+    "",
+    "Test files are excluded: they are `tsconfig.test.json`'s job, and including them here",
+    "would need the jest types twice over for no additional coverage."
+  ],
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": ["src/**/*", "prisma/**/*.ts", "scripts/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/__tests__/**", "**/*.test.ts"]
+}

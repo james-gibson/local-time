@@ -26,7 +26,7 @@ xkcd #1491, *Stories of the Past and Future* (Randall Munroe, CC BY-NC 2.5) —
 npm run chart                # the corpus, drawn for the current year
 npm run chart:authority      # the xkcd #1491 fixture, drawn for 2015 (its own now)
 npm run chart -- --now 2030  # an explicit reader origin; recorded in the spec and on the image
-npm run timeline             # the console view, same spec
+npm run chart:console         # the console view, same spec
 ```
 
 `--now` is not decoration. The chart's classes are a property of *(work, reader)*, not of

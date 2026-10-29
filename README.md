@@ -37,7 +37,7 @@ This README is the front door. The deeper material:
 
 **Elsewhere**
 
-- **[Generated documentation site](docs/site/)** — Hugo/Doks, rebuilt on local sync from the docs project.
+- **[Documentation site](https://james-gibson.github.io/local-time/docs/site/)** — Hugo/Doks, generated from the lore universes and published here from `docs/site/`. That directory is a committed build artefact, not hand-written: the source is the sibling `personal/docs` project, and `npm run check:docs` validates the artefact in CI.
 - **[Open issues](https://github.com/james-gibson/local-time/issues)** — the live work.
 
 ## Features
@@ -146,6 +146,7 @@ const maryPoppins = registry.getUniverse('disney:mary_poppins:1964');
 ### Phase 5: Database Integration 🔄 IN PROGRESS
 - [x] **Prisma Schema**: Complete normalized schema for universe storage
 - [x] **Database Seeding**: Comprehensive seed script with all universe examples
+- [x] **Database in CI**: the schema, the seed and a round-trip test run on every `npm test` ([#58](https://github.com/james-gibson/local-time/issues/58))
 - [ ] **Repository Pattern**: Database abstraction layer (planned)
 - [ ] **Migration Tools**: In-memory to database migration utilities (planned)
 
@@ -242,19 +243,32 @@ npm run build
 
 ### Testing
 ```bash
-npm test                 # Run all tests
+npm test                 # Run all tests, including the Prisma seed round-trip
 npm run test:watch       # Watch mode
 npm run test:coverage    # Coverage report
-npm run validate         # Validate universe definitions
+npm run typecheck        # src, tests, and the prisma/ + scripts/ project
+npm run test:scripts     # node --test for the lore pipeline scripts
 ```
+
+`npm test` needs no database setup: `tests/prisma/seed.test.ts` creates a throwaway SQLite
+file under the OS temp directory, applies `prisma/schema.prisma` to it with `prisma db push`,
+runs the real seed, and asserts the rows. `prisma generate` runs on `postinstall` and again
+before the suite (`pretest`), so a schema edit cannot be tested against a stale client.
 
 ### Database
 ```bash
-npm run db:generate      # Generate Prisma client
-npm run db:push          # Push schema to database
-npm run db:seed          # Seed with universe examples
-npm run db:studio        # Open Prisma Studio
+cp .env.example .env      # DATABASE_URL, optional: the seed defaults to prisma/dev.db
+npm run db:generate       # Generate Prisma client (postinstall does this for you)
+npm run db:push           # Push schema to database
+npm run db:seed           # Seed with universe examples
+npm run db:studio         # Open Prisma Studio
 ```
+
+The storage decisions this schema is converging on — nanoseconds vs SQLite's INTEGER range,
+and how embeddings are held — are in
+[ADR 0001](docs/adr/0001-sqlite-timestamp-storage.md). The schema is deliberately not yet
+that design; the open gaps are tracked on
+[#58](https://github.com/james-gibson/local-time/issues/58).
 
 ## Examples
 

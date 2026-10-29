@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "viewerNow": 2026,
+  "viewerNow": 2026.8279569892472,
   "entries": [
     {
       "id": "us:constitution:1787",
@@ -1725,7 +1725,7 @@
       "publicationYear": 1963.8904175536345,
       "offset": {
         "min": -0.0014259932329423464,
-        "max": 62.93486793708712
+        "max": 62.93487882175691
       },
       "certainty": 0.9,
       "fictionalizationDegree": 0,
@@ -1803,7 +1803,7 @@
       "publicationYear": 1967.9985899778915,
       "offset": {
         "min": 0,
-        "max": 58.82669551286199
+        "max": 58.826706397563385
       },
       "certainty": 1,
       "fictionalizationDegree": 0,
@@ -3129,7 +3129,7 @@
       "publicationYear": 1973.0582421268061,
       "offset": {
         "min": 0,
-        "max": 53.767043363883886
+        "max": 53.76705424855368
       },
       "certainty": 1,
       "fictionalizationDegree": 0,
@@ -3142,7 +3142,7 @@
       "publicationYear": 1976.7982230983525,
       "offset": {
         "min": 0,
-        "max": 50.027062392337484
+        "max": 50.027073277007275
       },
       "certainty": 1,
       "fictionalizationDegree": 0,
@@ -3220,7 +3220,7 @@
       "publicationYear": 1981.918109201421,
       "offset": {
         "min": 0,
-        "max": 44.90717628923721
+        "max": 44.90718717393884
       },
       "certainty": 0.8,
       "fictionalizationDegree": 0,
@@ -5334,6 +5334,19 @@
       "source": "registry"
     },
     {
+      "id": "history:texas_mailer_operator_profile:2026",
+      "label": "The Operator Profile: four hypotheses about the 2026 Texas mailer payer, tested",
+      "side": "future",
+      "publicationYear": 2020.8401952127697,
+      "offset": {
+        "min": -0.8405374511455648,
+        "max": 5.998754252311755
+      },
+      "certainty": 0.4,
+      "fictionalizationDegree": 0.75,
+      "source": "registry"
+    },
+    {
       "id": "history:us_election:2020",
       "label": "US Presidential Election of 2020",
       "side": "future",
@@ -5412,6 +5425,19 @@
       "source": "registry"
     },
     {
+      "id": "series:cartoon_physics_are_more_logical_than_you_think:2023",
+      "label": "Cartoon Physics Are More Logical Than You Think",
+      "side": "future",
+      "publicationYear": 2023.3557616084088,
+      "offset": {
+        "min": 0,
+        "max": 0.000019488574253045954
+      },
+      "certainty": 0.9,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
       "id": "game:diablo:diablo_iv:2023",
       "label": "Diablo IV",
       "side": "future",
@@ -5435,6 +5461,19 @@
       },
       "certainty": 1,
       "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_mailer_stationarity_domicile:2026",
+      "label": "Stationarity and Domicile: correcting the H4 refutation and the Delaware premise",
+      "side": "future",
+      "publicationYear": 2024.1640143192537,
+      "offset": {
+        "min": -0.16427442041936047,
+        "max": 2.6749351458277033
+      },
+      "certainty": 0.55,
+      "fictionalizationDegree": 0.4,
       "source": "registry"
     },
     {
@@ -5513,6 +5552,19 @@
       },
       "certainty": 1,
       "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_mailer_five_postulates:2026",
+      "label": "Five Postulates: deletion lag, data pricing, content markets, print, and management",
+      "side": "future",
+      "publicationYear": 2025.1660882838114,
+      "offset": {
+        "min": -1.1663483849770273,
+        "max": 1.943913974961788
+      },
+      "certainty": 0.5,
+      "fictionalizationDegree": 0.5,
       "source": "registry"
     },
     {
@@ -5669,6 +5721,19 @@
       },
       "certainty": 1,
       "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_mailer_discovery_reach:2026",
+      "label": "Discovery Reach: the 2026 Texas mailer proceedings, per channel",
+      "side": "future",
+      "publicationYear": 2025.505588752678,
+      "offset": {
+        "min": 0,
+        "max": 1.3333607124034188
+      },
+      "certainty": 0.5,
+      "fictionalizationDegree": 0.35,
       "source": "registry"
     },
     {
@@ -6673,6 +6738,19 @@
       "source": "registry"
     },
     {
+      "id": "history:texas_mailer_solo_limit:2026",
+      "label": "Solo Limit: headcount as a discriminator, tested and replaced",
+      "side": "future",
+      "publicationYear": 2026.7841913249417,
+      "offset": {
+        "min": 0,
+        "max": 0.032854884083690195
+      },
+      "certainty": 0.65,
+      "fictionalizationDegree": 0.3,
+      "source": "registry"
+    },
+    {
       "id": "series:can_5_overpowered_ais_beat_our_community_openttd_map:2026",
       "label": "Can 5 Overpowered AIs Beat Our Community OpenTTD Map?",
       "side": "future",
@@ -6696,6 +6774,175 @@
       },
       "certainty": 1,
       "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_trans_student_mailer_controversy:2026",
+      "label": "\"Texas Transgender Student Union\" mailers (2026)",
+      "side": "future",
+      "publicationYear": 2026.7978808599767,
+      "offset": {
+        "min": -0.1314195363354429,
+        "max": 0.019165349048762437
+      },
+      "certainty": 0.3,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "series:glenn_beck_you_wont_believe_what_i_got_in_the_mail:2026",
+      "label": "You Won't BELIEVE What I Got In The Mail (Glenn Beck clip)",
+      "side": "future",
+      "publicationYear": 2026.8059811670025,
+      "offset": {
+        "min": 0,
+        "max": 0.000021009633428548113
+      },
+      "certainty": 1,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_mailer_payer_ledger:2026",
+      "label": "The Payer's Ledger: funding model for the 2026 Texas trans student mailers",
+      "side": "future",
+      "publicationYear": 2026.8088324880046,
+      "offset": {
+        "min": -0.18891558348218496,
+        "max": 0.030116977076886542
+      },
+      "certainty": 0.25,
+      "fictionalizationDegree": 0.85,
+      "source": "registry"
+    },
+    {
+      "id": "series:tim_whitaker_why_christians_lie_about_transgender_kids:2026",
+      "label": "Why Christians Lie About Transgender Kids (Tim Whitaker Speaks)",
+      "side": "future",
+      "publicationYear": 2026.8111435477038,
+      "offset": {
+        "min": 0,
+        "max": 0.00011940316676373186
+      },
+      "certainty": 1,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "series:beck_pamphlet_doublespeak:2026",
+      "label": "Doublespeak in the Glenn Beck pamphlet reading (derived analytical slice)",
+      "side": "future",
+      "publicationYear": 2026.8111436332952,
+      "offset": {
+        "min": -0.0023111452906050545,
+        "max": 0.0004267617164259718
+      },
+      "certainty": 0.5,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "series:beck_pamphlet_transcript:2026",
+      "label": "Responding To Glenn Beck (transcription record)",
+      "side": "future",
+      "publicationYear": 2026.811227871437,
+      "offset": {
+        "min": 0,
+        "max": 0.00002813959986269765
+      },
+      "certainty": 0.9,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "series:beck_pamphlet_reading_map:2026",
+      "label": "Glenn Beck reads the Texas Trans & LGBTQ+ Student Resource Guide (reading map, re-verified)",
+      "side": "future",
+      "publicationYear": 2026.811228870266,
+      "offset": {
+        "min": 0,
+        "max": 0.000026950638357448042
+      },
+      "certainty": 0.5,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "series:texas_paul_ttsu_mailers:2026",
+      "label": "We now know some of the people involved in mailing children fake transgender pamphlets in Texas.",
+      "side": "future",
+      "publicationYear": 2026.813244257557,
+      "offset": {
+        "min": 0,
+        "max": 0.000005545529120354331
+      },
+      "certainty": 0.3,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "series:theranos_isnt_about_elizabeth_holmes:2026",
+      "label": "Theranos Isn't About Elizabeth Holmes.",
+      "side": "future",
+      "publicationYear": 2026.8140462361512,
+      "offset": {
+        "min": -0.00001749218381519313,
+        "max": 0.00007107784040272236
+      },
+      "certainty": 0.55,
+      "fictionalizationDegree": 0,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_mailer_ambiguity_tolerant_form:2026",
+      "label": "Ambiguity-Tolerant Form: four intents, one receipt",
+      "side": "past",
+      "publicationYear": 2026.8170462090254,
+      "offset": {
+        "min": -0.032854884083690195,
+        "max": 0
+      },
+      "certainty": 0.65,
+      "fictionalizationDegree": 0.3,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_mailer_dominated_choice:2026",
+      "label": "Dominated Choice: the postulate is true, therefore empty",
+      "side": "past",
+      "publicationYear": 2026.8170462090254,
+      "offset": {
+        "min": -36.816635522974366,
+        "max": 0
+      },
+      "certainty": 0.6,
+      "fictionalizationDegree": 0.3,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_mailer_preference_vector:2026",
+      "label": "Preference Vector: the agent holds the mode, the expert holds a stance",
+      "side": "past",
+      "publicationYear": 2026.8170462090254,
+      "offset": {
+        "min": -2.817306310191043,
+        "max": 0
+      },
+      "certainty": 0.7,
+      "fictionalizationDegree": 0.3,
+      "source": "registry"
+    },
+    {
+      "id": "history:texas_mailer_production_value:2026",
+      "label": "Production Value: what the paper proves, and what the compliment serves",
+      "side": "past",
+      "publicationYear": 2026.8170462090254,
+      "offset": {
+        "min": -0.1478469783771743,
+        "max": 0
+      },
+      "certainty": 0.6,
+      "fictionalizationDegree": 0.25,
       "source": "registry"
     },
     {
@@ -6783,7 +7030,7 @@
     }
   },
   "cone": {
-    "apexYear": 2026,
+    "apexYear": 2026.8279569892472,
     "description": "both boundaries satisfy |offset| = apexYear − publicationYear: above the future boundary the setting is impossible and therefore obsolete; inside the past wedge the work was published closer to its setting than to the reader"
   },
   "attribution": "Chart form after xkcd #1491, \"Stories of the Past and Future\"\n(Randall Munroe, CC BY-NC 2.5) — https://xkcd.com/1491/"

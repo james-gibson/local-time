@@ -20,27 +20,31 @@
   },
   "scripts": {
     "prebuild": "rm -rf dist",
+    "postinstall": "prisma generate",
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json && tsc -p tsconfig.scripts.json",
+    "lint": "eslint src prisma scripts",
+    "lint:fix": "eslint src prisma scripts --fix",
+    "pretest": "prisma generate",
     "test": "jest",
-    "test:scripts": "node --test \"scripts/__tests__/*.test.js\"",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
+    "test:scripts": "node --test \"scripts/__tests__/*.test.js\"",
+    "check:docs": "node scripts/check-docs-site.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force && npm run db:seed",
-    "timeline": "tsx scripts/chart.ts --console",
+    "timeline": "tsx scripts/timeline-visualizer.ts",
     "timeline:watch": "tsx watch scripts/timeline-visualizer.ts",
     "atlas:sync": "node scripts/atlas-sync.mjs",
     "chart": "tsx scripts/chart.ts",
     "chart:authority": "tsx scripts/chart.ts --authority",
-    "chart:check": "node scripts/import-xkcd-1491.mjs --check"
+    "chart:check": "node scripts/import-xkcd-1491.mjs --check",
+    "chart:console": "tsx scripts/chart.ts --console"
   },
   "keywords": [
     "james",
@@ -74,7 +78,8 @@
   "overrides": {
     "@istanbuljs/load-nyc-config": {
       "js-yaml": "^4.3.2"
-    }
+    },
+    "test-exclude": "^8.0.0"
   },
   "files": [
     "dist/**/*",

@@ -20,7 +20,7 @@ model Universe {
   updatedAt            DateTime @updatedAt
 
   // JSON fields stored as TEXT in SQLite
-  identifiers     String // UniverseIdentifiers as JSON string
+  identifiers     String? // UniverseIdentifiers as JSON string; null for container universes, which declare none
   realityRelation String // RealityRelation as JSON string
   attribution     String // Attribution as JSON string
   metadata        String? // UniverseMetadata as JSON string
@@ -62,7 +62,7 @@ model TemporalEpoch {
   epochId     String?
   startTime   String? // BigInt as string
   endTime     String? // BigInt as string
-  precision   Int // TimePrecision as integer
+  precision   String  // TimePrecision as its enum name, e.g. 'DAY'. NOT NULL since #193
   description String?
   layerId     String
 
@@ -86,7 +86,7 @@ model TemporalWindow {
   windowId   String
   startTime  String // BigInt as string
   endTime    String // BigInt as string
-  precision  Int // TimePrecision as integer
+  precision  String // TimePrecision as its enum name, e.g. 'DAY'
   type       String? // 'fixed' | 'narrative_segment' | 'dynamic'
   universeId String
 
@@ -123,7 +123,7 @@ model TemporalSegment {
   segmentId    String // The 'id' field from the interface
   start        String // BigInt as string
   end          String // BigInt as string
-  type         String // segment type enum as string
+  type         String? // segment type enum as string; null when a container segment omits it
   status       String? // 'active' | 'inactive' | 'suspended' | 'overturned' | 'amended'
   jurisdiction String?
   structureId  String
