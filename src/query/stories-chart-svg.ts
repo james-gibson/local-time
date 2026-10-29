@@ -239,7 +239,7 @@ export function renderStoriesSvg(spec: StoriesChartSpec, options: SvgOptions = {
       cls,
       priority: priority ? 1 : 0,
       svg:
-        `<g class="entry ${entry.side} ${cls}" data-year="${entry.publicationYear}" data-min="${entry.offset.min}" data-max="${entry.offset.max}"${options.interactive ? ` id="u-${esc(entry.id)}" tabindex="0"` : ''}>` +
+        `<g class="entry ${entry.side} ${cls}" data-year="${entry.publicationYear}" data-min="${entry.offset.min}" data-max="${entry.offset.max}"${entry.references?.length ? ` data-refs="${esc(entry.references.join(' '))}"` : ''}${options.interactive ? ` id="u-${esc(entry.id)}" tabindex="0"` : ''}>` +
         `<title>${esc(title)}</title>` +
         (desc ? `<desc>${esc(desc)}</desc>` : '') +
         marker +
@@ -311,12 +311,14 @@ export function renderStoriesSvg(spec: StoriesChartSpec, options: SvgOptions = {
     <text class="note" x="${(apexX - 12).toFixed(1)}" y="${(zeroY - 8).toFixed(1)}" text-anchor="end">and older than this, the future is already past</text>
   </g>
   <line class="zero" x1="${M.left}" y1="${zeroY.toFixed(1)}" x2="${M.left + PW}" y2="${zeroY.toFixed(1)}"/>
+  <g id="ref-edges" aria-hidden="true" pointer-events="none"></g>
   <g role="group" aria-label="entries">
   ${entries.map((e) => e.svg).join('\n  ')}
   </g>
   <g role="group" aria-label="labels">
     <text class="axis-title" x="${M.left}" y="${M.top - 20}">years the setting sits from publication</text>
     <text class="axis-title" x="${M.left + PW}" y="${M.top + PH + 58}" text-anchor="end">date of publication</text>
+    ${spec.projection.edges.total > 0 ? `<text class="note" x="${M.left + PW}" y="${M.top - 20}" text-anchor="end">${spec.projection.edges.total} cross-universe references collapse into this plane</text>` : ''}
     <text class="note" id="chart-counts" x="${M.left}" y="34">${entries.length} entries · ${countByClass.obsolete ?? 0} obsolete · ${countByClass.still_possible ?? 0} still possible · ${countByClass.period_piece ?? 0} former period pieces · ${countByClass.recognizable ?? 0} recognisable</text>
     <text class="note" id="chart-stamp" x="${M.left + PW}" y="34" text-anchor="end">${esc(stamp)}</text>
   </g>

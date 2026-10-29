@@ -328,6 +328,61 @@
     });
   }
 
+  // --- the edges the plane collapses -----------------------------------------
+  //
+  // A plane cannot draw a reference: it has two axes and an edge needs a third
+  // relation. So the static chart counts them and the interactive one draws them on
+  // demand — focus or click an entry and its references appear, labelled with the
+  // types the corpus declares.
+  const overlay = document.getElementById('ref-edges');
+
+  function markerXY(g) {
+    const circle = g.querySelector('circle.marker');
+    if (circle) return [Number(circle.getAttribute('cx')), Number(circle.getAttribute('cy'))];
+    const line = g.querySelector('line.marker');
+    if (line) {
+      const x = Number(line.getAttribute('x1'));
+      const y1 = Number(line.getAttribute('y1'));
+      const y2 = Number(line.getAttribute('y2'));
+      return [x, (y1 + y2) / 2];
+    }
+    return null;
+  }
+
+  function clearEdges() {
+    if (overlay) overlay.textContent = '';
+  }
+
+  function drawEdges(g) {
+    if (!overlay) return;
+    clearEdges();
+    const refs = (g.dataset.refs || '').split(' ').filter(Boolean);
+    const from = markerXY(g);
+    if (!from || !refs.length) return;
+    for (const id of refs) {
+      const target = document.getElementById('u-' + id);
+      const to = target && markerXY(target);
+      if (!to) continue;
+      const midX = (from[0] + to[0]) / 2;
+      const midY = (from[1] + to[1]) / 2 - Math.min(90, Math.abs(to[0] - from[0]) * 0.18);
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${from[0]} ${from[1]} Q ${midX} ${midY} ${to[0]} ${to[1]}`);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'var(--accent)');
+      path.setAttribute('stroke-width', '1.2');
+      path.setAttribute('stroke-dasharray', '4 3');
+      path.setAttribute('opacity', '0.65');
+      overlay.appendChild(path);
+    }
+  }
+
+  for (const g of entryGroups) {
+    if (!g.dataset.refs) continue;
+    g.addEventListener('focus', () => drawEdges(g));
+    g.addEventListener('blur', clearEdges);
+    g.addEventListener('click', () => drawEdges(g));
+  }
+
   // --- deep links ------------------------------------------------------------
   function revealHash() {
     const m = /^#u-(.+)$/.exec(window.location.hash);
@@ -336,6 +391,7 @@
     if (!target) return;
     target.focus({ preventScroll: true });
     target.classList.add('targeted');
+    drawEdges(target);
   }
   window.addEventListener('hashchange', revealHash);
 

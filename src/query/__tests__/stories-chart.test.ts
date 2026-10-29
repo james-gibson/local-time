@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { allUniverses } from '../../config/universes/index';
 import { xkcd1491AuthorityUniverse, XKCD_1491_DISPUTED_ENTRIES } from '../../config/universes/reference/xkcd_1491_authority';
 import { xkcd1491CorrectionsUniverse } from '../../config/universes/reference/xkcd_1491_corrections';
 import {
@@ -168,6 +169,39 @@ describe('registry corpus', () => {
   it('skips the fixtures themselves: a fixture cannot draw itself as a row', () => {
     const entries = entriesFromRegistry([xkcd1491AuthorityUniverse, xkcd1491CorrectionsUniverse]);
     expect(entries).toHaveLength(0);
+  });
+});
+
+describe('the projection is named, not implied', () => {
+  it('cuts the plane at the reader and records the source\'s own cut', () => {
+    const spec = authoritySpec();
+    expect(spec.projection.plane).toBe('publication × offset');
+    expect(spec.projection.cutAt).toBe(2015.15);
+    expect(spec.projection.authoredAt).toBe(2015.15);
+    expect(spec.projection.collapses.join(' ')).toMatch(/cross-universe references/);
+  });
+
+  it('counts the edges a plane cannot draw, and lands only those with rows', () => {
+    const entries = entriesFromRegistry(allUniverses);
+    const ids = new Set(entries.map((e) => e.id));
+    const withRefs = entries.filter((e) => e.references?.length);
+    expect(withRefs.length).toBeGreaterThan(50);
+    for (const entry of withRefs) {
+      for (const ref of entry.references as string[]) {
+        expect(ids.has(ref)).toBe(true);
+        expect(ref).not.toBe(entry.id);
+      }
+    }
+    const spec = buildStoriesChart({ entries, viewerNow: 2026.8, clampY: true });
+    expect(spec.projection.edges.total).toBeGreaterThan(100);
+  });
+
+  it('carries the references into the interactive SVG, and leaves the raster without them', () => {
+    const spec = buildStoriesChart({ entries: entriesFromRegistry(allUniverses), viewerNow: 2026.8, clampY: true });
+    const interactive = renderStoriesSvg(spec, { theme: 'auto', interactive: true });
+    expect(interactive).toContain('data-refs=');
+    expect(interactive).toContain('id="ref-edges"');
+    expect(interactive).toContain('cross-universe references collapse into this plane');
   });
 });
 

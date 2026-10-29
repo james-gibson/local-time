@@ -11,6 +11,7 @@ edit the code, regenerate, and commit the diff.
 | `timeline.png` / `timeline-dark.png` | 2000 px raster copies for contexts that strip SVG and JS (README, npm, chat, slides) |
 | `timeline.html` | the interactive view: pan, zoom, keyboard, URL and `#universe-id` links |
 | `timeline.js` | that interaction — vanilla ES2020, no framework, no network |
+| `authority/` | the same four artefacts for the xkcd #1491 fixture (#229), drawn for its own 2015 cut — the port's evidence, not the library's front door |
 
 ## What "default view" means
 
@@ -33,6 +34,35 @@ npm run chart:console         # the console view, same spec
 the work: the same entry is "still possible" in 1970 and "obsolete" in 2026. The committed
 artefacts state the origin they were drawn for, in the image and in `chart.json`, so a
 screenshot cannot pass as a differently-dated chart.
+
+## This is a plane projection, cut at a time
+
+The xkcd chart is static because a plane cut at a fixed instant is static: it is the
+`publication × offset` plane as it stood on 2015-02-25, when the author's present and the
+reader's were the same instant. This corpus is not planar. Universes reference each other,
+epochs nest, and the magnitudes run from nanoseconds to billions of years — so the chart is
+a *projection* of a relational object, and `chart.json` names what it costs:
+
+```json
+"projection": {
+  "plane": "publication × offset",
+  "cutAt": 2026.83,
+  "authoredAt": 2015.15,
+  "units": "years",
+  "edges": { "total": 187, "resolvable": 187 },
+  "collapses": ["cross-universe references: drawn on selection in the interactive view, …"]
+}
+```
+
+Reading it:
+
+- **`cutAt`** is the reader's present; **`authoredAt`** is the source's, present only for
+  the authority. Classes come from `cutAt` and are never stored.
+- **`edges`** is the count of references the plane cannot draw. The interactive view draws
+  them on selection; the raster cannot, and says so rather than pretending the corpus is
+  543 unrelated dots.
+- **The magnitudes** are why both axes are signed-log: a work set in the Cretaceous and one
+  set five years before publication must share an axis without the first erasing the second.
 
 ## What the chart does not read
 

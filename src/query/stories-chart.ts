@@ -84,7 +84,35 @@ export interface ChartEntry {
   notes?: string;
   /** The listing's own hedge, when it has one. Never a corrected value. */
   dispute?: string;
+  /** Ids of other entries this one references, when the corpus declares edges. */
+  references?: string[];
   source: 'authority' | 'registry';
+}
+
+/**
+ * What the plane is, and what it costs.
+ *
+ * The xkcd chart is a **plane projection cut at the time of its publication** — one
+ * slice, taken on 2015-02-25, of works plotted at (publication, offset). It is static
+ * because the plane is: nothing about a comic can be re-cut.
+ *
+ * This corpus is not static and not planar. Universes reference each other, epochs nest
+ * inside other epochs, and the magnitudes run from nanoseconds to billions of years, so
+ * any single plane is a lossy projection of a relational object. Naming the cut and the
+ * losses is the difference between a chart and an illustration.
+ */
+export interface ChartProjection {
+  plane: 'publication × offset';
+  /** The instant the plane is cut at — the viewer's present, never the author's. */
+  cutAt: number;
+  /** The source's own cut, when the corpus is an authority. */
+  authoredAt?: number;
+  units: 'years';
+  span: { x: { min: number; max: number }; y: { min: number; max: number } };
+  /** Edges the plane cannot draw, counted rather than dropped silently. */
+  edges: { total: number; resolvable: number };
+  /** The dimensions this plane flattens. Named so a reader knows what they are not seeing. */
+  collapses: string[];
 }
 
 export interface AxisBreak {
@@ -118,6 +146,8 @@ export interface StoriesChartSpec {
   mapOrigin?: number;
   entries: ChartEntry[];
   scales: StoriesChartScales;
+  /** What this plane is a projection of, cut when, and what it cannot show. */
+  projection: ChartProjection;
   cone: {
     apexYear: number;
     /** Both boundaries satisfy |offset| = apexYear − publicationYear. */
@@ -299,12 +329,28 @@ export function buildStoriesChart(options: BuildStoriesChartOptions): StoriesCha
   const sorted = [...entries].sort(
     (a, b) => a.publicationYear - b.publicationYear || a.label.localeCompare(b.label),
   );
+  const scales = options.scales ?? defaultScales(sorted, viewerNow, { clampY: options.clampY });
+  const declared = entries.reduce((acc, e) => acc + (e.references?.length ?? 0), 0);
   return {
     version: 1,
     viewerNow,
     ...(options.mapOrigin !== undefined ? { mapOrigin: options.mapOrigin } : {}),
     entries: sorted,
-    scales: options.scales ?? defaultScales(sorted, viewerNow, { clampY: options.clampY }),
+    scales,
+    projection: {
+      plane: 'publication × offset',
+      cutAt: viewerNow,
+      ...(options.mapOrigin !== undefined ? { authoredAt: options.mapOrigin } : {}),
+      units: 'years',
+      span: { x: scales.x.domain, y: scales.y.domain },
+      edges: { total: declared, resolvable: declared },
+      collapses: [
+        'cross-universe references: drawn on selection in the interactive view, counted here, invisible in a raster',
+        'epoch and segment structure inside a work: a work is one entry, however many periods it holds',
+        'events with no keyframe: absence is a gap in a band, not a row',
+        'anything outside the drawn axis: entries beyond the offset clamp are pinned at the edge',
+      ],
+    },
     cone: {
       apexYear: viewerNow,
       description:
@@ -400,6 +446,7 @@ function originOf(universe: Universe): { year: number; source: ChartEntry['sourc
  */
 export function entriesFromRegistry(universes: Universe[]): ChartEntry[] {
   const out: ChartEntry[] = [];
+  const known = new Set(universes.map((u) => String(u.universeId)));
   for (const universe of universes) {
     if (isFixture(universe)) continue;
     const origin = originOf(universe);
@@ -436,6 +483,12 @@ export function entriesFromRegistry(universes: Universe[]): ChartEntry[] {
       certainty: offsets.length ? certainty : 0.3,
       fictionalizationDegree: universe.realityRelation?.fictionalizationDegree ?? 0.5,
       notes: offsets.length ? undefined : 'no keyframes',
+      // Only edges the plane can land: a reference to an id with no entry has nowhere
+      // to point, and inventing a row for it would be the registration defect this
+      // corpus already counts elsewhere (#27, #67).
+      references: (universe.connections?.references ?? [])
+        .map((r) => String(r.targetUniverseId))
+        .filter((id) => known.has(id) && id !== String(universe.universeId)),
       source: 'registry',
     });
   }
