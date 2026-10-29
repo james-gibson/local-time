@@ -809,7 +809,7 @@ export function getUniverseCategory(id: UniverseId): string {
 export const WELL_KNOWN_UNIVERSES = {
   // Films
   MARY_POPPINS: createFilmUniverseId('disney', 'mary_poppins', 1964),
-  BACK_TO_THE_FUTURE: createFilmUniverseId('film', 'bttf', 1985),
+  BACK_TO_THE_FUTURE: createFilmUniverseId('universal', 'back_to_the_future', 1985),
   // STAR_WARS_ANH: createFilmUniverseId('film', 'star_wars:a_new_hope', 1977),
   
   // Historical Events

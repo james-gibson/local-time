@@ -169,8 +169,8 @@ export function createBTTFTestReferences() {
     description: 'Marty performs Johnny B. Goode in 1955, before Chuck Berry writes it',
     anchors: [
       {
-        domainId: 'film:bttf:1985:narrative_1955',
-        eventId: generateTemporalId('film:bttf:1985:narrative_1955', 87, 0),
+        domainId: 'universal:back_to_the_future:1985:narrative_1955',
+        eventId: generateTemporalId('universal:back_to_the_future:1985:narrative_1955', 87, 0),
         context: {
           scene_description: 'Marty performs Johnny B. Goode at enchantment dance',
           significance: 'Creates temporal paradox - song performed before written'
@@ -199,16 +199,16 @@ export function createBTTFTestReferences() {
     description: 'Calvin Klein underwear seen in 1955, before brand existed',
     anchors: [
       {
-        domainId: 'film:bttf:1985:narrative_1985',
-        eventId: generateTemporalId('film:bttf:1985:narrative_1985', 10, 0),
+        domainId: 'universal:back_to_the_future:1985:narrative_1985',
+        eventId: generateTemporalId('universal:back_to_the_future:1985:narrative_1985', 10, 0),
         context: {
           scene_description: 'Marty wears Calvin Klein underwear',
           significance: '1980s fashion item'
         }
       },
       {
-        domainId: 'film:bttf:1985:narrative_1955',
-        eventId: generateTemporalId('film:bttf:1985:narrative_1955', 45, 0),
+        domainId: 'universal:back_to_the_future:1985:narrative_1955',
+        eventId: generateTemporalId('universal:back_to_the_future:1985:narrative_1955', 45, 0),
         context: {
           scene_description: 'Lorraine sees Calvin Klein on underwear',
           significance: 'Brand name creates identity confusion'
