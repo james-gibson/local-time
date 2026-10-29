@@ -1,6 +1,18 @@
 import { Universe, TemporalKeyframe, KeyframeType } from '../core/types';
 
 /**
+ * What this module does not read — and why that matters
+ *
+ * The chart consumes the registry and nothing else: no Qdrant collection, no
+ * `plane` named vector, no call into isotope, no 42i coordinate. `plane_charge`
+ * in the KB payload is written by the indexer and never traversed
+ * (james-gibson/isotope#8), and this view is not one of its would-be consumers:
+ * the only charge-shaped thing it could show is derived locally by
+ * `buildUniverseGraph` from the reality gradient (#76/#90), not ranked in plane
+ * space. So isotope#8 is not a blocker for the chart. It blocks ordering or
+ * sizing entries by plane-space *distance*, which is a different feature and
+ * would need a ranking client that does not exist yet.
+ *
  * The stories chart: xkcd #1491's shape, built from this corpus.
  *
  * `buildStoriesChart` returns a **spec**, not pixels. Three renderers consume it —

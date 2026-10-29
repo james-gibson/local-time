@@ -34,6 +34,15 @@ the work: the same entry is "still possible" in 1970 and "obsolete" in 2026. The
 artefacts state the origin they were drawn for, in the image and in `chart.json`, so a
 screenshot cannot pass as a differently-dated chart.
 
+## What the chart does not read
+
+The registry, and nothing else. No Qdrant collection, no `plane` named vector, no isotope
+call. The `plane` vector that `kb/scripts/qdrant/index_kb.py` writes is populated and never
+traversed (`james-gibson/isotope#8`), and this view is not one of its would-be consumers:
+the charge it could colour by is derived locally in `src/query/universe-graph.ts`, so
+nothing here waits on a plane-space ranking client. Ordering entries by plane-space
+*distance* would, and that is a different feature.
+
 ## Where the docs site picks it up
 
 `personal/docs` publishes with `npm run publish` (`lore && build && verify-publish`), and
