@@ -56,31 +56,22 @@ const skyscrapers = createHistoricalBuilder()
     )
     .withReleased('2001-09-12T00:00:00.000Z')
     .withCulturalSignificance(0.88)
-    .withRealityRelation('documentary', 0.0, [
-        {
-            realEventId: 'icc_building_code_2003',
-            relationshipType: 'documents',
-            confidence: 1.0,
-            evidence: ['ICC press releases and code supplements from 2002-2003'],
-        },
-        {
-            realEventId: 'nist_wtc_investigation_2005',
-            relationshipType: 'documents',
-            confidence: 1.0,
-            evidence: ['Final NIST report on the WTC collapse'],
-        },
-        {
-            realEventId: 'post_911_cinematic_censorship_2001',
-            relationshipType: 'documents',
-            confidence: 0.95,
-            evidence: [
-                'News reports from Variety, The Hollywood Reporter (2001-2002)',
-                "'Spider-Man' (2002) original teaser trailer",
-            ],
-        },
-    ])
+    // No reality anchors: all three this universe used to name were documents, not
+    // universes — ICC's 2003 code, NIST's 2005 WTC investigation, and the post-9/11
+    // cinematic moratorium, which this universe records itself in the
+    // `immediate_aftermath` segment below. An anchor is an event *universe* id, so
+    // none of them could resolve (local-time#184). They are cited in
+    // `attribution.sources` instead.
+    .withRealityRelation('documentary', 0.0, [])
     .withCopyright(['Various architectural firms, engineering bodies, and film studios'], 2001, 'active')
-    .withSources(['ICC', 'NIST', 'AIA', 'Various academic and media publications'])
+    .withSources([
+        'ICC, 2003 International Building Code (and the 2002 code supplements it consolidated)',
+        'NIST NCSTAR 1 — Final Report on the Collapse of the World Trade Center Towers (2005)',
+        'AIA',
+        'Variety and The Hollywood Reporter coverage of the post-9/11 cinematic moratorium (2001-2002)',
+        "'Spider-Man' (2002) original teaser trailer and poster, withdrawn after the attacks",
+        'Various academic and media publications',
+    ])
     .withUsageRestrictions([
         'Architectural designs are proprietary. Cinematic clips are subject to copyright.',
     ])

@@ -19,12 +19,12 @@ export const middleEarthUniverse: Universe = {
                 confidence: 0.8,
                 evidence: ["Tolkien letters", "Literary analysis", "Biographical studies"]
             },
-            {
-                realEventId: "geography:england:countryside",
-                relationshipType: 'inspired_by',
-                confidence: 0.9,
-                evidence: ["Tolkien statements", "Geographic analysis"]
-            }
+            // `geography:england:countryside` was a second anchor here and is not a
+            // universe id — it is a place, not an event, and no pattern matches a
+            // non-year final segment (local-time#184). `RealityAnchor.realEventId` is
+            // for events and experiences, so the Shire's debt to the English
+            // countryside is cited under `attribution.sources` instead of dressed up
+            // as an id.
         ]
     },
     attribution: {
@@ -39,6 +39,10 @@ export const middleEarthUniverse: Universe = {
             writer: [{ name: "J.R.R. Tolkien", personId: WELL_KNOWN_UNIVERSES.TOLKIEN }]
         }),
         citations_required: true,
+        sources: [
+            "Tolkien's letters, on the Shire and the English countryside that inspired it",
+            'Biographical and geographic analysis of the Shire'
+        ],
         usage_restrictions: ["Fair use for criticism and comment"]
     },
     layers: [
