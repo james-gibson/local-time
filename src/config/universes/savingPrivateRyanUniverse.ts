@@ -86,9 +86,19 @@ export const savingPrivateRyanUniverse: Universe = {
                 }
             },
             reality_correspondence: {
-                to: "history:operation_overlord:1944:omaha_beach",
+                // A layer corresponds to a *universe*, not to a place or a sub-event.
+                // `history:operation_overlord:1944:omaha_beach` named the Omaha Beach
+                // sector, so no pattern matched and no resolver could ever find it
+                // (local-time#184). The D-Day landing is recorded as the
+                // `d_day_normandy_landings` keyframe of the U.S. military-operations
+                // universe, which is the registered record this layer corresponds to.
+                to: "history:us_gov_military_operations:1870-1989",
                 accuracy: 0.8,
-                deviations: ["Compressed timeline", "Composite characters"]
+                deviations: [
+                    "Compressed timeline",
+                    "Composite characters",
+                    "Depicts the Omaha Beach sector of the Normandy landings, not the whole operation"
+                ]
             }
         }
     ]

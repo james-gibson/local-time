@@ -60,27 +60,23 @@ const enron = createHistoricalBuilder()
     .withReleased('1985-07-01')
     .withCulturalSignificance(0.8)
     .withRealityRelation('documentary', 0.0, [
+        // The universe anchors to itself — the event it documents — and nothing else.
+        // `enron_restatement_2001` / `enron_chapter_11_2001` used to be listed here as
+        // if they were universes; they are the ids of keyframes *in this universe*
+        // (`restatement`, `chapter_11_filing`) and no resolver could find them
+        // (local-time#184). A keyframe is already the record of its own event; the
+        // documentary evidence for both now sits in `attribution.sources` below.
         {
             realEventId: 'history:enron:1985-2001',
             relationshipType: 'documents',
             confidence: 1.0,
             evidence: ['Enron Corp. SEC filings, including the 2000 Form 10-K'],
         },
-        {
-            realEventId: 'enron_restatement_2001',
-            relationshipType: 'documents',
-            confidence: 1.0,
-            evidence: ['Enron 8-K, 8 November 2001: restatement of 1997-2000 results'],
-        },
-        {
-            realEventId: 'enron_chapter_11_2001',
-            relationshipType: 'documents',
-            confidence: 1.0,
-            evidence: ['Chapter 11 petition, U.S. Bankruptcy Court, Southern District of New York'],
-        },
     ])
     .withPublicDomain([
-        'Enron Corp. SEC filings',
+        'Enron Corp. SEC filings, including the 2000 Form 10-K',
+        'Enron 8-K, 8 November 2001 — restatement of 1997-2000 results',
+        'Chapter 11 petition, U.S. Bankruptcy Court, Southern District of New York, 2 December 2001',
         'U.S. Senate Permanent Subcommittee on Investigations',
         'U.S. Department of Justice, Enron Task Force',
     ])

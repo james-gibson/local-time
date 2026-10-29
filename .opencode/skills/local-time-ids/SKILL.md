@@ -132,7 +132,22 @@ Nothing validates these. Each is a dangling edge if the target does not exist:
 | `realityRelation.realityAnchors[].realEventId` | a registered `universeId` |
 | `connections.natural.parentUniverses[]` | a registered `universeId` **or** a `CommonUniverseIds` symbolic name |
 | `connections.references[].targetUniverseId` | a registered `universeId` |
+| `TemporalLayer.reality_correspondence.to` | a registered `universeId` |
+| `TemporalKeyframe.targetUniverseId` | a registered `universeId` |
 | `metadata.connections[].targetUniverseId` (builder `addConnection`) | same, for containment types |
+
+**An id-shaped field only takes a universe id.** Three impostors recur (#184), and
+none can resolve — not now, not after any registration pass:
+
+| Impostor | Example | Where it belongs |
+| --- | --- | --- |
+| a **keyframe id** of the same universe | `enron_chapter_11_2001` | nowhere: the keyframe already is the record. Cite its documents in `attribution.sources`. |
+| a **display label** for an external catalogue | `Wikidata (Q2013)` | `attribution.sources` or a reference's `evidence`. |
+| a **place** or a sub-event with no year-terminated id | `geography:england:countryside`, `…:1944:omaha_beach` | `attribution.sources`; a correspondence goes to the universe that records the sub-event. |
+
+`buildUniverseGraph` reports all of these in `graph.dangling`, but dangling also
+contains valid-but-unregistered ids, so dangling ≠ malformed. The shape check is
+`isValidUniverseId`; the resolution check is set membership.
 
 `UniverseRegistry.declaredParentUniverses` resolves parents through
 `CommonUniverseIds.resolveDeclaredName` and **warns and drops** an unresolvable one

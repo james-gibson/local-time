@@ -79,26 +79,25 @@ const september11 = createHistoricalBuilder()
     .withReleased('2001-09-11T12:46:40Z')
     .withCulturalSignificance(1.0)
     .withRealityRelation('documentary', 0.0, [
+        // The universe anchors to itself — the attack it documents. `nist_wtc_investigation_2005`
+        // and `flight_recorders_2001` used to sit here too, but neither is a universe:
+        // the first names an external investigation, the second the NTSB transcripts of
+        // the four recorders, and no resolver could find either (local-time#184). Both
+        // are citations, and now live in `attribution.sources` below.
         {
             realEventId: 'history:us:september_11_attacks:2001',
             relationshipType: 'documents',
             confidence: 1.0,
             evidence: ['The 9/11 Commission Report', 'NIST NCSTAR 1'],
         },
-        {
-            realEventId: 'nist_wtc_investigation_2005',
-            relationshipType: 'documents',
-            confidence: 1.0,
-            evidence: ['NIST NCSTAR 1, the WTC collapse investigation'],
-        },
-        {
-            realEventId: 'flight_recorders_2001',
-            relationshipType: 'documents',
-            confidence: 1.0,
-            evidence: ['NTSB transcripts of the four cockpit voice and flight data recorders'],
-        },
     ])
-    .withPublicDomain(['9/11 Commission', 'NIST', 'National Archives', 'FAA'])
+    .withPublicDomain([
+        '9/11 Commission',
+        'NIST NCSTAR 1 — Final Report on the Collapse of the World Trade Center Towers (2005)',
+        'NTSB transcripts of the four cockpit voice and flight data recorders',
+        'National Archives',
+        'FAA',
+    ])
     .withUsageRestrictions([
         'Use of imagery and personal accounts is subject to sensitivities and should be handled with respect for the victims.',
     ])

@@ -142,6 +142,7 @@ export const abstractConceptDetail: AbstractConceptDetail = {
   evidence: [
     'james-gibson/local-time#9 — the Wikidata P31 typology and the proposed ID convention',
     'Wikidata documentation on items (QIDs) and the P31 ("instance of") property',
+    'Internal analysis of the QIDs referenced in the issue (moved here from the retired `Wikidata (Q2013)` anchor, local-time#184)',
     'The `domain:type:slug:year` scheme in `src/core/universe-ids.ts`',
   ],
 };
@@ -160,17 +161,16 @@ export const staticIdSchemaUniverse: Universe = {
   realityRelation: {
     type: 'documentary',
     fictionalizationDegree: 0.0,
-    realityAnchors: [
-      {
-        realEventId: 'Wikidata (Q2013)',
-        relationshipType: 'documents',
-        confidence: 1.0,
-        evidence: [
-          'Wikidata documentation on items (QIDs) and properties (P31).',
-          'Internal analysis of the QIDs referenced in the issue.',
-        ],
-      },
-    ],
+    /**
+     * Empty, because an anchor is an *event* id (`RealityAnchor.realEventId`) and
+     * `Wikidata (Q2013)` is neither an event nor an id: it is a display label for an
+     * external catalogue, so no resolver could ever resolve it (local-time#184).
+     *
+     * The catalogue is still cited — `attribution.sources` names it, and
+     * `abstractConceptDetail.evidence` records what was read in it. That is the right
+     * home for a catalogue: an id field is for universes, a citation is for sources.
+     */
+    realityAnchors: [],
   },
   attribution: {
     public_domain: true,
