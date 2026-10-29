@@ -35,9 +35,12 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force && npm run db:seed",
-    "timeline": "tsx scripts/timeline-visualizer.ts",
+    "timeline": "tsx scripts/chart.ts --console",
     "timeline:watch": "tsx watch scripts/timeline-visualizer.ts",
-    "atlas:sync": "node scripts/atlas-sync.mjs"
+    "atlas:sync": "node scripts/atlas-sync.mjs",
+    "chart": "tsx scripts/chart.ts",
+    "chart:authority": "tsx scripts/chart.ts --authority",
+    "chart:check": "node scripts/import-xkcd-1491.mjs --check"
   },
   "keywords": [
     "james",
@@ -51,6 +54,7 @@
   "license": "",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@resvg/resvg-js": "^2.6.2",
     "ksuid": "^3.0.0",
     "yaml": "^2.9.1"
   },
