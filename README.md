@@ -10,7 +10,7 @@
 
 [![Stories of the past and future: each work plotted at its publication date and how far its setting sits from that date, with the cone where the present has overtaken the work's claim](docs/chart/timeline.png)](docs/chart/timeline.html)
 
-*The corpus, as one chart: 516 entries, x at publication, y at how far each setting sits
+*The corpus, as one chart: one point per entry, x at publication, y at how far each setting sits
 from it, and the cone where the present has already overtaken a work's own claim.
 [Open the interactive version](docs/chart/timeline.html) to pan, zoom, and re-read the
 chart from another year — every entry changes class when you move the reader's present.
