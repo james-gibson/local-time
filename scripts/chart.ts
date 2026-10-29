@@ -45,7 +45,12 @@ const valueOf = (flag: string): string | undefined => {
 
 const authority = has('--authority');
 const consoleOnly = has('--console');
-const outDir = path.resolve(valueOf('--out') ?? path.join(root, 'docs/chart'));
+// The authority is the *fixture*, not the default view: it writes beside the corpus
+// artefacts rather than over them, so running `chart:authority` cannot quietly replace
+// the chart the README shows.
+const outDir = path.resolve(
+  valueOf('--out') ?? path.join(root, 'docs/chart', authority ? 'authority' : ''),
+);
 
 const currentYear = (): number => {
   const now = new Date();
