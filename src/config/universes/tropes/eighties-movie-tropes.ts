@@ -37,14 +37,13 @@ import {
  * - The container id it proposed, `collection:eighties_movie_tropes:1980-1989`,
  *   is not a valid universe id at all (see the next section).
  * - Every anchor id it proposed, e.g.
- *   `film:universal:back_to_the_future:1985`, has **four** segments and a `film:`
- *   prefix. No declared pattern accepts that shape — only the
- *   `ANY_YEAR_TERMINATED` catch-all (#50), which is why `isValidUniverseId`
- *   returns `true` for it and why the catch-all is not the guard to trust. The
- *   film vocabulary is `<studio-token>:<title>:<year>`, so the anchor for *Back
- *   to the Future* is its registered `film:bttf:1985` (a legacy three-segment id
- *   the film namespace owns; renaming it is not this collection's decision), and
- *   the new anchor ids below are `columbia:…`, `universal:…`, `paramount:…`.
+ *   `film:universal:back_to_the_future:1985`, has **four** segments. No declared
+ *   pattern accepts that shape — only the `ANY_YEAR_TERMINATED` catch-all (#50),
+ *   which is why `isValidUniverseId` returns `true` for it and why the catch-all is
+ *   not the guard to trust. The film vocabulary is `<studio-token>:<title>:<year>`,
+ *   so the anchors below are `columbia:…`, `universal:…` and `paramount:…`; *Back
+ *   to the Future* is `universal:back_to_the_future:1985`, renamed in #182 from the
+ *   legacy `film:bttf:1985` the film namespace used to own.
  *
  * ## Why the container id is `history:` and not `collection:`
  *
@@ -103,12 +102,11 @@ const ns = (iso: string): bigint => dateToNanoseconds(new Date(iso));
  * | fourth_wall_break | Ferris Bueller's Day Off (1986) | paramount:ferris_buellers_day_off:1986 |
  * | wisecracking_ensemble | Ghostbusters (1984) | columbia:ghostbusters:1984 |
  * | maverick_ace | Top Gun (1986) | paramount:top_gun:1986 |
- * | modified_vehicle_time_machine | Back to the Future (1985) | film:bttf:1985 |
+ * | modified_vehicle_time_machine | Back to the Future (1985) | universal:back_to_the_future:1985 |
  *
  * The last row is the one that matters for #74: *Back to the Future* is already
- * registered (as `film:bttf:1985`), so naming it here is a membership, and this
- * file must never restate its universe. (Its id is the legacy three-segment
- * form; renaming it is a separate defect, not something this collection may do.)
+ * registered (as `universal:back_to_the_future:1985`, the film's own id since #182),
+ * so naming it here is a membership, and this file must never restate its universe.
  */
 export const TROPES: readonly TropeDefinition[] = [
   {
@@ -237,7 +235,7 @@ export const TROPES: readonly TropeDefinition[] = [
     tropeId: 'modified_vehicle_time_machine',
     name: 'The Modified-Vehicle Time Machine',
     category: TropeCategory.PREMISE,
-    anchorFilmId: 'film:bttf:1985',
+    anchorFilmId: 'universal:back_to_the_future:1985',
     anchorReleased: '1985-07-03',
     anchorKeyframeId: 'canonised_modified_vehicle_time_machine',
     culturalSignificance: 0.95,

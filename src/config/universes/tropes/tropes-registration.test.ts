@@ -190,7 +190,7 @@ describe('trope membership is declared on the film, never as a second universe (
   });
 
   test('Back to the Future is a member, not a member of this namespace', async () => {
-    const bttf = 'film:bttf:1985';
+    const bttf = 'universal:back_to_the_future:1985';
     const registry = new UniverseRegistry(emptyLoader);
     await registry.initialize();
 
@@ -207,7 +207,7 @@ describe('trope membership is declared on the film, never as a second universe (
 
   test('the two sides agree: films declare exactly the tropes the registry names them for', () => {
     const declaredByFilm = new Map<string, string[]>();
-    for (const universe of [...eightiesTropeFilmUniverses, byId.get('film:bttf:1985')!]) {
+    for (const universe of [...eightiesTropeFilmUniverses, byId.get('universal:back_to_the_future:1985')!]) {
       const metadata = universe.metadata as TropeFilmMetadata;
       declaredByFilm.set(idOf(universe), [...metadata.tropes]);
     }
@@ -270,7 +270,7 @@ describe('trope membership is declared on the film, never as a second universe (
   test('an unverified exemplar is tagged as approximate, so the estimate is visible', () => {
     // The tag is the only place the reader is told the minute is an estimate; a
     // false `verified` without it would be indistinguishable from a sourced time.
-    const films = new Map([...eightiesTropeFilmUniverses, byId.get('film:bttf:1985')!].map((u) => [idOf(u), u]));
+    const films = new Map([...eightiesTropeFilmUniverses, byId.get('universal:back_to_the_future:1985')!].map((u) => [idOf(u), u]));
     const problems: string[] = [];
 
     for (const trope of TROPES) {

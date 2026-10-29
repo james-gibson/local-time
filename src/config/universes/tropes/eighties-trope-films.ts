@@ -11,7 +11,7 @@ import { TropeExemplar, TropeFilmMetadata } from './types';
  * ## Only the films this collection *owns*
  *
  * *Back to the Future* is deliberately absent. It is already registered as
- * `film:bttf:1985` by the film namespace, and it anchors
+ * `universal:back_to_the_future:1985` by the film namespace, and it anchors
  * `modified_vehicle_time_machine` as a **membership**, not a second definition —
  * the exact case the guide says should signal "stop, model containment" (#74).
  * Restating its id here would put a duplicate in `allUniverses` and hand the
