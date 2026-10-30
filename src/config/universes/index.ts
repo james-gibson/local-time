@@ -40,6 +40,9 @@ import {usHistoryUniverses} from "./us-history"
 import {pixarFilmUniverses} from "./pixar"
 import {versionControlUniverses} from "./version-control"
 import {wikidataTypologyUniverses} from "./system"
+// The chart fixture pair (#229, #230): a closed rendering authority for xkcd #1491 and
+// its one-way erratum. `system:`-scoped, so the default chart corpus excludes them.
+import {referenceUniverses} from "./reference"
 import {nasaUniverses, nasaNetwork} from "./nasa"
 import {rogersCommissionUniverse} from "./us-gov/rogers-commission"
 import {apollo13FilmUniverse} from "./films/apollo13-film"
@@ -113,6 +116,7 @@ export const allUniverses = [
   ...usHistoryUniverses,
   ...versionControlUniverses,
   ...wikidataTypologyUniverses,
+  ...referenceUniverses,
   ...gamestopUniverses,
   ...texasTtsuMailersUniverses,
   ...texasMailerUniverses,

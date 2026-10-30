@@ -8,6 +8,15 @@
 
 ## Overview
 
+[![Stories of the past and future: each work plotted at its publication date and how far its setting sits from that date, with the cone where the present has overtaken the work's claim](docs/chart/timeline.png)](docs/chart/timeline.html)
+
+*The corpus, as one chart: one point per entry, x at publication, y at how far each setting sits
+from it, and the cone where the present has already overtaken a work's own claim.
+[Open the interactive version](docs/chart/timeline.html) to pan, zoom, and re-read the
+chart from another year — every entry changes class when you move the reader's present.
+Chart form after xkcd #1491, "Stories of the Past and Future" (Randall Munroe,
+CC BY-NC 2.5) — [xkcd.com/1491](https://xkcd.com/1491/). Regenerate with `npm run chart`.*
+
 The Local Time System is a comprehensive TypeScript library for managing temporal universes, cross-universe references, and temporal relationships. It provides a sophisticated framework for tracking time across fictional and real works, with support for zero-reference addressing, temporal paradoxes, and complex reference chains.
 
 ## Documentation
