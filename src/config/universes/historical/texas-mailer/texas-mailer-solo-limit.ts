@@ -357,20 +357,6 @@ export const texasMailerSoloLimitUniverse = {
       'Whether a proof approval would be retained 12 days after the drop is likely but unverified.',
       'Nothing here bears on intent. S5 is a test, and its two outcomes are equally compatible with a careless operator and a calculating one.',
     ],
-    threadSiblings: [
-      {
-        id: 'history:texas_mailer_kpi_and_signature:2026',
-        note: 'the KPI module this one derives from; not landed',
-      },
-      {
-        id: 'history:texas_mailer_automation_stack:2026',
-        note: 'the automation module this one corrects; not landed',
-      },
-      {
-        id: 'history:texas_mailer_proper_timelines:2026',
-        note: 'the timeline module this one documents; not landed',
-      },
-    ],
   },
 
   connections: {
@@ -395,6 +381,29 @@ export const texasMailerSoloLimitUniverse = {
         description:
           'The addressee field read aloud on air is the artifact fact that rules out the ' +
           'permitless EDDM path.',
+      },
+      {
+        type: 'DERIVES_FROM',
+        targetUniverseId: 'history:texas_mailer_kpi_and_signature:2026',
+        confidence: 1.0,
+        description:
+          'The K1 delivery-KPI reading this two-entity floor extends: the proof approval ' +
+          'is the second seam the KPI ledger already named.',
+      },
+      {
+        type: 'CORRECTS',
+        targetUniverseId: 'history:texas_mailer_automation_stack:2026',
+        confidence: 0.9,
+        description:
+          'The "one human seam" is not the permit alone; it is the proof approval, which ' +
+          'is a second and better seam.',
+      },
+      {
+        type: 'DOCUMENTS',
+        targetUniverseId: 'history:texas_mailer_proper_timelines:2026',
+        confidence: 0.9,
+        description:
+          'The timeline resampling this addressee-field fact supports.',
       },
     ],
   },

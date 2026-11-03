@@ -449,14 +449,6 @@ export const texasMailerOperatorProfileUniverse = {
       'CPA under $150': '66% of marketers [^2]',
       'this mailer': 'no response mechanism — rate undefined',
     },
-    threadSiblings: [
-      {
-        id: SHELL_HYP_ID,
-        note:
-          'the vehicle analysis this module derives its population from; drafted in #200, ' +
-          'still unlanded. Anchored in realityRelation, not referenced.',
-      },
-    ],
     uncertaintyNotes: [
       'Commercial and fundraising benchmarks are applied by analogy to a political mailer; the analogy favours H2 and is not proof.',
       'Cost-per-piece ranges are planning estimates, not invoices.',
@@ -486,6 +478,14 @@ export const texasMailerOperatorProfileUniverse = {
         description:
           'Recipient composition is the discriminating variable, and only the data-vendor ' +
           'channel modelled there can obtain it.',
+      },
+      {
+        type: 'DERIVES_FROM',
+        targetUniverseId: SHELL_HYP_ID,
+        confidence: 1.0,
+        description:
+          'The vehicle analysis this module derives its population from: the surviving ' +
+          'unregistered-LLC cell is the who, not the how.',
       },
     ],
   },
