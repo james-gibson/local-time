@@ -6,6 +6,8 @@ import { isSeriesUniverseId, isValidUniverseId } from '../../../core/universe-id
 import {
   anchorWatchHegseth20261026Universe,
   anchorWatchPresumedAnchors,
+  anchorWatchRealityAnchors,
+  anchorWatchReferences,
   anchorWatchDiscussionPoints,
   anchorWatchSegments,
   anchorWatchKeyframes,
@@ -14,6 +16,10 @@ import {
   RUNTIME_SECONDS,
 } from './anchor-watch-2026-10-26';
 import { ANCHOR_WATCH_SERIES_ID } from './anchor-watch';
+import { IRAN_WAR_2026_ID } from '../global-politics/iran-war';
+import { ISRAELI_ELECTION_2026_ID } from '../global-politics/israeli-election-2026';
+import { RUSSIA_UKRAINE_WAR_2022_ID } from '../global-politics/russia-ukraine-war';
+import { FORTRESS_PROGRAM_2026_ID } from '../us-politics/fortress';
 
 /**
  * james-gibson/local-time#212 — the youtube/ namespace registration guard, plus the
@@ -135,20 +141,57 @@ describe('the discussion-point ledger', () => {
   });
 });
 
-describe('unlanded siblings stay unregistered (#431)', () => {
+describe('Phase 2 event universes and resolved edges (#212, #431)', () => {
+  let registry: UniverseRegistry;
   let registered: Set<string>;
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    registry = new UniverseRegistry(new ConfigLoader());
+    await registry.initialize();
     registered = new Set(allUniverses.map((u) => String((u as { universeId: string }).universeId)));
   });
 
-  test('no threadSiblings id is registered', () => {
-    for (const id of episode.metadata.threadSiblings ?? []) {
-      expect(registered.has(id)).toBe(false);
+  test('all four Phase-2 universes are registered and retrievable', () => {
+    const phase2Ids = [
+      IRAN_WAR_2026_ID,
+      ISRAELI_ELECTION_2026_ID,
+      FORTRESS_PROGRAM_2026_ID,
+      RUSSIA_UKRAINE_WAR_2022_ID,
+    ];
+    for (const id of phase2Ids) {
+      expect(registered.has(id)).toBe(true);
+      expect(registry.getUniverse(id)).toBeDefined();
     }
   });
 
-  test('no presumed anchor id is registered', () => {
+  test('the episode converts its threadSiblings into resolved references and anchors, with FORTRESS as contradicts', () => {
+    expect(episode.metadata.threadSiblings ?? []).toEqual([]);
+    expect(anchorWatchPresumedAnchors).toEqual([]);
+
+    expect(anchorWatchReferences.map((ref) => `${ref.type}:${ref.targetUniverseId}`)).toEqual([
+      `DOCUMENTS:${IRAN_WAR_2026_ID}`,
+      `DOCUMENTS:${ISRAELI_ELECTION_2026_ID}`,
+      `CONTRADICTS:${FORTRESS_PROGRAM_2026_ID}`,
+      `DOCUMENTS:${RUSSIA_UKRAINE_WAR_2022_ID}`,
+    ]);
+
+    for (const ref of anchorWatchReferences) {
+      expect(registered.has(ref.targetUniverseId)).toBe(true);
+    }
+
+    const fortressAnchor = anchorWatchRealityAnchors.find(
+      (anchor) => anchor.realEventId === FORTRESS_PROGRAM_2026_ID,
+    );
+    expect(fortressAnchor?.relationshipType).toBe('contradicts');
+    for (const anchor of anchorWatchRealityAnchors) {
+      expect(registered.has(anchor.realEventId)).toBe(true);
+    }
+  });
+
+  test('no threadSiblings or presumed anchor id is left pointing at a registered universe', () => {
+    for (const id of episode.metadata.threadSiblings ?? []) {
+      expect(registered.has(id)).toBe(false);
+    }
     for (const anchor of anchorWatchPresumedAnchors) {
       expect(registered.has(anchor.realEventId)).toBe(false);
     }

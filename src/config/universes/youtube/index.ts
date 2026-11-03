@@ -135,6 +135,8 @@ export {
 export {
   anchorWatchHegseth20261026Universe,
   anchorWatchPresumedAnchors,
+  anchorWatchRealityAnchors,
+  anchorWatchReferences,
   anchorWatchDiscussionPoints,
   anchorWatchSegments,
   anchorWatchKeyframes,

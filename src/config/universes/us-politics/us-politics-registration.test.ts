@@ -39,13 +39,14 @@ const fromBarrel = (() => {
 const registeredIds = new Set(allUniverses.map((universe) => (universe as UniverseLike).universeId));
 
 describe('the us-politics namespace is wired (#126)', () => {
-  test('the barrel exposes the AUMF universe under its intended id', () => {
-    expect(fromBarrel.map((universe) => universe.universeId)).toEqual([
+  test('the barrel exposes the AUMF and FORTRESS universes under their intended ids', () => {
+    expect(fromBarrel.map((universe) => universe.universeId).sort()).toEqual([
+      'history:fortress:2026',
       'history:us_gov:aumf_2001_usage:2001-present',
     ]);
   });
 
-  test('it is in allUniverses and survives a registry lookup', () => {
+  test('they are in allUniverses and survive a registry lookup', () => {
     const registry = new UniverseRegistry(new ConfigLoader());
 
     for (const universe of fromBarrel) {
@@ -57,13 +58,15 @@ describe('the us-politics namespace is wired (#126)', () => {
     }
   });
 
-  test('it declares US government and military membership', () => {
+  test('they declare US government and military membership', () => {
     const registry = new UniverseRegistry(new ConfigLoader());
-    const universe = fromBarrel[0] as Universe;
-    registry.registerUniverse(universe.universeId, universe);
+    for (const entry of fromBarrel) {
+      const universe = entry as Universe;
+      registry.registerUniverse(universe.universeId, universe);
 
-    expect(registry.getMemberships(universe.universeId)).toEqual(
-      expect.arrayContaining([CommonUniverseIds.US_GOVERNMENT, CommonUniverseIds.US_MILITARY]),
-    );
+      expect(registry.getMemberships(universe.universeId)).toEqual(
+        expect.arrayContaining([CommonUniverseIds.US_GOVERNMENT, CommonUniverseIds.US_MILITARY]),
+      );
+    }
   });
 });

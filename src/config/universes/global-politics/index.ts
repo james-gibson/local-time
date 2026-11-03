@@ -1,7 +1,13 @@
 export * from './gaza';
+export * from './iran-war';
+export * from './israeli-election-2026';
+export * from './russia-ukraine-war';
 export * from './ukraine';
 
 import { gazaConflict2023Universe } from './gaza';
+import { iranWar2026Universe } from './iran-war';
+import { israeliLegislativeElection2026Universe } from './israeli-election-2026';
+import { russiaUkraineWar2022Universe } from './russia-ukraine-war';
 import { ukraineWarOriginsUniverse } from './ukraine';
 
 /**
@@ -19,5 +25,8 @@ import { ukraineWarOriginsUniverse } from './ukraine';
  */
 export const globalPoliticsUniverses = [
   gazaConflict2023Universe,
+  iranWar2026Universe,
+  israeliLegislativeElection2026Universe,
+  russiaUkraineWar2022Universe,
   ukraineWarOriginsUniverse,
 ];
