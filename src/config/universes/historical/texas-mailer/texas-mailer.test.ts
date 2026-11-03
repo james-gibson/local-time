@@ -14,6 +14,10 @@ import {
   texasMailerOperatorProfileUniverse,
   texasMailerStationarityDomicileUniverse,
   texasMailerFivePostulatesUniverse,
+  texasMailerShellHypothesisUniverse,
+  texasMailerAutomationStackUniverse,
+  texasMailerProperTimelinesUniverse,
+  texasMailerKpiAndSignatureUniverse,
 } from './index';
 import { beckDoublespeakUniverse } from '../../youtube/beck-doublespeak';
 
@@ -57,10 +61,14 @@ const EXPECTED_IDS = [
   'history:texas_mailer_operator_profile:2026',
   'history:texas_mailer_stationarity_domicile:2026',
   'history:texas_mailer_five_postulates:2026',
+  'history:texas_mailer_shell_hypothesis:2026',
+  'history:texas_mailer_automation_stack:2026',
+  'history:texas_mailer_proper_timelines:2026',
+  'history:texas_mailer_kpi_and_signature:2026',
 ];
 
 describe('the Texas mailer analysis family (#200)', () => {
-  test('lands ten history universes, each owned exactly once', () => {
+  test('lands fourteen history universes, each owned exactly once', () => {
     expect(universes).toHaveLength(EXPECTED_IDS.length);
     expect(universes.map(idOf).sort()).toEqual([...EXPECTED_IDS].sort());
     for (const id of EXPECTED_IDS) {
@@ -177,6 +185,54 @@ describe('the Texas mailer analysis family (#200)', () => {
         'SUPERSEDES:history:texas_mailer_solo_limit:2026',
       ]),
     );
+
+    // The third tranche: shell, automation, timelines, KPI.
+    expect(edges(texasMailerShellHypothesisUniverse)).toEqual(
+      expect.arrayContaining([
+        'DERIVES_FROM:history:texas_mailer_payer_ledger:2026',
+        'DERIVES_FROM:history:texas_mailer_discovery_reach:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerAutomationStackUniverse)).toEqual(
+      expect.arrayContaining([
+        'DERIVES_FROM:history:texas_mailer_five_postulates:2026',
+        'DERIVES_FROM:history:texas_mailer_operator_profile:2026',
+        'DOCUMENTS:history:texas_mailer_discovery_reach:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerProperTimelinesUniverse)).toEqual(
+      expect.arrayContaining([
+        'DOCUMENTS:history:texas_mailer_automation_stack:2026',
+        'SUPERSEDES:history:texas_mailer_discovery_reach:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerKpiAndSignatureUniverse)).toEqual(
+      expect.arrayContaining([
+        'CORRECTS:history:texas_mailer_proper_timelines:2026',
+        'SUPERSEDES:history:texas_mailer_discovery_reach:2026',
+        'DOCUMENTS:history:texas_mailer_automation_stack:2026',
+      ]),
+    );
+
+    // And the corrections the earlier modules handed forward are now real edges.
+    expect(edges(texasMailerSoloLimitUniverse)).toEqual(
+      expect.arrayContaining([
+        'DERIVES_FROM:history:texas_mailer_kpi_and_signature:2026',
+        'CORRECTS:history:texas_mailer_automation_stack:2026',
+        'DOCUMENTS:history:texas_mailer_proper_timelines:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerOperatorProfileUniverse)).toEqual(
+      expect.arrayContaining(['DERIVES_FROM:history:texas_mailer_shell_hypothesis:2026']),
+    );
+
+    expect(edges(texasMailerStationarityDomicileUniverse)).toEqual(
+      expect.arrayContaining(['DERIVES_FROM:history:texas_mailer_shell_hypothesis:2026']),
+    );
   });
 
   test('every keyframe type is a member of the enum the draft invented values for', () => {
@@ -273,6 +329,33 @@ describe('the Texas mailer analysis family (#200)', () => {
     ).toBe('REFUTED');
   });
 
+  test('the third tranche keeps the verdicts the thread reached', () => {
+    // shell_hypothesis: the surviving cell is the unregistered LLC, not any conduit.
+    expect(metadata(texasMailerShellHypothesisUniverse).hypothesisLedger.H2_shell_as_spender_issue_advocacy.status)
+      .toBe('SURVIVES');
+    expect(metadata(texasMailerShellHypothesisUniverse).hypothesisLedger.H1_shell_as_conduit_to_super_pac.status)
+      .toBe('FAILS');
+
+    // automation_stack: P6 partially confirmed, P8 downgraded to no weight.
+    expect(metadata(texasMailerAutomationStackUniverse).postulateLedger.P6_prompt_assembled_pipeline.status)
+      .toContain('PARTIALLY CONFIRMED');
+    expect(metadata(texasMailerAutomationStackUniverse).postulateLedger.P8_prior_art_on_reddit_or_4chan.status)
+      .toContain('UNFALSIFIABLE');
+
+    // proper_timelines: three protective, one productive, three decorative.
+    expect(metadata(texasMailerProperTimelinesUniverse).functionCensus).toEqual({
+      protective: 3,
+      productive: 1,
+      decorative: 3,
+    });
+
+    // kpi_and_signature: R5 is the load-bearing member; C1 reclassifies the quote.
+    expect(metadata(texasMailerKpiAndSignatureUniverse).postulateLedger.R5_disclaimers_opposite.verdict)
+      .toBe('confirmed');
+    expect(metadata(texasMailerKpiAndSignatureUniverse).postulateLedger.C1_paraphrase_not_quote.verdict)
+      .toBe('paraphrase');
+  });
+
   test('the stationarity revision names the keyframe it withdraws, and it exists', () => {
     const supersede = references(texasMailerStationarityDomicileUniverse).find(
       (ref) => ref.type === 'SUPERSEDES' && (ref as any).targetKeyframeId,
@@ -309,6 +392,39 @@ describe('the Texas mailer analysis family (#200)', () => {
       texasMailerOperatorProfileUniverse,
       texasMailerStationarityDomicileUniverse,
       texasMailerFivePostulatesUniverse,
+    ];
+
+    const offenders: string[] = [];
+    for (const u of tranche) {
+      for (const anchor of u.realityRelation.realityAnchors ?? []) {
+        const kind = (anchor as { relationshipType?: string }).relationshipType;
+        if (!kind || !allowed.has(kind)) {
+          offenders.push(`${idOf(u)}#${anchor.realEventId}: ${String(kind)}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  test('the third tranche uses only relationship types the type defines', () => {
+    const allowed = new Set([
+      'depicts',
+      'inspired_by',
+      'reinterprets',
+      'contradicts',
+      'reimagines',
+      'documents',
+      'experienced',
+    ]);
+
+    // The drafts carried `derives_from` / `interprets` / `corrects` as reality-anchor
+    // relationship types; none of those is in the union, so they were moved to
+    // `references` (DERIVES_FROM/CORRECTS) or reworded to `reinterprets` on the way in.
+    const tranche = [
+      texasMailerShellHypothesisUniverse,
+      texasMailerAutomationStackUniverse,
+      texasMailerProperTimelinesUniverse,
+      texasMailerKpiAndSignatureUniverse,
     ];
 
     const offenders: string[] = [];

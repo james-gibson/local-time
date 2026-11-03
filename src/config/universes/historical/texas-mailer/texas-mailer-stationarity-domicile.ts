@@ -461,14 +461,6 @@ export const texasMailerStationarityDomicileUniverse = {
       'New Mexico': 'No member names [^1]',
       Nevada: 'Alternative domicile promoted by 2025 amendments [^9]',
     },
-    threadSiblings: [
-      {
-        id: SHELL_HYP_ID,
-        note:
-          'the shell-hypothesis module the BOI chronology is carried from; drafted in #200, ' +
-          'still unlanded. Carried in the anchor, not as an edge.',
-      },
-    ],
     uncertaintyNotes: [
       'Dose arithmetic treats a messy litigation record as a binary timeline; the true exposure was partial throughout 2024.',
       'The H4-C residual is genuine and should not be closed by assertion in a later revision.',
@@ -511,6 +503,13 @@ export const texasMailerStationarityDomicileUniverse = {
         description:
           'The residual-BOI-entity test is a Wyoming records search, which is the channel ' +
           'that module prices.',
+      },
+      {
+        type: 'DERIVES_FROM',
+        targetUniverseId: SHELL_HYP_ID,
+        confidence: 1.0,
+        description:
+          'The BOI chronology this dose arithmetic is carried from.',
       },
     ],
   },
