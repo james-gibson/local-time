@@ -1,5 +1,12 @@
 import { TemporalEpoch, TimePrecision, Universe, UniverseNetwork } from '../core/types';
 import { UniverseId, isValidUniverseId, createUniverseId } from '../core/universe-ids';
+import {
+  entityUniverseId,
+  isEntityId,
+  type EntityId,
+  type EntityKind,
+  type UniverseEntity,
+} from '../core/entities';
 import { CommonUniverseIds } from '../core/common-universe-ids';
 import { ConfigLoader } from './config-loader';
 
@@ -52,6 +59,16 @@ export class UniverseRegistry {
   private universes = new Map<UniverseId, Universe>();
   private aliases = new Map<string, UniverseId>();
   private networks = new Map<string, UniverseNetwork>();
+
+  /**
+   * The entity table, folded from every universe's `entities` field.
+   *
+   * Entities are not universes (james-gibson/local-time#209): they are addressable
+   * here, and a row is promoted exactly when it carries a span. Keying by the
+   * entity id lets any universe name the same organization without minting a second
+   * address.
+   */
+  private entities = new Map<EntityId, UniverseEntity>();
   
   constructor(private configLoader: ConfigLoader) {}
   
@@ -180,6 +197,7 @@ export class UniverseRegistry {
 
     this.registerDeclaredContainment(universeId, universe);
     this.inheritSharedEpochs(universeId, universe);
+    this.registerEntities(universe);
 
     if (universe.identifiers?.aliases) {
       for (const alias of universe.identifiers.aliases) {
@@ -206,6 +224,40 @@ export class UniverseRegistry {
     const parents = this.declaredParentUniverses(universe);
     if (parents.length > 0) {
       CommonUniverseIds.registerUniverseLinks(id, parents);
+    }
+  }
+
+  /**
+   * Index a universe's entity rows into the shared entity table.
+   *
+   * First registration wins, because an entity has one address. Two rows that disagree
+   * about the same id are a real defect — the same org spelled two ways — so they are
+   * reported rather than silently merged.
+   *
+   * A promoted row (`span` present) is *not* required to point at an already-registered
+   * universe here: `allUniverses` order is not a contract, and `getPromotedEntities()`
+   * is the place to check resolution.
+   */
+  private registerEntities(universe: Universe): void {
+    for (const entity of universe.entities ?? []) {
+      if (!isEntityId(entity.id)) {
+        console.warn(
+          `UniverseRegistry: universe "${universe.universeId}" declares entity "${entity.id}", ` +
+            'which is not an entity id; the row is skipped.',
+        );
+        continue;
+      }
+      const existing = this.entities.get(entity.id);
+      if (!existing) {
+        this.entities.set(entity.id, entity);
+        continue;
+      }
+      if (existing.name !== entity.name || existing.kind !== entity.kind) {
+        console.warn(
+          `UniverseRegistry: entity "${entity.id}" is declared twice with different names or kinds ` +
+            `("${existing.name}" vs "${entity.name}"); the first registration is kept.`,
+        );
+      }
     }
   }
 
@@ -312,6 +364,35 @@ export class UniverseRegistry {
     }
     
     return undefined;
+  }
+
+  /** One entity row by its addressable id — `organization:tent`, `person:jon_bonck`. */
+  getEntity(id: string): UniverseEntity | undefined {
+    return isEntityId(id) ? this.entities.get(id) : undefined;
+  }
+
+  /** Every entity row, optionally narrowed to one kind. */
+  getEntities(kind?: EntityKind): UniverseEntity[] {
+    const rows = [...this.entities.values()];
+    return kind === undefined ? rows : rows.filter((row) => row.kind === kind);
+  }
+
+  /**
+   * The entity rows that have been promoted to universes, with the resolved universe id.
+   *
+   * This is the answer to "is this mention a fact yet?" — a row is promoted only when it
+   * carries a span *and* that span's universe is registered. A row without a span is a
+   * mention, not a defect, and is deliberately absent.
+   */
+  getPromotedEntities(): Array<{ entity: UniverseEntity; universeId: string }> {
+    const promoted: Array<{ entity: UniverseEntity; universeId: string }> = [];
+    for (const entity of this.entities.values()) {
+      const universeId = entityUniverseId(entity);
+      if (!universeId) continue;
+      if (!this.universes.has(universeId)) continue;
+      promoted.push({ entity, universeId });
+    }
+    return promoted;
   }
   
   /**

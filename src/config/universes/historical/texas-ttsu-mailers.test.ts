@@ -1,5 +1,6 @@
 import { KeyframeType, Universe, UniverseType } from '../../../core/types';
 import { isValidUniverseId } from '../../../core/universe-ids';
+import { entityUniverseId } from '../../../core/entities';
 import { allUniverses } from '../index';
 import { ConfigLoader } from '../../config-loader';
 import { UniverseRegistry } from '../../universe-registry';
@@ -19,9 +20,8 @@ import { texasPaulTtsuMailersUniverse } from '../youtube/texas-paul-ttsu-mailers
  *
  * Two invariants are house rules rather than ticket items, and both are the reason this
  * file exists rather than a checklist: every `references` target resolves (a dangling
- * edge reads as a module that is not there), and every demoted entity is *not* a
- * universe, so landing an ORGANIZATION/PERSON type later converts the table into
- * universes deliberately rather than by accident (#208).
+ * edge reads as a module that is not there), and an entity row is promoted to a universe
+ * exactly when it has a span — the held rows stay mentions, not facts (#208, #209).
  */
 
 const universe = texasTtsuMailersUniverse as unknown as Universe;
@@ -163,24 +163,78 @@ describe('composition is a layer, not a duplicate universe (#74, #75)', () => {
   });
 });
 
-describe('demoted entities stay entities (#207 Task 0, #208)', () => {
-  test('the entity table carries every proposed row and none is registered', () => {
-    const entities = meta(universe).entities as any[];
-    expect(entities.length).toBeGreaterThanOrEqual(14);
+describe('the entity table is addressable and promotable (#207 → #209)', () => {
+  const entities = (universe.entities ?? []) as NonNullable<Universe['entities']>;
+
+  const PROPOSED = [
+    'organization:transgender_education_network_of_texas',
+    'organization:texas_transgender_student_union_llc',
+    'organization:three_z_printing',
+    'organization:snailworks',
+    'organization:northwest_registered_agent',
+    'organization:national_republican_congressional_committee',
+    'organization:preservation_austin',
+    'person:jon_bonck',
+    'person:jeff_leach',
+    'person:steven_monacelli',
+    'person:ayden_runnels',
+    'organization:newman_ministries',
+    'person:bill_zarusen',
+    'person:matt_zarusen',
+  ];
+
+  test('the typed entity table carries every proposed row, ids verbatim', () => {
+    expect(entities.map((e) => String(e.id)).sort()).toEqual([...PROPOSED].sort());
+    // It is a typed field now, not `metadata.entities` behind a cast.
+    expect(meta(universe).entities).toBeUndefined();
+  });
+
+  test('every entity id is addressable and is not a universe id', () => {
     for (const entity of entities) {
-      expect(entity.registered).toBe(false);
-      expect(registered.has(entity.id)).toBe(false);
+      expect(isValidUniverseId(String(entity.id))).toBe(false);
     }
   });
 
-  test('held claims are capped at 0.3 and flagged', () => {
-    const held = (meta(universe).entities as any[]).filter((e) => e.held);
-    expect(held.map((e) => e.id).sort()).toEqual([
+  test('a row is promoted exactly when it has a span, and each promoted id resolves', () => {
+    const promoted = entities.filter((e) => e.span !== undefined);
+    const held = entities.filter((e) => e.span === undefined);
+
+    expect(promoted).toHaveLength(11);
+    expect(held.map((e) => String(e.id)).sort()).toEqual([
       'organization:newman_ministries',
       'person:bill_zarusen',
       'person:matt_zarusen',
     ]);
-    for (const entity of held) expect(entity.certainty).toBeLessThanOrEqual(0.3);
+
+    for (const entity of promoted) {
+      const id = entityUniverseId(entity);
+      expect(id).toBeDefined();
+      expect(registered.has(String(id))).toBe(true);
+
+      const promotedUniverse = (allUniverses as unknown as Universe[]).find(
+        (u) => String(u.universeId) === String(id),
+      );
+      expect(promotedUniverse).toBeDefined();
+      expect(promotedUniverse!.type).toBe(
+        entity.kind === 'organization'
+          ? UniverseType.ORGANIZATION
+          : UniverseType.PERSON,
+      );
+    }
+  });
+
+  test('held claims are capped at 0.3, flagged, and deliberately unpromoted', () => {
+    const held = entities.filter((e) => e.held);
+    expect(held.map((e) => String(e.id)).sort()).toEqual([
+      'organization:newman_ministries',
+      'person:bill_zarusen',
+      'person:matt_zarusen',
+    ]);
+    for (const entity of held) {
+      expect(entity.certainty).toBeLessThanOrEqual(0.3);
+      expect(entity.span).toBeUndefined();
+      expect(entityUniverseId(entity)).toBeUndefined();
+    }
   });
 
   test('the video\'s three corrections are recorded, not silently applied', () => {
@@ -204,8 +258,8 @@ describe('the graph resolves (#92)', () => {
     expect(dangling).toEqual([]);
   });
 
-  test('no reference smuggles in a demoted entity id', () => {
-    const entityIds = new Set((meta(universe).entities as any[]).map((e) => e.id));
+  test('no reference smuggles in an entity id', () => {
+    const entityIds = new Set((universe.entities ?? []).map((e) => String(e.id)));
     const targets = [universe, commentary].flatMap((u) => references(u).map((r) => r.targetUniverseId));
     expect(targets.filter((t) => entityIds.has(t))).toEqual([]);
   });

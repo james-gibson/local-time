@@ -73,6 +73,10 @@ import {damPodcastEpisodeUniverse} from "./podcast/hydrology-impacts"
 // The `youtube/` namespace: a clip and the response video that plays it, with the
 // measured drift between their runtime clocks. Two universes, one drift record.
 import {youtubeUniverses} from "./youtube"
+// Organization and person universes, and the entity table they promote from
+// (james-gibson/local-time#209). The #207 rows that had to be demoted now have a
+// vocabulary: `organization:<slug>:<span>` and `person:<slug>:<span>`.
+import {entityUniverses} from "./entities"
 export const allUniverses = [
     ...filmUniverses,
   ...filmStudioUniverses,
@@ -151,6 +155,7 @@ export const allUniverses = [
   ...tropesUniverses,
   // The clip and the response video that plays it, with the drift between their clocks.
   ...youtubeUniverses,
+  ...entityUniverses,
 ];
 
 export const allNetworks = [

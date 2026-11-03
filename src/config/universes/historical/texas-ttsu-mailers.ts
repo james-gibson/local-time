@@ -1,6 +1,7 @@
 import { KeyframeType, TimePrecision, Universe, UniverseType } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import { createHistoricalUniverseId } from '../../../core/universe-ids';
+import { createEntityId, type UniverseEntity } from '../../../core/entities';
 
 /**
  * "Texas Transgender Student Union" mailers — a contested-authorship mail campaign,
@@ -25,13 +26,14 @@ import { createHistoricalUniverseId } from '../../../core/universe-ids';
  * the ticket's slug is kept as an alias. This is the #92 rule applied at authoring time:
  * a dangling id is not neutral, it reads as a module that exists.
  *
- * TASK 0 GATE, AND WHAT IT COST. The ticket's inventory proposed person and organization
- * universes (`person:jon_bonck`, `organization:three_z_printing`, …). `UniverseType` has
- * no `PERSON` or `ORGANIZATION` member and `universe-ids.ts` has no creator for either,
- * so `createPersonUniverseId` is not a thing that exists. Per the ticket's own gate they
- * are demoted: every entity lives in `metadata.entities` with its proposed id, role and
- * certainty, and the ones the record actually dates carry keyframes here. The follow-up
- * is james-gibson/local-time#209, which owns the type question for all of them at once.
+ * TASK 0 GATE, NOW CLOSED (#209). The ticket's inventory proposed person and organization
+ * universes (`person:jon_bonck`, `organization:three_z_printing`, …), which the vocabulary
+ * could not express, so #207 demoted them to `metadata.entities` with `registered: false`.
+ * #209 added the vocabulary: `organization:<slug>:<span>` and `person:<slug>:<span>` are
+ * universe types, and an entity row is promoted exactly when it carries a span. The rows
+ * now live in the typed `entities` field below; the eleven who are established are
+ * registered under `src/config/universes/entities/`, and the three held rows deliberately
+ * are not. See the comment on `entities`.
  *
  * THE VIDEO IS RECONCILED, NOT TRUSTED. `series:texas_paul_ttsu_mailers:2026` is the
  * commentary work. Three of its claims needed handling, recorded in `metadata.claims`:
@@ -370,6 +372,134 @@ export const texasTtsuMailersUniverse = {
     windows: { strategy: 'phase_based' },
   },
 
+  /**
+   * The entities this event names (#209). This used to be `metadata.entities` behind the
+   * file's `as unknown as Universe` cast, with a `registered: false` flag on every row.
+   * The flag is gone: a row is promoted exactly when it carries a `span`, and
+   * `entityUniverseId()` derives the universe id from it. The ids are the ones #207
+   * proposed, verbatim, so promotion needed no second naming pass.
+   *
+   * Eleven rows have a span and are registered as `organization:` / `person:` universes
+   * (`src/config/universes/entities/`). The three held rows (`organization:newman_ministries`,
+   * `person:bill_zarusen`, `person:matt_zarusen`) deliberately have none: a single-source
+   * allegation is a mention, not a fact, and a `founded`/`born` span would promote it into
+   * a registered universe. `held: true` is what keeps them out.
+   */
+  entities: [
+    {
+      id: createEntityId('organization:transgender_education_network_of_texas'),
+      kind: 'organization',
+      name: 'Transgender Education Network of Texas (TENT)',
+      role: 'impersonated; denies authorship and states its branding was co-opted',
+      certainty: 0.95,
+      span: 'founded',
+    },
+    {
+      id: createEntityId('organization:texas_transgender_student_union_llc'),
+      kind: 'organization',
+      name: '"Texas Transgender Student Union" LLC (Wyoming)',
+      role: 'entity named on the return address; registered agent resigned 2026-10-22',
+      certainty: 0.8,
+      span: '2026-present',
+    },
+    {
+      id: createEntityId('organization:three_z_printing'),
+      kind: 'organization',
+      name: 'Three Z Printing, Teutopolis, Illinois',
+      role: 'bulk-mail permit holder; permit ≠ printer and ≠ sender',
+      certainty: 0.9,
+      span: 'founded',
+    },
+    {
+      id: createEntityId('organization:snailworks'),
+      kind: 'organization',
+      name: 'SnailWorks (Maryland)',
+      role: 'mail-tracking intermediary; declined to identify its client',
+      certainty: 0.9,
+      span: 'founded',
+    },
+    {
+      id: createEntityId('organization:northwest_registered_agent'),
+      kind: 'organization',
+      name: 'Northwest Registered Agent (Sheridan, Wyoming)',
+      role: 'registered agent; resigned 2026-10-22',
+      certainty: 0.9,
+      span: 'founded',
+    },
+    {
+      id: createEntityId('organization:national_republican_congressional_committee'),
+      kind: 'organization',
+      name: 'National Republican Congressional Committee',
+      role: 'named in the commentary; no independent corroboration in this record',
+      certainty: 0.3,
+      span: 'founded',
+    },
+    {
+      id: createEntityId('organization:preservation_austin'),
+      kind: 'organization',
+      name: 'Preservation Austin',
+      role: 'named in the commentary; no independent corroboration in this record',
+      certainty: 0.3,
+      span: 'founded',
+    },
+    {
+      id: createEntityId('person:jon_bonck'),
+      kind: 'person',
+      name: 'Jon Bonck',
+      role: 'named in coverage as connected to the entity; not re-verified here',
+      certainty: 0.5,
+      span: 'born',
+    },
+    {
+      id: createEntityId('person:jeff_leach'),
+      kind: 'person',
+      name: 'Jeff Leach',
+      role: 'named in coverage; public officeholder',
+      certainty: 0.5,
+      span: 'born',
+    },
+    {
+      id: createEntityId('person:steven_monacelli'),
+      kind: 'person',
+      name: 'Steven Monacelli',
+      role: 'named in coverage as a reporter on the mailers',
+      certainty: 0.5,
+      span: 'born',
+    },
+    {
+      id: createEntityId('person:ayden_runnels'),
+      kind: 'person',
+      name: 'Ayden Runnels',
+      role: 'named in coverage as a reporter on the mailers',
+      certainty: 0.5,
+      span: 'born',
+    },
+    {
+      id: createEntityId('organization:newman_ministries'),
+      kind: 'organization',
+      name: 'Newman Ministries (as described: a Catholic ministry)',
+      role: 'HELD — single-source claim in the commentary; no corroboration',
+      certainty: 0.3,
+      held: true,
+    },
+    {
+      id: createEntityId('person:bill_zarusen'),
+      kind: 'person',
+      name: 'Bill Zarusen',
+      role: 'HELD — single-source claim in the commentary; no corroboration',
+      certainty: 0.3,
+      held: true,
+    },
+    {
+      id: createEntityId('person:matt_zarusen'),
+      kind: 'person',
+      name: 'Matt Zarusen',
+      role: 'HELD — single-source claim in the commentary; no corroboration',
+      certainty: 0.3,
+      held: true,
+    },
+  ] satisfies UniverseEntity[],
+
   metadata: {
     canonicalName: '"Texas Transgender Student Union" mailers (2026)',
     description:
@@ -391,130 +521,6 @@ export const texasTtsuMailersUniverse = {
     platform: 'Texas statewide (bulk mail, SMS, social media)',
     externalId: UNIVERSE_ID,
     contentType: 'event record / contested-authorship mailer',
-
-    /**
-     * Task 0 demotion. These ids are the ticket's proposed universe ids, kept verbatim
-     * so a follow-up can promote them without a second naming pass. They are *not*
-     * registered universes: `UniverseType` has no PERSON or ORGANIZATION member and
-     * `universe-ids.ts` has no creator for either (james-gibson/local-time#209).
-     */
-    entities: [
-      {
-        id: 'organization:transgender_education_network_of_texas',
-        kind: 'organization',
-        name: 'Transgender Education Network of Texas (TENT)',
-        role: 'impersonated; denies authorship and states its branding was co-opted',
-        certainty: 0.95,
-        registered: false,
-      },
-      {
-        id: 'organization:texas_transgender_student_union_llc',
-        kind: 'organization',
-        name: '"Texas Transgender Student Union" LLC (Wyoming)',
-        role: 'entity named on the return address; registered agent resigned 2026-10-22',
-        certainty: 0.8,
-        registered: false,
-      },
-      {
-        id: 'organization:three_z_printing',
-        kind: 'organization',
-        name: 'Three Z Printing, Teutopolis, Illinois',
-        role: 'bulk-mail permit holder; permit ≠ printer and ≠ sender',
-        certainty: 0.9,
-        registered: false,
-      },
-      {
-        id: 'organization:snailworks',
-        kind: 'organization',
-        name: 'SnailWorks (Maryland)',
-        role: 'mail-tracking intermediary; declined to identify its client',
-        certainty: 0.9,
-        registered: false,
-      },
-      {
-        id: 'organization:northwest_registered_agent',
-        kind: 'organization',
-        name: 'Northwest Registered Agent (Sheridan, Wyoming)',
-        role: 'registered agent; resigned 2026-10-22',
-        certainty: 0.9,
-        registered: false,
-      },
-      {
-        id: 'organization:national_republican_congressional_committee',
-        kind: 'organization',
-        name: 'National Republican Congressional Committee',
-        role: 'named in the commentary; no independent corroboration in this record',
-        certainty: 0.3,
-        registered: false,
-      },
-      {
-        id: 'organization:preservation_austin',
-        kind: 'organization',
-        name: 'Preservation Austin',
-        role: 'named in the commentary; no independent corroboration in this record',
-        certainty: 0.3,
-        registered: false,
-      },
-      {
-        id: 'person:jon_bonck',
-        kind: 'person',
-        name: 'Jon Bonck',
-        role: 'named in coverage as connected to the entity; not re-verified here',
-        certainty: 0.5,
-        registered: false,
-      },
-      {
-        id: 'person:jeff_leach',
-        kind: 'person',
-        name: 'Jeff Leach',
-        role: 'named in coverage; public officeholder',
-        certainty: 0.5,
-        registered: false,
-      },
-      {
-        id: 'person:steven_monacelli',
-        kind: 'person',
-        name: 'Steven Monacelli',
-        role: 'named in coverage as a reporter on the mailers',
-        certainty: 0.5,
-        registered: false,
-      },
-      {
-        id: 'person:ayden_runnels',
-        kind: 'person',
-        name: 'Ayden Runnels',
-        role: 'named in coverage as a reporter on the mailers',
-        certainty: 0.5,
-        registered: false,
-      },
-      {
-        id: 'organization:newman_ministries',
-        kind: 'organization',
-        name: 'Newman Ministries (as described: a Catholic ministry)',
-        role: 'HELD — single-source claim in the commentary; no corroboration',
-        certainty: 0.3,
-        registered: false,
-        held: true,
-      },
-      {
-        id: 'person:bill_zarusen',
-        kind: 'person',
-        name: 'Bill Zarusen',
-        role: 'HELD — single-source claim in the commentary; no corroboration',
-        certainty: 0.3,
-        registered: false,
-        held: true,
-      },
-      {
-        id: 'person:matt_zarusen',
-        kind: 'person',
-        name: 'Matt Zarusen',
-        role: 'HELD — single-source claim in the commentary; no corroboration',
-        certainty: 0.3,
-        registered: false,
-        held: true,
-      },
-    ],
 
     /**
      * The video against the record, per the ticket's reconciliation table. Kept as data
