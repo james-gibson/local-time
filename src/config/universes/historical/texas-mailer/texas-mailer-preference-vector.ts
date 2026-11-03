@@ -165,36 +165,7 @@ export const texasMailerPreferenceVectorUniverse = {
   realityRelation: {
     type: 'interpretation',
     fictionalizationDegree: 0.3,
-    realityAnchors: [
-      {
-        realEventId: 'spec:llm_typicality_bias',
-        relationshipType: 'documents',
-        confidence: 0.85,
-        evidence: [
-          'Post-training alignment reduces output diversity — mode collapse [^1]',
-          'Typicality bias in preference data identified as the data-level driver [^2]',
-          'Annotators favour familiar, fluent, predictable text [^4]',
-        ],
-      },
-      {
-        realEventId: 'spec:print_spec_guidance',
-        relationshipType: 'documents',
-        confidence: 0.8,
-        evidence: [
-          'Matte or satin aqueous coating is "the safest choice" for most direct mail [^5]',
-          'Uncoated is "the most forgiving stock for addressing" [^5]',
-          '100 lb cover with AQ surface "accept[s] inkjet printing and laser toner... the right choice for address panels" [^6]',
-        ],
-      },
-      {
-        realEventId: 'spec:usps_tabbing',
-        relationshipType: 'documents',
-        confidence: 0.9,
-        evidence: [
-          'Unenveloped letter-size pieces at automation prices must be tabbed; standards by basis weight and fold edge [^3]',
-        ],
-      },
-    ],
+    realityAnchors: [],
   },
 
   attribution: {

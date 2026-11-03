@@ -16,40 +16,16 @@ import type { Universe } from '../../core/types';
  * is about *shape*: every target must at least be a string the grammar accepts, so
  * a registration pass has something to register.
  *
- * ## The draft exceptions, and why they are not the same bug
+ * ## The draft exceptions are gone (#232)
  *
- * #184 listed nine sites, and all nine are fixed. The entries below are references
- * introduced *after* #184 was filed, by the #200/#207/#221 draft families, to
- * records those families have deliberately not minted yet (#221: fourteen drafts
- * remain unlanded, and their corrections have nowhere to land). They are recorded
- * here rather than silently excluded so that the debt is visible and cannot grow:
- * the list may only shrink, and an entry that stops being referenced fails the test.
- *
- * The follow-up is james-gibson/local-time#232, which owns emptying this set.
- * Fixing one means minting the universe it names (or dropping the reference), not
- * widening this list.
+ * #184 listed nine sites, and all nine were fixed. A further sixteen landed with the
+ * #200/#207/#221 draft families and were carried in an allowlist while the debt was
+ * open. #232 emptied that set: the three that named already-minted universes (the TENT
+ * organisation, the mailer controversy) were repointed, and the rest — specs, the
+ * unregistered broadcast, a channel, a statute and an analysis artifact — were dropped
+ * in favour of citing them in `attribution.sources`. The guard is now strict: every
+ * reality target in the corpus must be a string the grammar accepts.
  */
-const DRAFT_TARGETS_NOT_YET_UNIVERSES = new Set([
-  // #232 — the unlanded #200 analysis drafts reference specs and events that were
-  // drafted but never committed as universes.
-  'spec:usps_permit_imprint_regime',
-  'spec:usps_full_service_mid',
-  'spec:usps_eddm',
-  'spec:llm_typicality_bias',
-  'spec:print_spec_guidance',
-  'spec:usps_tabbing',
-  'spec:coating_inkjet_interaction',
-  'spec:coating_cost_direction',
-  'spec:imb_verification_threshold',
-  'spec:finishing_and_tabbing',
-  'event:glenn_beck_program_2026_10_21',
-  'event:texas_trans_mailers_2026_10',
-  'analysis:single_payer_claim',
-  // #207/#220 — the Texas TTSU mailer family's unlanded organisations.
-  'entity:transgender_education_network_of_texas',
-  'channel:the_real_texas_paul',
-  'statute:one_big_beautiful_bill_act_2025',
-]);
 
 /**
  * The exact labels #184 found, kept as an explicit ledger so a regression names
@@ -121,8 +97,7 @@ describe('every reality target is a valid universe id (#184)', () => {
   });
 
   test('no target is label-shaped or keyframe-shaped', () => {
-    const unexpected = invalid.filter((target) => !DRAFT_TARGETS_NOT_YET_UNIVERSES.has(target.id));
-    expect(unexpected.map(label)).toEqual([]);
+    expect(invalid.map(label)).toEqual([]);
   });
 
   test('every target is trimmed', () => {
@@ -136,19 +111,5 @@ describe('every reality target is a valid universe id (#184)', () => {
       (RETIRED_LABELS as readonly string[]).includes(target.id),
     );
     expect(present.map(label)).toEqual([]);
-  });
-});
-
-describe('the draft exceptions stay honest (#221, #207)', () => {
-  test('each draft target is still referenced, so the entry is not stale', () => {
-    const referenced = new Set(targets.map((target) => target.id));
-    const stale = [...DRAFT_TARGETS_NOT_YET_UNIVERSES].filter((id) => !referenced.has(id));
-    expect(stale).toEqual([]);
-  });
-
-  test('no draft target has been minted; if it has, drop the exception', () => {
-    const registered = new Set(allUniverses.map((universe) => String(universe.universeId)));
-    const minted = [...DRAFT_TARGETS_NOT_YET_UNIVERSES].filter((id) => registered.has(id));
-    expect(minted).toEqual([]);
   });
 });

@@ -158,38 +158,7 @@ export const texasMailerDominatedChoiceUniverse = {
   realityRelation: {
     type: 'interpretation',
     fictionalizationDegree: 0.3,
-    realityAnchors: [
-      {
-        realEventId: 'spec:coating_inkjet_interaction',
-        relationshipType: 'documents',
-        confidence: 0.9,
-        evidence: [
-          'Gloss and UV repel water-based inkjet ink; address panel must be knocked out [^3]',
-          'Ink beads up, smears, or does not adhere on UV-coated cards [^7]',
-          'Matte or satin aqueous accepts inkjet without special handling, reads cleanly under an optical scanner [^3]',
-          'Same UV spec across different jobs becomes an expensive production problem [^4]',
-        ],
-      },
-      {
-        realEventId: 'spec:coating_cost_direction',
-        relationshipType: 'documents',
-        confidence: 0.85,
-        evidence: [
-          'Aqueous typically 20-40% cheaper than UV [^6]',
-          'UV slightly more expensive than aqueous [^5]',
-          'Aqueous is the default finish for economy [^5]',
-        ],
-      },
-      {
-        realEventId: 'spec:imb_verification_threshold',
-        relationshipType: 'documents',
-        confidence: 0.9,
-        evidence: [
-          'IMB below 90% verification threshold assessed additional postage at non-automation prices for all automation-price pieces in the mailing [^1]',
-          'Additional postage charged to the CRID that submitted the eDoc [^2]',
-        ],
-      },
-    ],
+    realityAnchors: [],
   },
 
   attribution: {

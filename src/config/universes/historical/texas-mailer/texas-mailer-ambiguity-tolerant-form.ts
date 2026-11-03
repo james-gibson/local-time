@@ -174,27 +174,7 @@ export const texasMailerAmbiguityTolerantFormUniverse = {
   realityRelation: {
     type: 'interpretation',
     fictionalizationDegree: 0.3,
-    realityAnchors: [
-      {
-        realEventId: 'event:glenn_beck_program_2026_10_21',
-        relationshipType: 'documents',
-        confidence: 0.55,
-        evidence: [
-          '"it had to cost a lot of money because it\'s, you know, it\'s a full color heavy paper mailer" [^d02ba2#3462-3464]',
-          'No printer named anywhere in the segment [^d02ba2#3458-3464]',
-          'Guest Andy Ngo; transcript machine-generated and unlabelled by speaker [^d02ba2#35-39]',
-          'RE-VERIFICATION FAILED on 2026-10-26: transcript absent from sandbox, exact phrase not indexed',
-        ],
-      },
-      {
-        realEventId: 'analysis:single_payer_claim',
-        relationshipType: 'documents',
-        confidence: 0.8,
-        evidence: [
-          'TENT counsel describes a single entity or single payer [^5eb8c4#135]',
-        ],
-      },
-    ],
+    realityAnchors: [],
   },
 
   attribution: {

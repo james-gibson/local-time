@@ -84,15 +84,6 @@ export const texasPaulTtsuMailersUniverse = {
           'Credits Texas Tribune and CBS reporting as its sources',
         ],
       },
-      {
-        realEventId: 'channel:the_real_texas_paul',
-        relationshipType: 'documents',
-        confidence: 1.0,
-        evidence: [
-          'oEmbed author_name "Texas Paul" and author_url https://www.youtube.com/@TheRealTexasPaul',
-          'watch-page ownerChannelName "Texas Paul"',
-        ],
-      },
     ],
   },
 
