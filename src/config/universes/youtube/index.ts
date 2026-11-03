@@ -9,6 +9,8 @@ import { texasPaulTtsuMailersUniverse } from './texas-paul-ttsu-mailers';
 import { beckDoublespeakUniverse } from './beck-doublespeak';
 import { dreyTheranosUniverse } from './drey-theranos';
 import { cartoonPhysicsUniverse } from './cartoon-physics';
+import { anchorWatchSeriesUniverse } from './anchor-watch';
+import { anchorWatchHegseth20261026Universe } from './anchor-watch-2026-10-26';
 
 /**
  * The `youtube/` namespace barrel.
@@ -37,6 +39,8 @@ export const youtubeUniverses: Universe[] = [
   dreyTheranosUniverse,
   texasPaulTtsuMailersUniverse,
   cartoonPhysicsUniverse,
+  anchorWatchSeriesUniverse,
+  anchorWatchHegseth20261026Universe,
 ];
 
 export {
@@ -122,3 +126,21 @@ export {
   CARTOON_PHYSICS_PUBLISHED,
   CARTOON_PHYSICS_RUNTIME_SECONDS,
 } from './cartoon-physics';
+
+export {
+  anchorWatchSeriesUniverse,
+  ANCHOR_WATCH_SERIES_ID,
+} from './anchor-watch';
+
+export {
+  anchorWatchHegseth20261026Universe,
+  anchorWatchPresumedAnchors,
+  anchorWatchDiscussionPoints,
+  anchorWatchSegments,
+  anchorWatchKeyframes,
+  ANCHOR_WATCH_EPISODE_ID,
+  AIR_START_UTC_NS,
+  RUNTIME_SECONDS,
+} from './anchor-watch-2026-10-26';
+
+export type { PresumedAnchor } from './anchor-watch-2026-10-26';
