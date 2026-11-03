@@ -46,6 +46,9 @@ describe('the global-politics namespace is wired (#126)', () => {
   test('the barrel exposes the sourced universes', () => {
     expect(fromBarrel.map((universe) => universe.universeId).sort()).toEqual([
       'history:gaza:israel_hamas_war:2023-2025',
+      'history:iran_war:2026',
+      'history:israeli_legislative_election:2026',
+      'history:russia_ukraine_war:2022',
       'history:ukraine:path_to_conflict:1991-2014',
     ]);
   });

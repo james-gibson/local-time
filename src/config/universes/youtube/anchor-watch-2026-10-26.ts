@@ -2,9 +2,14 @@ import {
   KeyframeType,
   RealityAnchor,
   TimePrecision,
+  UniverseReference,
   UniverseType,
 } from '../../../core/types';
 import { createSeriesUniverseId } from '../../../core/universe-ids';
+import { IRAN_WAR_2026_ID } from '../global-politics/iran-war';
+import { ISRAELI_ELECTION_2026_ID } from '../global-politics/israeli-election-2026';
+import { RUSSIA_UKRAINE_WAR_2022_ID } from '../global-politics/russia-ukraine-war';
+import { FORTRESS_PROGRAM_2026_ID } from '../us-politics/fortress';
 import { ANCHOR_WATCH_SERIES_ID } from './anchor-watch';
 
 /**
@@ -20,9 +25,10 @@ import { ANCHOR_WATCH_SERIES_ID } from './anchor-watch';
  * THE WORK IS THE UNIT. This models the episode, not the events it discusses. Every
  * keyframe is addressed on the episode's own clock (air instant + offset), and every
  * description is what the show says at that point. The four events it reports on —
- * the Iran war, the Israeli election, FORTRESS, the Russia–Ukraine war — are referenced
- * as presumed anchors and thread siblings, not asserted here (james-gibson/local-time#212,
- * #431).
+ * the Iran war, the Israeli election, FORTRESS, the Russia–Ukraine war — are now
+ * landed as their own historical universes (james-gibson/local-time#212 Phase 2), so
+ * the episode links to them via resolved `realityAnchors` and `connections.references`
+ * (including a `contradicts` anchor and `CONTRADICTS` reference on FORTRESS for D19).
  *
  * ID. `series:bobby_jones_erupts_over_hegseth:2026`, produced by
  * `createSeriesUniverseId('series', SLUG, 2026)`. The ticket proposed
@@ -36,11 +42,12 @@ import { ANCHOR_WATCH_SERIES_ID } from './anchor-watch';
  * election", "after next Tuesday"). Runtime 3352 s (55:52, last caption line "See you
  * next"). Keyframes are absolute instants inside that epoch.
  *
- * LEDGER. The 25 discussion points below carry the pass-1 hydration status. Predictions
- * (D22, D23) are `excluded`, never laundered into facts. The six deltas from the
- * hydration pass are applied: the two corrected keyframe timestamps, D09 downgraded to
- * contested, D12 and D14 split (recorded in their notes), and D19 recorded as an
- * interpretation with a `contradicts` candidate rather than a `documents` anchor.
+ * LEDGER. The 25 discussion points below carry the pass-1/pass-2 hydration status.
+ * Predictions (D22, D23) are `excluded`, never laundered into facts. The six deltas from
+ * the hydration pass are applied: the two corrected keyframe timestamps, D09 downgraded
+ * to contested, D12 and D14 split (recorded in their notes), and D19 recorded as an
+ * interpretation with a `contradicts` anchor and `CONTRADICTS` reference against
+ * `history:fortress:2026`.
  */
 
 export const ANCHOR_WATCH_EPISODE_ID = createSeriesUniverseId(
@@ -64,44 +71,83 @@ const at = (mmss: string): bigint => {
 };
 
 /* ------------------------------------------------------------------ *
- * Presumed anchors — the events this episode reports on, not yet landed
+ * Reality anchors & references — hydrated in Phase 2 (#212)
  * ------------------------------------------------------------------ */
 
 /**
- * A reality anchor whose target is an address, not yet a universe (#431). These four
- * ids are the ticket's Phase 2: they stay in `threadSiblings` and here, marked presumed,
- * until their own universes land. The suite asserts they are *not* registered.
+ * A reality anchor whose target is an address, not yet a universe (#431). All four
+ * Phase-2 targets (`history:iran_war:2026`, `history:israeli_legislative_election:2026`,
+ * `history:fortress:2026`, `history:russia_ukraine_war:2022`) are now authored and
+ * registered, so the presumed queue is empty and `anchorWatchRealityAnchors` holds the
+ * resolved links.
  */
 export type PresumedAnchor = RealityAnchor & { hydration: 'presumed' };
 
-export const anchorWatchPresumedAnchors: PresumedAnchor[] = [
+export const anchorWatchPresumedAnchors: PresumedAnchor[] = [];
+
+export const anchorWatchRealityAnchors: RealityAnchor[] = [
   {
-    realEventId: 'history:iran_war:2026',
+    realEventId: IRAN_WAR_2026_ID,
     relationshipType: 'documents',
     confidence: 0.95,
-    hydration: 'presumed',
-    evidence: ['Episode conflict-timeline segment 14:31–19:19', 'Wikipedia: 2026 Iran war (start 28 Feb 2026)'],
+    evidence: [
+      'Episode conflict-timeline segment 14:31–19:19',
+      'Wikipedia: 2026 Iran war (start 28 Feb 2026)',
+    ],
   },
   {
-    realEventId: 'history:israeli_legislative_election:2026',
+    realEventId: ISRAELI_ELECTION_2026_ID,
     relationshipType: 'documents',
     confidence: 0.9,
-    hydration: 'presumed',
-    evidence: ['Episode 19:19 "tomorrow\'s the election"', 'Reuters election-day guide, 26 Oct 2026'],
+    evidence: [
+      'Episode 19:19 "tomorrow\'s the election"',
+      'Reuters election-day guide, 26 Oct 2026',
+    ],
   },
   {
-    realEventId: 'history:fortress:2026',
-    relationshipType: 'documents',
+    realEventId: FORTRESS_PROGRAM_2026_ID,
+    relationshipType: 'contradicts',
     confidence: 0.85,
-    hydration: 'presumed',
-    evidence: ['Episode 44:09 reading of FORTRESS', 'DoD FORTRESS fact sheet, 30 Sep 2026'],
+    evidence: [
+      'Episode 44:09 reading of FORTRESS as an admission that US bases can be isolated and the US is no longer a superpower',
+      'DoD FORTRESS fact sheet, 30 Sep 2026 (scope is US homeland installations operating 90 days off-grid)',
+    ],
   },
   {
-    realEventId: 'history:russia_ukraine_war:2022',
+    realEventId: RUSSIA_UKRAINE_WAR_2022_ID,
     relationshipType: 'documents',
     confidence: 0.9,
-    hydration: 'presumed',
-    evidence: ['Episode 16:05 drone-strike account', 'Ukrainian Air Force daily bulletins'],
+    evidence: [
+      'Episode 16:05 drone-strike account',
+      'Ukrainian Air Force daily bulletins',
+    ],
+  },
+];
+
+export const anchorWatchReferences: UniverseReference[] = [
+  {
+    type: 'DOCUMENTS',
+    targetUniverseId: IRAN_WAR_2026_ID,
+    description:
+      'Conflict-timeline briefing (14:31–19:19), Strait of Hormuz / East–West pipeline coverage (23:08–34:00), and Mecca Joint Defence Agreement discussion (36:39).',
+  },
+  {
+    type: 'DOCUMENTS',
+    targetUniverseId: ISRAELI_ELECTION_2026_ID,
+    description:
+      'Eve-of-election analysis (19:19–23:08) covering the 27 October 2026 26th Knesset election and the reported Netanyahu–Zamir confrontation.',
+  },
+  {
+    type: 'CONTRADICTS',
+    targetUniverseId: FORTRESS_PROGRAM_2026_ID,
+    description:
+      'D19 (44:09): reads the Department of War FORTRESS domestic off-grid installation-resilience directive as evidence of lost overseas superpower reach.',
+  },
+  {
+    type: 'DOCUMENTS',
+    targetUniverseId: RUSSIA_UKRAINE_WAR_2022_ID,
+    description:
+      'Reports the overnight 24–25 October 2026 153-drone barrage (16:05) and the November 2026 Abu Dhabi trilateral talks (23:29).',
   },
 ];
 
@@ -239,8 +285,7 @@ export const anchorWatchHegseth20261026Universe = {
   realityRelation: {
     type: 'documentary' as const,
     fictionalizationDegree: 0.0,
-    // The four events the episode reports on — referenced, not yet declared (#431).
-    realityAnchors: anchorWatchPresumedAnchors,
+    realityAnchors: anchorWatchRealityAnchors,
   },
 
   attribution: {
@@ -308,7 +353,7 @@ export const anchorWatchHegseth20261026Universe = {
     natural: {
       parentUniverses: [ANCHOR_WATCH_SERIES_ID],
     },
-    references: [],
+    references: anchorWatchReferences,
   },
 
   metadata: {
@@ -319,12 +364,7 @@ export const anchorWatchHegseth20261026Universe = {
     runtimeSeconds: RUNTIME_SECONDS,
     recordingType: 'live_stream',
     asrNormalizations,
-    threadSiblings: [
-      'history:iran_war:2026',
-      'history:israeli_legislative_election:2026',
-      'history:fortress:2026',
-      'history:russia_ukraine_war:2022',
-    ],
+    threadSiblings: [] as string[],
     presumed: anchorWatchPresumedAnchors.map((anchor) => ({
       realEventId: anchor.realEventId,
       hydration: anchor.hydration,
