@@ -156,10 +156,32 @@ describe('composition is a layer, not a duplicate universe (#74, #75)', () => {
     expect(asserted.reality_correspondence.deviations.join(' ')).toContain('TENT');
   });
 
-  test('the denial the layer contradicts is retrievable as a keyframe', () => {
+  test('the denial the layer contradicts is retrievable as a keyframe and wired as a CONTRADICTS edge to TENT', () => {
     const denial = keyframes(universe).find((kf) => kf.id === 'tent_denial');
     expect(denial.tags).toContain('contradicts');
     expect(denial.description).toContain('not authorized');
+
+    const contradictsRef = references(universe).find(
+      (r) =>
+        r.type === 'CONTRADICTS' &&
+        r.targetUniverseId === 'organization:transgender_education_network_of_texas:founded',
+    );
+    expect(contradictsRef).toBeDefined();
+  });
+
+  test('each promoted entity universe is owned once and is a member of US_HISTORY (#207 §5-6)', () => {
+    const registry = new UniverseRegistry(new ConfigLoader());
+    for (const entry of allUniverses as unknown as Universe[]) {
+      registry.registerUniverse(String(entry.universeId), entry);
+    }
+
+    const entities = (universe.entities ?? []).filter((e) => e.span !== undefined);
+    for (const entity of entities) {
+      const id = String(entityUniverseId(entity));
+      expect(registry.getOwner(id)?.universeId).toBe(id);
+      expect(registry.getMemberships(id)).toContain('history:united_states:founded');
+      expect(registry.contains('history:united_states:founded' as never, id)).toBe(true);
+    }
   });
 });
 
