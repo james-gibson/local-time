@@ -186,7 +186,9 @@ The system uses Prisma with SQLite (development) or PostgreSQL (production):
 - **SERIES**: TV shows, web series, episodic content
 - **BOOK**: Novels, non-fiction, academic works
 - **HISTORICAL_EVENT**: Real historical occurrences
-- **BIOGRAPHY**: Life stories and personal timelines
+- **BIOGRAPHY**: Life stories and personal timelines (a work *about* a person)
+- **ORGANIZATION**: Companies, nonprofits, committees — legal entities in time
+- **PERSON**: A person as an entity in time, distinct from a biography about them
 - **MISSION**: Space missions, military operations
 - **LEGAL_TIMELINE**: Laws, court decisions, precedents
 - **SIMULATION**: Games, virtual environments

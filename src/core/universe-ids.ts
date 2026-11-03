@@ -47,6 +47,26 @@ export type CyberSecurityUniverseId = UniverseId & { readonly __cyberSecurityBra
 export type USUniverseId = UniverseId & { readonly __usBrand: true };
 
 /**
+ * An organization as a universe in its own right: `organization:<slug>:<span>`.
+ *
+ * A legal entity — a company, a nonprofit, a committee, a firm — that exists in
+ * time, is named by events, and may own or be owned by other organizations. It is
+ * not a work and not an event, which is why it does not borrow `history:` or
+ * `film_studio:` the way #44 made studios do. See james-gibson/local-time#209.
+ */
+export type OrganizationUniverseId = UniverseId &
+  `organization:${string}:${OrganizationSpan}`;
+
+/**
+ * A person as a universe in its own right: `person:<slug>:<span>`.
+ *
+ * The *entity*, not a work about one. `biography:` remains the work-about-a-person
+ * type with its own `realityRelation`; this type is the person whose life the work
+ * documents. Collapsing the two is what #209 was filed about.
+ */
+export type PersonUniverseId = UniverseId & `person:${string}:${PersonSpan}`;
+
+/**
  * A technology universe: `technology:<slug>:<span>`.
  *
  * Renamed from `TechnicalUniverseId` in local-time#21. The old name said "technical"
@@ -76,6 +96,42 @@ export type SystemUniverseId = UniverseId & { readonly __systemBrand: true };
  */
 export type FilmStudioSpan =
   | 'founded'
+  | '*'
+  | `${number}`
+  | `${number}-${number}`
+  | `${number}-present`;
+
+/**
+ * The operating span of an `organization:` universe.
+ *
+ * The same vocabulary a studio uses, because an organization is the same kind of
+ * thing (a legal entity with a founding, renames, absorptions and a shutdown). The
+ * two unknown-start tokens are distinct on purpose:
+ *
+ * - `founded` — the entity exists now, and its founding year is **not established**
+ *   in the record. It is not a claim that the founding date is unknown in the world;
+ *   it is a claim about this record.
+ * - `*` — the span is genuinely unbounded (a customary body, a dynasty).
+ *
+ * A span of `founded` is representable; a fabricated founding year is not. That is
+ * why eleven of the ticket's fourteen rows can land without inventing dates (the
+ * other three are held, so they stay mentions).
+ */
+export type OrganizationSpan =
+  | 'founded'
+  | '*'
+  | `${number}`
+  | `${number}-${number}`
+  | `${number}-present`;
+
+/**
+ * The life span of a `person:` universe.
+ *
+ * Mirrors {@link OrganizationSpan}, with `born` in place of `founded`: the person
+ * exists (or existed) and this record does not establish the birth year.
+ */
+export type PersonSpan =
+  | 'born'
   | '*'
   | `${number}`
   | `${number}-${number}`
@@ -121,6 +177,8 @@ export type TypedUniverseId =
   | TechnologyUniverseId
   | TechnicalUniverseId
   | FilmStudioUniverseId
+  | OrganizationUniverseId
+  | PersonUniverseId
   | SystemUniverseId
   | GameUniverseId
   | USUniverseId;
@@ -182,7 +240,9 @@ const RESERVED_STUDIO_TOKENS = [
   'military',
   'nasa',
   'netflix',
+  'organization',
   'personal',
+  'person',
   'publisher',
   'series',
   'spacex',
@@ -256,6 +316,28 @@ export const UNIVERSE_ID_PATTERNS = {
   LEGAL: /^legal-[a-z0-9_]+:[a-z0-9_]+:[a-z0-9_]+:(\*|career|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
   // COUNTRY: /^usa:[a-z0-9_]+:\d{4}-(\d{4}|present)$/,
   BIOGRAPHY: /^biography:[a-z0-9_]+:\d{4}-(\d{4}|present)$/,
+
+  /**
+   * Organizations as universes: `organization:<slug>:<span>`.
+   *
+   * The span vocabulary is `film_studio`'s, because a studio is an organization.
+   * `founded` is the honest token for an entity whose founding year this record
+   * does not establish — `organization:tent:founded` says "it exists, the founding
+   * year is not in evidence", not "it was founded in a year called founded".
+   *
+   * See james-gibson/local-time#209.
+   */
+  ORGANIZATION: /^organization:[a-z0-9_]+:(founded|\*|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
+
+  /**
+   * People as universes: `person:<slug>:<span>`.
+   *
+   * `born` is the counterpart of `founded`: the person is established, the birth
+   * year is not. This is deliberately *not* `biography:`, which is a work about a
+   * person; a `person:` id is the person. See james-gibson/local-time#209.
+   */
+  PERSON: /^person:[a-z0-9_]+:(born|\*|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
+
   GAME: /^(game|anime)[a-z0-9_]?:[a-z0-9_]+:[a-z0-9_]+:\d{4}$/,
   CYBERSECURITY: /^cybersecurity:.*$/,
 
@@ -391,24 +473,29 @@ export function isPersonalUniverseId(id: string): id is PersonalUniverseId {
 }
 
 /**
- * A person as a universe. Both person idioms in the corpus are valid members:
+ * A person as a *reference* to a universe — the three shapes the corpus already uses:
  *
- * - `biography:<slug>:<birth>-<death|present>` — span-anchored, so it needs a birth year
+ * - `biography:<slug>:<birth>-<death|present>` — a work about a person, span-anchored
  *   (`biography:jrr_tolkien:1892-1973`, `biography:britney_spears:1981-present`).
- * - `personal:<slug>:<year>` — year-anchored (`personal:hillary_clinton:1947`).
+ * - `personal:<slug>:<year>` — a year-anchored personal record
+ *   (`personal:hillary_clinton:1947`).
+ * - `person:<slug>:<span>` — the person themselves (james-gibson/local-time#209).
  *
- * Neither is derivable from a credit line: `Attribution.creators` names a director, not
- * their birth year. That is why a `CreatorRef` carries a display name and only *optionally*
- * a `personId` (james-gibson/local-time#148).
+ * Neither of the first two is derivable from a credit line: `Attribution.creators` names
+ * a director, not their birth year. That is why a `CreatorRef` carries a display name and
+ * only *optionally* a `personId` (james-gibson/local-time#148).
  *
- * The pattern cannot tell a person from a year-anchored record (`personal:docs:2026`), so
- * this is a shape guard, not proof that the universe is a person. Cite a universe that
- * exists.
+ * The old name for this union was `PersonUniverseId`. It was renamed when `person:`
+ * became a real namespace: one word cannot name both "a universe that stands for a
+ * person" and "the person".
  */
-export type PersonUniverseId = BiographyUniverseId | PersonalUniverseId;
+export type PersonReferenceId =
+  | BiographyUniverseId
+  | PersonalUniverseId
+  | PersonUniverseId;
 
-export function isPersonUniverseId(id: string): id is PersonUniverseId {
-  return isPersonalUniverseId(id) || isBiographyUniverseId(id);
+export function isPersonReferenceId(id: string): id is PersonReferenceId {
+  return isPersonalUniverseId(id) || isBiographyUniverseId(id) || isPersonUniverseId(id);
 }
 
 export function isMissionUniverseId(id: string): id is MissionUniverseId {
@@ -496,6 +583,16 @@ export function isBiographyUniverseId(id: string): id is BiographyUniverseId {
   return UNIVERSE_ID_PATTERNS.BIOGRAPHY.test(id);
 }
 
+/** An organization universe: `organization:<slug>:<span>` (james-gibson/local-time#209). */
+export function isOrganizationUniverseId(id: string): id is OrganizationUniverseId {
+  return UNIVERSE_ID_PATTERNS.ORGANIZATION.test(id);
+}
+
+/** A person universe: `person:<slug>:<span>` — the person, not a work about one. */
+export function isPersonUniverseId(id: string): id is PersonUniverseId {
+  return UNIVERSE_ID_PATTERNS.PERSON.test(id);
+}
+
 export function isGameUniverseId(id: string): id is GameUniverseId {
   return UNIVERSE_ID_PATTERNS.GAME.test(id);
 }
@@ -528,8 +625,12 @@ export function createSparkleFartUniverseId(source: string, traceId: string): Sp
  * case, words joined by underscores, and nothing else. This is what turns
  * `Saturn_International` into `saturn_international` and
  * `Piranha II: The Spawning` into `piranha_ii_the_spawning` (local-time#26).
+ *
+ * Exported because the entity id factories (`organization:`, `person:`) use the same
+ * conversion: an entity slug and a universe slug must agree, or the two addresses of
+ * one entity drift (james-gibson/local-time#209).
  */
-function toIdFragment(value: string): string {
+export function toIdFragment(value: string): string {
   return value
     .trim()
     .toLowerCase()
@@ -776,6 +877,46 @@ export function createBiographyUniverseId(person: string, birthYear: number, dea
     throw new Error(`Invalid biography universe ID format: ${id}`);
   }
   return id as BiographyUniverseId;
+}
+
+/**
+ * An organization universe ID: `organization:<slug>:<span>`.
+ *
+ * The span is typed, so `createOrganizationUniverseId('tent', 'founded')` is a
+ * compile-time-valid call and a fabricated year is the caller's explicit choice.
+ * `founded` is the token for "exists now; founding year not established", which is
+ * what most of the #207 rows need.
+ *
+ * See james-gibson/local-time#209.
+ */
+export function createOrganizationUniverseId(
+  slug: string,
+  span: OrganizationSpan | number,
+): OrganizationUniverseId {
+  const id = `organization:${toIdFragment(slug)}:${String(span).trim().toLowerCase()}`;
+  if (!isOrganizationUniverseId(id)) {
+    throw new Error(`Invalid organization universe ID format: ${id}`);
+  }
+  return id as OrganizationUniverseId;
+}
+
+/**
+ * A person universe ID: `person:<slug>:<span>`.
+ *
+ * `createPersonUniverseId('jon_bonck', 'born')` is the honest id for a person this
+ * record names but does not date. A `person:` universe is the person; a
+ * `biography:` universe is a work about one, and `createBiographyUniverseId`
+ * still requires the birth year that a credit line rarely carries.
+ */
+export function createPersonUniverseId(
+  slug: string,
+  span: PersonSpan | number,
+): PersonUniverseId {
+  const id = `person:${toIdFragment(slug)}:${String(span).trim().toLowerCase()}`;
+  if (!isPersonUniverseId(id)) {
+    throw new Error(`Invalid person universe ID format: ${id}`);
+  }
+  return id as PersonUniverseId;
 }
 
 /**

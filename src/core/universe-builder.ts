@@ -1,4 +1,5 @@
 import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalSegment, TemporalLayer, RealityRelation, Attribution, UniverseReference, CreatorAssignments } from './types';
+import type { UniverseEntity } from './entities';
 import { UniverseId, createFilmUniverseId, isValidUniverseId } from './universe-ids';
 import { creatorNames, creatorRefs, mergeCreatorRefs, normaliseCreatorName } from './creators';
 import { TemporalDomain, temporalDomainLayer } from './temporal-domains';
@@ -564,6 +565,18 @@ export class UniverseBuilder {
    * `{ type: 'member_of', targetUniverseId }` entries into `CommonUniverseIds`. Kept because
    * `pixar/films.ts` and the pixar tests read that location.
    */
+  /**
+   * Declare the organizations and people this universe names (james-gibson/local-time#209).
+   *
+   * A row is an addressable entity; it becomes a registered universe only when it carries
+   * a `span`. Rows accumulate, so a builder can add a person in one call and an
+   * organization in another without losing the first.
+   */
+  withEntities(entities: UniverseEntity[]): this {
+    this.universe.entities = [...(this.universe.entities ?? []), ...entities];
+    return this;
+  }
+
   addConnection(connection: any): this {
     // Store connections in metadata for now
     if (!this.universe.metadata) {

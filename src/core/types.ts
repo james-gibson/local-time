@@ -1,5 +1,6 @@
 // Import branded universe ID types
-import type { PersonUniverseId, UniverseId } from './universe-ids';
+import type { PersonReferenceId, UniverseId } from './universe-ids';
+import type { UniverseEntity } from './entities';
 
 /**
  * Represents a specific address within a temporal universe system.
@@ -184,6 +185,22 @@ export interface Universe {
    * a `DISTRIBUTED_BY`, a `PARODIES`, an `IN_A_PRIOR_KEYFRAME`.
    */
   connections?: UniverseConnections;
+
+  /**
+   * The organizations and people this universe names, as addressable entities.
+   *
+   * An entity is not a universe until it has a span, so this table is where a record
+   * keeps the entities it cannot yet date — every `#207` row that had to be demoted,
+   * for example. A row with a `span` is promoted to a registered
+   * `organization:` / `person:` universe by `entityUniverseId`; a row without one is
+   * an addressable mention and is deliberately not registered
+   * (james-gibson/local-time#209).
+   *
+   * This is a typed field rather than `metadata.entities` because the old path was an
+   * `as unknown as Universe` cast: nothing validated the rows, and `registered: false`
+   * was the only thing standing between a mention and a fact.
+   */
+  entities?: UniverseEntity[];
 
   /**
    * Optional metadata about cultural significance, creators, etc.
@@ -441,7 +458,7 @@ export interface CreatorRef {
    * or `personal:<slug>:<year>`. Optional because most credits have no person universe yet;
    * it upgrades in place when one lands.
    */
-  personId?: PersonUniverseId;
+  personId?: PersonReferenceId;
   /** Every role this person had in the work, in the order the assignment recorded them. */
   roles: CreatorRole[];
 }
@@ -450,7 +467,7 @@ export interface CreatorRef {
  * A creator as authored: a bare display name, or a name that also names the person
  * universe it resolves to.
  */
-export type CreatorCredit = string | { name: string; personId?: PersonUniverseId };
+export type CreatorCredit = string | { name: string; personId?: PersonReferenceId };
 
 /**
  * Role-keyed creator input, accepted by `UniverseBuilder.withCreators()` and by the film
@@ -841,6 +858,19 @@ export enum UniverseType {
   MEDICAL_PROCEDURE = 'medical_procedure',
   BIOGRAPHY = 'biography',
   LEGAL_TIMELINE = 'legal_timeline',
+  /**
+   * An organization as a legal entity in time: a company, a nonprofit, a committee.
+   * Not a work and not an event — the entity that events name and that other
+   * organizations own. Its id is `organization:<slug>:<span>`; see
+   * `createOrganizationUniverseId` and james-gibson/local-time#209.
+   */
+  ORGANIZATION = 'organization',
+  /**
+   * A person as an entity in time. Distinct from `BIOGRAPHY`, which is a *work about*
+   * a person: a `person:` universe is the person whose life the work documents.
+   * See `createPersonUniverseId` and james-gibson/local-time#209.
+   */
+  PERSON = 'person',
   INSTITUTIONAL_PERIOD = 'institutional_period',
   TECHNICAL_SPECIFICATION = 'technical_specification',
   TECHNICAL_LOG = 'technical_log',

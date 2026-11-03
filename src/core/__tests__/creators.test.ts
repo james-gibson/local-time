@@ -8,7 +8,7 @@ import { UniverseBuilder } from '../universe-builder';
 import {
   WELL_KNOWN_UNIVERSES,
   createPersonalUniverseId,
-  isPersonUniverseId,
+  isPersonReferenceId,
 } from '../universe-ids';
 
 /**
@@ -89,18 +89,22 @@ describe('creatorRefs — person-keyed creators (#148)', () => {
   });
 });
 
-describe('isPersonUniverseId — both person idioms are people (#148)', () => {
+describe('isPersonReferenceId — every person idiom is a reference (#148, #209)', () => {
   test('a span-anchored biography is a person', () => {
-    expect(isPersonUniverseId('biography:jrr_tolkien:1892-1973')).toBe(true);
-    expect(isPersonUniverseId('biography:britney_spears:1981-present')).toBe(true);
+    expect(isPersonReferenceId('biography:jrr_tolkien:1892-1973')).toBe(true);
+    expect(isPersonReferenceId('biography:britney_spears:1981-present')).toBe(true);
   });
 
   test('a year-anchored personal universe is a person', () => {
-    expect(isPersonUniverseId(createPersonalUniverseId('hillary_clinton', 1947))).toBe(true);
+    expect(isPersonReferenceId(createPersonalUniverseId('hillary_clinton', 1947))).toBe(true);
+  });
+
+  test('a person universe is a person', () => {
+    expect(isPersonReferenceId('person:jon_bonck:born')).toBe(true);
   });
 
   test('a film is not a person', () => {
-    expect(isPersonUniverseId('film:tolkien:2019')).toBe(false);
+    expect(isPersonReferenceId('film:tolkien:2019')).toBe(false);
   });
 });
 
