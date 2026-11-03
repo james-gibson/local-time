@@ -1,5 +1,6 @@
 import { Universe, UniverseType, TimePrecision, TemporalEpoch, TemporalSegment, TemporalLayer, RealityRelation, Attribution, UniverseReference, CreatorAssignments } from './types';
 import type { UniverseEntity } from './entities';
+import type { OrganizationProfile } from './organizations';
 import { UniverseId, createFilmUniverseId, isValidUniverseId } from './universe-ids';
 import { creatorNames, creatorRefs, mergeCreatorRefs, normaliseCreatorName } from './creators';
 import { TemporalDomain, temporalDomainLayer } from './temporal-domains';
@@ -574,6 +575,27 @@ export class UniverseBuilder {
    */
   withEntities(entities: UniverseEntity[]): this {
     this.universe.entities = [...(this.universe.entities ?? []), ...entities];
+    return this;
+  }
+
+  /**
+   * Attach an organization's jurisdiction facts (james-gibson/local-time#209).
+   *
+   * Merges rather than replaces: a builder can add `incorporatedIn` in one call and a
+   * registration in another, and the later call does not drop the earlier fact. The id is
+   * untouched — jurisdiction never participates in it, so a fact that arrives after entry
+   * costs no rename.
+   */
+  withOrganizationProfile(profile: OrganizationProfile): this {
+    const current = this.universe.organizationProfile;
+    this.universe.organizationProfile = {
+      ...current,
+      ...profile,
+      registrations: [
+        ...(current?.registrations ?? []),
+        ...(profile.registrations ?? []),
+      ],
+    };
     return this;
   }
 

@@ -8,6 +8,7 @@ import {
   type PersonSpan,
   type PersonUniverseId,
 } from './universe-ids';
+import type { OrganizationProfile } from './organizations';
 
 /**
  * Entities — organizations and people — are *addressable* before they are universes.
@@ -146,6 +147,14 @@ export interface UniverseEntity<K extends EntityKind = EntityKind> {
   held?: boolean;
   /** The existence span. Present ⇒ the entity is promoted to a universe. */
   span?: EntitySpanOf<K>;
+  /**
+   * Jurisdiction facts, when the entity is an organization and this record establishes
+   * any. A row carries them only while the entity has no universe; once promoted, the
+   * universe's `organizationProfile` is the canonical home. Absent is the normal entry
+   * state — jurisdiction is often unknown at entry, and nothing about the id depends on
+   * it (james-gibson/local-time#209).
+   */
+  organizationProfile?: OrganizationProfile;
 }
 
 /**

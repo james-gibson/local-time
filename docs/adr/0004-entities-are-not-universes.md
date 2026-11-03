@@ -77,6 +77,43 @@ The considerations that decide it:
    `RESERVED_STUDIO_TOKENS`, because FILM is the generic three-segment pattern and a
    new namespace that is not reserved reads as a film (#50, #57).
 
+### Jurisdiction is a fact, not an id segment
+
+A corporation is formed in one jurisdiction and may be headquartered, licensed,
+registered or represented in many others. None of those facts need be known when the
+entity is first recorded. So the id stays `organization:<slug>:<span>` and the facts
+live in an optional `organizationProfile`:
+
+```ts
+// entry time — the legal entity, nothing about where
+organization:acme_llc:2020-present
+
+// later — the same id, now with two jurisdiction facts
+organizationProfile: {
+  incorporatedIn: 'US-WY',
+  registrations: [
+    { jurisdiction: 'US-WY', kind: 'incorporation', from: '2020-03', status: 'active' },
+    { jurisdiction: 'US-TX', kind: 'foreign_registration', from: '2021-06', status: 'active' },
+  ],
+}
+```
+
+Two failure modes are being avoided:
+
+- **A required jurisdiction invents one.** If the id demanded `organization:<jurisdiction>:…`,
+  an entry that did not know the formation state would have to guess, and the guess
+  becomes the address everyone else cites.
+- **A jurisdiction in the id renames on every new grant.** A Wyoming LLC registering in
+  Texas would move from one id to another, dangling every reference — the opposite of
+  what a standard id is for.
+
+Codes are ISO 3166-1 alpha-2 (`US`, `GB`) and ISO 3166-2 (`US-WY`), normalised and
+shape-checked but not enumerated, so the vocabulary does not go stale the way
+`RESERVED_STUDIO_TOKENS` did. A registration may also carry the issuing body and its
+number (`issuer`, `identifier`) — a state board, a USPS permit — because those arrive
+with the grant rather than with the entity. A genuine name collision is disambiguated
+deliberately in the slug at first entry, never by appending a jurisdiction.
+
 ## Consequences
 
 - `#207`'s fourteen rows move from `metadata.entities` (behind an
@@ -91,6 +128,10 @@ The considerations that decide it:
   `isPersonReferenceId` means the union.
 - Promotion is reversible in the model, not by editing a flag: removing a span
   demotes the row, and the universe module is deleted with it.
+- `organizationProfile` holds formation, headquarters and per-jurisdiction grants. A
+  fact that arrives after entry changes the profile, never the id, so no reference
+  dangles. The model can represent a company formed in one jurisdiction and licensed in
+  any number of others without a second address.
 - **Not decided here:** whether an entity universe's charge duplicates an event's
   edge (#90). The vocabulary no longer forces the double count; the plane work is
   still open.

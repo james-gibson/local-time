@@ -1,6 +1,7 @@
 // Import branded universe ID types
 import type { PersonReferenceId, UniverseId } from './universe-ids';
 import type { UniverseEntity } from './entities';
+import type { OrganizationProfile } from './organizations';
 
 /**
  * Represents a specific address within a temporal universe system.
@@ -201,6 +202,17 @@ export interface Universe {
    * was the only thing standing between a mention and a fact.
    */
   entities?: UniverseEntity[];
+
+  /**
+   * Where an organization is formed, headquartered and licensed (james-gibson/local-time#209).
+   *
+   * Only meaningful for `UniverseType.ORGANIZATION` universes, and deliberately not part
+   * of the id: a jurisdiction is often unknown when the entity is first recorded, and one
+   * legal entity can hold grants in many jurisdictions. The id is the central agreement;
+   * these facts accrete onto it without renaming anything. See `core/organizations.ts`
+   * for why, and for the ISO 3166 code vocabulary.
+   */
+  organizationProfile?: OrganizationProfile;
 
   /**
    * Optional metadata about cultural significance, creators, etc.

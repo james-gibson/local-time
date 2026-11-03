@@ -9,6 +9,7 @@ import {
   createEntityId,
   entityUniverseId,
 } from '../../../core/entities';
+import { isJurisdictionCode } from '../../../core/organizations';
 import { ConfigLoader } from '../../config-loader';
 import { UniverseRegistry } from '../../universe-registry';
 import { allUniverses } from '../index';
@@ -116,6 +117,50 @@ describe('every entity universe has the temporal layer local-time requires', () 
     expect(epoch.precision).toBe(TimePrecision.MONTH);
     expect(epoch.startTime).toBe(BigInt(Date.parse('2026-09-01')) * 1_000_000n);
     expect(epoch.endTime).toBeGreaterThan(epoch.startTime!);
+  });
+});
+
+describe('organization jurisdiction is a fact, not an id segment', () => {
+  const organizations = entityUniverses.filter(
+    (universe) => universe.type === UniverseType.ORGANIZATION,
+  );
+
+  test('every organization carries ISO 3166 codes, or nothing', () => {
+    expect(organizations.length).toBeGreaterThan(0);
+    for (const universe of organizations) {
+      const profile = universe.organizationProfile;
+      expect(profile).toBeDefined();
+      if (profile?.incorporatedIn !== undefined) {
+        expect(isJurisdictionCode(profile.incorporatedIn)).toBe(true);
+      }
+      if (profile?.headquarters !== undefined) {
+        expect(isJurisdictionCode(profile.headquarters)).toBe(true);
+      }
+      for (const registration of profile?.registrations ?? []) {
+        expect(isJurisdictionCode(registration.jurisdiction)).toBe(true);
+      }
+    }
+  });
+
+  test('a jurisdiction never appears in the id', () => {
+    for (const universe of organizations) {
+      expect(String(universe.universeId)).not.toMatch(/US-|US:|GB|CA-/);
+    }
+  });
+
+  test('the Wyoming LLC is incorporated in Wyoming and its id says nothing about it', () => {
+    const llc = organizations.find(
+      (universe) => String(universe.universeId).endsWith('texas_transgender_student_union_llc:2026-present'),
+    );
+    expect(llc?.organizationProfile?.incorporatedIn).toBe('US-WY');
+    expect(llc?.organizationProfile?.registrations?.[0]).toMatchObject({
+      jurisdiction: 'US-WY',
+      kind: 'incorporation',
+      status: 'active',
+    });
+    expect(llc?.universeId).toBe(
+      'organization:texas_transgender_student_union_llc:2026-present',
+    );
   });
 });
 

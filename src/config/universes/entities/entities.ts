@@ -11,6 +11,17 @@ import {
   type PersonSpan,
 } from '../../../core/universe-ids';
 import type { EntityKind } from '../../../core/entities';
+import {
+  createJurisdictionCode,
+  type OrganizationProfile,
+} from '../../../core/organizations';
+
+/** ISO 3166 codes used by the #207 record. Spelled once, so a typo cannot clear a check. */
+const US = createJurisdictionCode('US');
+const US_IL = createJurisdictionCode('US-IL');
+const US_MD = createJurisdictionCode('US-MD');
+const US_TX = createJurisdictionCode('US-TX');
+const US_WY = createJurisdictionCode('US-WY');
 
 /**
  * The first `organization:` and `person:` universes (james-gibson/local-time#209).
@@ -27,6 +38,14 @@ import type { EntityKind } from '../../../core/entities';
  * mean *the entity exists and this record does not establish the year*. They do not
  * invent one: the epoch is open at the start, and `entities.test.ts` asserts that a
  * promoted `founded`/`born` row has no `startTime`.
+ *
+ * **JURISDICTION, THE GENERIC CASE.** An organization is formed somewhere, may be
+ * headquartered somewhere else, and can be licensed or registered in any number of
+ * jurisdictions — and none of those facts need be known when the row is first entered.
+ * They are therefore facts on the universe's `organizationProfile`, never segments of its
+ * id: "a Wyoming LLC registered to do business in Texas" is one id and two registrations,
+ * and learning the second one costs no rename and dangles no reference. See
+ * `core/organizations.ts`.
  *
  * **Scope.** These are the eleven rows whose existence is established by the record.
  * The three held rows (`organization:newman_ministries`, `person:bill_zarusen`,
@@ -54,6 +73,8 @@ interface EntitySpec {
   span: OrganizationSpan | PersonSpan;
   /** A finer start than the span's year, when the record gives one. */
   startIso?: string;
+  /** Where the organization is formed / headquartered / licensed, when established. */
+  profile?: OrganizationProfile;
   /** The sources that establish the entity. */
   sources: string[];
 }
@@ -73,6 +94,7 @@ export const ENTITY_SPECS: readonly EntitySpec[] = [
     slug: 'transgender_education_network_of_texas',
     name: 'Transgender Education Network of Texas (TENT)',
     span: 'founded',
+    profile: { headquarters: US_TX },
     sources: TTSU_SOURCES,
   },
   {
@@ -81,6 +103,18 @@ export const ENTITY_SPECS: readonly EntitySpec[] = [
     name: '"Texas Transgender Student Union" LLC (Wyoming)',
     span: '2026-present',
     startIso: '2026-09-01',
+    profile: {
+      incorporatedIn: US_WY,
+      registrations: [
+        {
+          jurisdiction: US_WY,
+          kind: 'incorporation',
+          from: '2026-09',
+          status: 'active',
+          source: 'Wyoming formation reported in October 2026 coverage; month precision only.',
+        },
+      ],
+    },
     sources: TTSU_SOURCES,
   },
   {
@@ -88,6 +122,7 @@ export const ENTITY_SPECS: readonly EntitySpec[] = [
     slug: 'three_z_printing',
     name: 'Three Z Printing (Teutopolis, Illinois)',
     span: 'founded',
+    profile: { headquarters: US_IL },
     sources: TTSU_SOURCES,
   },
   {
@@ -95,6 +130,7 @@ export const ENTITY_SPECS: readonly EntitySpec[] = [
     slug: 'snailworks',
     name: 'SnailWorks (Maryland)',
     span: 'founded',
+    profile: { headquarters: US_MD },
     sources: TTSU_SOURCES,
   },
   {
@@ -102,6 +138,7 @@ export const ENTITY_SPECS: readonly EntitySpec[] = [
     slug: 'northwest_registered_agent',
     name: 'Northwest Registered Agent (Sheridan, Wyoming)',
     span: 'founded',
+    profile: { headquarters: US_WY },
     sources: TTSU_SOURCES,
   },
   {
@@ -109,6 +146,7 @@ export const ENTITY_SPECS: readonly EntitySpec[] = [
     slug: 'national_republican_congressional_committee',
     name: 'National Republican Congressional Committee',
     span: 'founded',
+    profile: { headquarters: US },
     sources: TTSU_SOURCES,
   },
   {
@@ -116,6 +154,7 @@ export const ENTITY_SPECS: readonly EntitySpec[] = [
     slug: 'preservation_austin',
     name: 'Preservation Austin',
     span: 'founded',
+    profile: { headquarters: US_TX },
     sources: TTSU_SOURCES,
   },
   {
@@ -250,6 +289,9 @@ function buildEntityUniverse(spec: EntitySpec): Universe {
       },
     ],
     epochs: { existence: epoch },
+    // Jurisdiction is a fact on the entity, never a segment of its id. Absent fields
+    // mean "not established in this record", which is the normal state at entry.
+    organizationProfile: spec.profile,
     metadata: {
       canonicalName: spec.name,
       // Existence is not a cultural claim. A flat 0.5 says "recorded, not ranked";
