@@ -1,0 +1,48 @@
+{
+  "universeId": "series:bobby_jones_erupts_over_hegseth:2026",
+  "note": "id corrected from the ticket's 4-segment series:anchor_watch:bobby_jones_erupts_over_hegseth:2026, which only the ANY_YEAR_TERMINATED catch-all accepted (#57). The hierarchy is expressed with more ids, not more segments: the program is series:anchor_watch:2026 and this episode is a member of it.",
+  "pass": 1,
+  "runAt": "2026-10-27T00:00:00Z",
+  "hydratedBy": "issuecomment-6447670411 (hydration pass)",
+  "transcriptSource": "auto-captions, no manual pass; ASR normalisations carried in metadata.asrNormalizations",
+  "instruments": [
+    "caption track youtube.com/watch?v=c8P8mP-v9Hc",
+    "Ukrainian Air Force / Ukrinform bulletin 25 Oct 2026",
+    "Reuters 26 Oct 2026 (Houthi claims)",
+    "DoD FORTRESS fact sheet 30 Sep 2026",
+    "With Honor Action (752 veterans)",
+    "WaPo / NBC / Snopes (Eisenhower globe)"
+  ],
+  "settled": 11,
+  "claims": [
+    { "claimId": "D01", "status": "derived", "certainty": 0.9, "finding": "Aired 2026-10-26; three cues agree." },
+    { "claimId": "D02", "status": "self_report", "certainty": 0.7, "finding": "USNA class of 2001, 25th reunion." },
+    { "claimId": "D03", "status": "contested", "certainty": null, "finding": "Hegseth \"did not meet milestones… they booted him\" — characterization, not settled." },
+    { "claimId": "D04", "status": "confirmed_low_risk", "certainty": 0.6, "finding": "Attended Princeton and Harvard." },
+    { "claimId": "D05", "status": "attributed_unresolved", "certainty": null, "finding": "15 bases — a retired general's figure; damage documented, count not official." },
+    { "claimId": "D06", "status": "reported_and_denied", "certainty": null, "finding": "Abraham Lincoln food shortage — reported, officially denied." },
+    { "claimId": "D07", "status": "unresolved", "certainty": null, "finding": "Family housing funding ends 30 Nov — no primary at pass 1." },
+    { "claimId": "D08", "status": "confirmed", "certainty": 0.9, "finding": "153 drones, 119 downed, night of 24–25 Oct." },
+    { "claimId": "D09", "status": "contested", "certainty": 0.3, "finding": "four killed, 22 injured — wire copy reports one death (Kharkiv); downgraded." },
+    { "claimId": "D10", "status": "confirmed", "certainty": 0.85, "finding": "Houthis attacking Riyadh." },
+    { "claimId": "D11", "status": "unresolved", "certainty": null, "finding": "US strike plan ready within 96 hours — captions only at pass 1." },
+    { "claimId": "D12", "status": "partially_confirmed", "certainty": null, "finding": "IDF confrontation reported; 'leak deliberate' unverified. Split into two sub-claims." },
+    { "claimId": "D13", "status": "unresolved", "certainty": null, "finding": "November trilateral, Witkoff/Kushner leading — not found at pass 1." },
+    { "claimId": "D14", "status": "approximate_contradicted", "certainty": 0.45, "finding": "$118 Brent overstated ($115.81 settled); '$101 regular' consistent with WTI. Split." },
+    { "claimId": "D15", "status": "partially_confirmed", "certainty": null, "finding": "East–West pipeline a target; 'already shut' unresolved at pass 1." },
+    { "claimId": "D16", "status": "confirmed", "certainty": 0.9, "finding": "Iran 'never back to pre-war conditions' — repeated official line." },
+    { "claimId": "D17", "status": "confirmed", "certainty": 0.9, "finding": "War began 27/28 Feb — treat as 28 Feb." },
+    { "claimId": "D18", "status": "confirmed_pact_contested_framing", "certainty": 0.85, "finding": "Mecca Joint Defence Agreement real; 'limited NATO' is the speaker's analogy." },
+    { "claimId": "D19", "status": "program_confirmed_reading_contested", "certainty": 0.5, "finding": "FORTRESS real, US-off-grid scope; the superpower inference is the speaker's. contradicts candidate." },
+    { "claimId": "D20", "status": "confirmed", "certainty": 0.9, "finding": "Pentagon wants 'Department of War' in law." },
+    { "claimId": "D21", "status": "confirmed", "certainty": 0.85, "finding": "Eisenhower's globe dropped and smashed." },
+    { "claimId": "D22", "status": "excluded", "certainty": null, "finding": "prediction." },
+    { "claimId": "D23", "status": "excluded", "certainty": null, "finding": "prediction." },
+    { "claimId": "D24", "status": "confirmed", "certainty": 0.85, "finding": "Veterans running in unusually high numbers." },
+    { "claimId": "D25", "status": "probable_asr_error", "certainty": 0.9, "finding": "Co-host 'Sam Alerhalt' = Sam Osterhout." }
+  ],
+  "unresolved": ["D07", "D11", "D13", "D15"],
+  "escalations": [
+    { "claimId": "D19", "action": "open contradicts candidate to history:fortress:2026 once landed" }
+  ]
+}

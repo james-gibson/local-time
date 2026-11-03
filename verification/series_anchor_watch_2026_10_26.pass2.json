@@ -1,0 +1,67 @@
+{
+  "universeId": "series:bobby_jones_erupts_over_hegseth:2026",
+  "pass": 2,
+  "runAt": "2026-11-03T00:00:00Z",
+  "hydratedFrom": "pass1 register, 2026-10-27",
+  "instruments": [
+    "web search (simulated 2026 index): CBS News, Newsweek, AP (Hegseth inauguration removal)",
+    "Defence Security Asia / Times of India (McCaffrey 15 bases)",
+    "DefenseScoop memo (Termination of Ordered Departure – Bahrain)",
+    "CNN / Fox / NDTV (96-hour readiness)",
+    "Reuters / TASS / Axios (Abu Dhabi trilateral)",
+    "Wikipedia 2026 East–West Crude Oil Pipeline attack; AFP via Türkiye Today"
+  ],
+  "transcriptSource": "auto-captions; no manual pass",
+  "openQueue": [
+    { "id": "Q1", "item": "Air date / upload time (D01)", "status": "unresolved",
+      "finding": "Three in-episode cues place the air date at 2026-10-26 (0.9). yt-dlp is not available in this environment, so the exact upload_timestamp is not re-derived; the date rests at derived 0.9, not 0.95.",
+      "delta": "no edit; leave AIR_START_UTC_NS TODO(Q1) in place" },
+    { "id": "Q2", "item": "Hegseth service record (D03)", "status": "contested",
+      "finding": "The documented record is his removal from the 2021 Biden-inauguration detail (AP/CBS/Newsweek, over tattoos and extremism concerns), not a service-record 'did not meet milestones'. The 'milestones… they booted him' framing is the speaker's characterization and is not in the record.",
+      "sources": [
+        { "title": "Fellow National Guardsman told superiors Hegseth might be 'insider threat'", "publisher": "CBS News", "url": "https://www.cbsnews.com/news/hegseth-insider-threat-biden-inauguration", "accessed": "2026-11-03", "primary": true },
+        { "title": "Pete Hegseth Was Removed from Biden's Inauguration, Labeled 'Extremist'", "publisher": "Newsweek", "url": "https://www.newsweek.com/pete-hegseth-was-removed-bidens-inauguration-labelled-extremist-1984882", "accessed": "2026-11-03", "primary": false }
+      ],
+      "delta": "certainty stays null; verification.instrument = 'AP/CBS/Newsweek: removed from 2021 inauguration detail, not a milestones record'" },
+    { "id": "Q3", "item": "15-base count (D05)", "status": "attributed_unresolved",
+      "finding": "The number is retired General McCaffrey's professional judgment — 'probably permanently lost access to 15 Persian Gulf bases' — and is not a Pentagon determination or host-nation count.",
+      "sources": [
+        { "title": "Iran's Missile War Could Cost US 15 Gulf Bases", "publisher": "Defence Security Asia", "url": "https://defencesecurityasia.com/en/iran-missile-war-us-15-gulf-bases-pentagon-shift", "accessed": "2026-11-03", "primary": false },
+        { "title": "US Army Veteran Exposes Trump's Iran Failure", "publisher": "Times of India", "url": "https://timesofindia.indiatimes.com/videos/international/us-army-veteran-exposes-trumps-iran-failure-american-troops-lost-access-to-15-major-gulf-bases/videoshow/133438757.cms", "accessed": "2026-11-03", "primary": false }
+      ],
+      "delta": "status stays attributed_unresolved; instrument names McCaffrey" },
+    { "id": "Q4", "item": "Family housing 30 Nov cutoff (D07)", "status": "confirmed",
+      "finding": "DoD's 'Termination of Ordered Departure – Bahrain' directive ends temporary evacuation and safe-haven funding on 30 Nov 2026; Navy leaders told evacuated families the payments stop Nov 30.",
+      "sources": [
+        { "title": "Memo outlines new policies for military families affected by war-triggered evacuation from Bahrain", "publisher": "DefenseScoop", "url": "https://defensescoop.com/2026/09/01/memo-policies-for-military-families-affected-by-evacuation-from-bahrain", "accessed": "2026-11-03", "primary": true },
+        { "title": "Navy warns families evacuated from Bahrain base region payments stop Nov. 30", "publisher": "Stars and Stripes", "url": "https://www.stripes.com/", "accessed": "2026-11-03", "primary": false }
+      ],
+      "delta": "certainty null -> 0.85; status unresolved -> confirmed" },
+    { "id": "Q5", "item": "96-hour strike readiness (D11)", "status": "confirmed_reported",
+      "finding": "The claim is real as *reported*: CNN, citing two US officials, reported forces are prepared to launch operations 'within 96 hours of receiving' a Trump order. It is a readiness posture, not an official DoD statement.",
+      "sources": [
+        { "title": "US has plans for major Iran strikes if Trump chooses", "publisher": "CNN", "url": "https://www.cnn.com/2026/10/26/politics/us-iran-strike-plans-trump", "accessed": "2026-11-03", "primary": false },
+        { "title": "Within 96 Hours: US Forces Ready To Renew Iran Strikes", "publisher": "NDTV", "url": "https://www.ndtv.com/world-news/within-96-hours-us-forces-ready-to-renew-iran-strikes-await-donald-trump-nod-12250274", "accessed": "2026-11-03", "primary": false }
+      ],
+      "delta": "certainty null -> 0.85; status unresolved -> confirmed_reported" },
+    { "id": "Q6", "item": "November trilateral (D13)", "status": "confirmed_scheduled",
+      "finding": "Witkoff and Kushner are expected to lead the US delegation at Russia–US–Ukraine trilateral talks in Abu Dhabi on Nov 10-11, per Reuters (via TASS) and Axios. At the episode's air time this was forward-looking; it is now a scheduled event.",
+      "sources": [
+        { "title": "U.S., Russia and Ukraine to resume peace talks next week", "publisher": "Axios", "url": "https://www.axios.com/2026/11/03/us-russia-ukraine-peace-talks-uae-trump-witkoff-kushner", "accessed": "2026-11-03", "primary": false },
+        { "title": "Witkoff, Kushner expected to represent US at trilateral talks in Abu Dhabi — Reuters", "publisher": "TASS", "url": "https://tass.com/world/2212145", "accessed": "2026-11-03", "primary": false }
+      ],
+      "delta": "certainty null -> 0.85; status unresolved -> confirmed_scheduled" },
+    { "id": "Q7", "item": "East-West 'already shut' (D15)", "status": "confirmed",
+      "finding": "Saudi Arabia shut the East-West pipeline on 11 Sep 2026 (precautionary, after drone attacks) and it was halted again 5 Oct after a fresh attack. The Oct 26 pumping-station strikes the episode references are Houthi-claimed. 'Already shut' is confirmed; 'now a target' is reported but not Saudi-confirmed.",
+      "sources": [
+        { "title": "2026 East–West Crude Oil Pipeline attack", "publisher": "Wikipedia", "url": "https://en.wikipedia.org/wiki/2026_East%E2%80%93West_Crude_Oil_Pipeline_attack", "accessed": "2026-11-03", "primary": false },
+        { "title": "Saudi East-West pipeline halted again after fresh attack", "publisher": "AFP via Türkiye Today", "url": "https://www.turkiyetoday.com/region/saudi-east-west-pipeline-halted-again-after-fresh-attack-3229662", "accessed": "2026-11-03", "primary": false }
+      ],
+      "delta": "certainty null -> 0.8; status partially_confirmed -> confirmed (with 'now a target' noted Houthi-claimed)" }
+  ],
+  "challenges": [],
+  "unresolved": ["Q1"],
+  "escalations": [
+    { "claimId": "D19", "action": "open contradicts candidate to history:fortress:2026 once landed" }
+  ]
+}
