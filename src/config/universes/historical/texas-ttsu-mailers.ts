@@ -127,7 +127,7 @@ export const texasTtsuMailersUniverse = {
         ],
       },
       {
-        realEventId: 'entity:transgender_education_network_of_texas',
+        realEventId: 'organization:transgender_education_network_of_texas:founded',
         relationshipType: 'contradicts',
         confidence: 0.95,
         evidence: [
@@ -187,7 +187,7 @@ export const texasTtsuMailersUniverse = {
       layerId: 'as_asserted_by_mailer',
       type: 'recreation',
       reality_correspondence: {
-        to: 'entity:transgender_education_network_of_texas',
+        to: 'organization:transgender_education_network_of_texas:founded',
         accuracy: 0.05,
         deviations: [
           'Mailer presents TENT as author and sponsor; TENT denies any involvement and states its materials were used without consent.',

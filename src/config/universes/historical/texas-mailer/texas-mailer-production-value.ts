@@ -161,18 +161,7 @@ export const texasMailerProductionValueUniverse = {
     fictionalizationDegree: 0.25,
     realityAnchors: [
       {
-        realEventId: 'event:glenn_beck_program_2026_10_21',
-        relationshipType: 'documents',
-        confidence: 0.8,
-        evidence: [
-          'Full colour heavy paper mailer; "this was not cheap" [^1]',
-          '"Coming to every mailbox" [^1]',
-          'Guest Andy Ngo; segment aired 21 October 2026 [^1]',
-          'Ad reads bracketing the segment [^1]',
-        ],
-      },
-      {
-        realEventId: 'event:texas_trans_mailers_2026_10',
+        realEventId: 'history:texas_trans_student_mailer_controversy:2026',
         relationshipType: 'documents',
         confidence: 0.9,
         evidence: [
@@ -185,16 +174,6 @@ export const texasMailerProductionValueUniverse = {
           'Cease-and-desist sent to SnailWorks [^5eb8c4#164]',
           'West Texas DA forgery probe [^5]',
           'Single entity or single payer, per TENT counsel [^5eb8c4#135]',
-        ],
-      },
-      {
-        realEventId: 'spec:finishing_and_tabbing',
-        relationshipType: 'documents',
-        confidence: 0.85,
-        evidence: [
-          'Aqueous is the default finish for economy [^14ee43]',
-          'UV spec chosen for its name becomes an expensive production problem [^577958]',
-          'Tabbing standards keyed to basis weight and fold edge [^dc4b1c]',
         ],
       },
     ],

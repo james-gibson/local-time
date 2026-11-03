@@ -206,7 +206,7 @@ export const texasMailerDiscoveryReachUniverse = {
       layerId: 'obbba_frame',
       type: 'documented_reference',
       reality_correspondence: {
-        to: 'statute:one_big_beautiful_bill_act_2025',
+        to: 'analysis:obbba_statute:2026',
         accuracy: 1.0,
         deviations: [
           'No deviation: statutory text and effective dates are public.',

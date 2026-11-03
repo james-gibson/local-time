@@ -148,12 +148,6 @@ export const texasMailerProperTimelinesUniverse = {
     fictionalizationDegree: 0.6,
     realityAnchors: [
       {
-        realEventId: 'event:glenn_beck_program_2026_10_21',
-        relationshipType: 'documents',
-        confidence: 1.0,
-        evidence: ['Verbatim quotations at cited positions'],
-      },
-      {
         realEventId: 'history:texas_trans_student_mailer_controversy:2026',
         relationshipType: 'documents',
         confidence: 1.0,

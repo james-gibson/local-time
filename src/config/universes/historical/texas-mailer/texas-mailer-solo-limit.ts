@@ -139,36 +139,6 @@ export const texasMailerSoloLimitUniverse = {
     fictionalizationDegree: 0.3,
     realityAnchors: [
       {
-        realEventId: 'spec:usps_permit_imprint_regime',
-        relationshipType: 'documents',
-        confidence: 0.95,
-        evidence: [
-          'PS Form 3615 signed with two forms of ID, one photographic [^3][^1]',
-          'Minimum 200 pieces or 50 lb [^2][^8]',
-          'Pieces in a permit imprint mailing must be of identical weight [^7]',
-          'Permit is permission to mail, held per post office [^5]',
-        ],
-      },
-      {
-        realEventId: 'spec:usps_full_service_mid',
-        relationshipType: 'documents',
-        confidence: 0.9,
-        evidence: [
-          'MIDs assigned to Mail Owner or Mailing Agent [^9][^10]',
-          'Mailing agent defined as entity, organization, or individual acting on behalf of mail owners [^11]',
-        ],
-      },
-      {
-        realEventId: 'spec:usps_eddm',
-        relationshipType: 'documents',
-        confidence: 0.95,
-        evidence: [
-          'EDDM needs no permit and no address list [^4][^6]',
-          'EDDM pieces addressed to "Local Postal Customer", not a name [^6]',
-          '200 to 5,000 pieces per day per ZIP [^4]',
-        ],
-      },
-      {
         realEventId: 'history:texas_trans_student_mailer_controversy:2026',
         relationshipType: 'documents',
         confidence: 1.0,
