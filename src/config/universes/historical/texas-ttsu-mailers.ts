@@ -49,10 +49,10 @@ import { createEntityId, type UniverseEntity } from '../../../core/entities';
  * edited and no second universe is registered under TENT's name. The assertion is a
  * `recreation` layer with `reality_correspondence.deviations`, so the pair surfaces
  * together: `tent_denial` is a keyframe here, and the losing assertion survives in the
- * layer rather than being resolved away. The ticket placed the `contradicts` edge on the
- * mailer artefact universe; that universe is demoted by the Task 0 gate, and an edge to
- * an unregistered target is a dangling edge, so the pair is carried by the layer plus
- * the denial keyframe and the anchor, not by a reference that resolves to nothing.
+ * layer rather than being resolved away. With `#209` landed, TENT's promoted universe
+ * (`organization:transgender_education_network_of_texas:founded`) is registered, so the
+ * `contradicts` anchor, the `reality_correspondence.to` target, and the `CONTRADICTS`
+ * reference edge all resolve to a real universe.
  *
  * Derived, not hand-set: the charge is `+1` from `realityRelation.type: 'documentary'`
  * and is not stored on this object (#90). The `as_asserted_by_mailer` plane is the only
@@ -69,8 +69,9 @@ import { createEntityId, type UniverseEntity } from '../../../core/entities';
  *   has not been re-transcribed against audio.
  *
  * Hierarchical Context: US_HISTORY -> US_ELECTION_CYCLE (midterm disinformation). The
- * organization and person rows are entities of this event, not universes — see the gate
- * above.
+ * eleven established organization and person rows are promoted to registered universes
+ * under `src/config/universes/entities/` (#209) and declare membership here and in
+ * `US_HISTORY`; the three held single-source rows remain unpromoted entities.
  */
 
 const UNIVERSE_ID = createHistoricalUniverseId(
@@ -556,8 +557,8 @@ export const texasTtsuMailersUniverse = {
       },
       {
         question: 'Founding dates and legal form for TENT, Three Z Printing, SnailWorks and the NRCC',
-        status: 'open — blocking for any period universe',
-        note: 'Left as entities with no epochs rather than inventing a founding year.',
+        status: 'resolved by #209 model — open-start existence epochs',
+        note: 'Promoted as `organization:<slug>:founded` universes with open-start `existence` epochs and `organizationProfile` jurisdiction facts, rather than inventing a founding year.',
       },
       {
         question: 'Corroboration of the Zarusen family and Newman Ministries claims',
@@ -643,6 +644,17 @@ export const texasTtsuMailersUniverse = {
         description:
           'The commentary work that reported the identification and made the uncorroborated family claim.',
         evidence: ['verified channel, title and publication instant'],
+      },
+      {
+        type: 'CONTRADICTS',
+        targetUniverseId: 'organization:transgender_education_network_of_texas:founded',
+        confidence: 0.95,
+        description:
+          'The `as_asserted_by_mailer` recreation layer presents TENT as author and sponsor; TENT\'s denial (`tent_denial`) and Rule 202 petition contradict that claim and flip the asserted layer\'s sign.',
+        evidence: [
+          'TENT denial statement (2026-10-20)',
+          'TENT Travis County Rule 202 petition (2026-10-22)',
+        ],
       },
     ],
   },

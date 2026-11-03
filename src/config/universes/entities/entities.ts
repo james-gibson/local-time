@@ -4,6 +4,7 @@ import {
   type TemporalEpoch,
   type Universe,
 } from '../../../core/types';
+import { CommonUniverseIds } from '../../../core/common-universe-ids';
 import {
   createOrganizationUniverseId,
   createPersonUniverseId,
@@ -292,6 +293,11 @@ function buildEntityUniverse(spec: EntitySpec): Universe {
     // Jurisdiction is a fact on the entity, never a segment of its id. Absent fields
     // mean "not established in this record", which is the normal state at entry.
     organizationProfile: spec.profile,
+    connections: {
+      natural: {
+        parentUniverses: [CommonUniverseIds.US_HISTORY],
+      },
+    },
     metadata: {
       canonicalName: spec.name,
       // Existence is not a cultural claim. A flat 0.5 says "recorded, not ranked";
