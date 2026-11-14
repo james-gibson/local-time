@@ -4,6 +4,7 @@ import { aiBattlesSeriesUniverse } from './ai-battles-series';
 import { masterHellishAiVsCommunityUniverse } from './master-hellish-ai-vs-community';
 import { masterHellishChannelUniverse } from './master-hellish-channel';
 import { openTTDGameUniverse } from './openttd-game';
+import { technologyRailhead2026Universe as railheadUniverse } from './railhead';
 import { season12ConnectTheWorldUniverse } from './season-12-connect-the-world';
 import { transportTycoonDeluxeUniverse } from './transport-tycoon-deluxe';
 
@@ -12,6 +13,7 @@ import { transportTycoonDeluxeUniverse } from './transport-tycoon-deluxe';
  *
  * OpenTTD works and the real entities they run on: Transport Tycoon Deluxe (the
  * 1995 game OpenTTD recreates), the OpenTTD game itself, the AAAhogEx AI script,
+ * Railhead (the RL environment that patches the engine and hands it to a model),
  * the Master Hellish channel container, its "OpenTTD AI Battles" series, the
  * Season 12 "Connect The World" community Let's Play, and the AI-vs-community
  * video essay.
@@ -25,6 +27,7 @@ export const openttdUniverses: Universe[] = [
   transportTycoonDeluxeUniverse,
   openTTDGameUniverse,
   aaahogexUniverse,
+  railheadUniverse,
   // The channel and its works.
   masterHellishChannelUniverse,
   aiBattlesSeriesUniverse,
@@ -34,6 +37,7 @@ export const openttdUniverses: Universe[] = [
 
 export {
   aaahogexUniverse,
+  railheadUniverse,
   aiBattlesSeriesUniverse,
   masterHellishAiVsCommunityUniverse,
   masterHellishChannelUniverse,

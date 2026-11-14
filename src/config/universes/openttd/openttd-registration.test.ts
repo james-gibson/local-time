@@ -22,6 +22,7 @@ import {
   masterHellishChannelUniverse,
   openTTDGameUniverse,
   openttdUniverses,
+  railheadUniverse,
   season12ConnectTheWorldUniverse,
   transportTycoonDeluxeUniverse,
 } from './index';
@@ -64,9 +65,10 @@ for (const universe of allUniverses) {
 }
 
 describe('the openttd namespace is registered', () => {
-  test('the namespace has seven universes', () => {
-    // TTD, OpenTTD, the AI script, the channel, the series, the season, the video.
-    expect(openttdUniverses).toHaveLength(7);
+  test('the namespace has eight universes', () => {
+    // TTD, OpenTTD, the AI script, Railhead, the channel, the series, the
+    // season, the video.
+    expect(openttdUniverses).toHaveLength(8);
   });
 
   test('every id is present in allUniverses exactly once', () => {
@@ -93,6 +95,9 @@ describe('the openttd namespace is registered', () => {
     expect(isGameUniverseId(asId(openTTDGameUniverse))).toBe(true);
     expect(isGameUniverseId(asId(transportTycoonDeluxeUniverse))).toBe(true);
     expect(isTechnologyUniverseId(asId(aaahogexUniverse))).toBe(true);
+    // Railhead is a technology record, not a game: the game it drives is
+    // `game:openttd:openttd:2004`, which it declares as a parent.
+    expect(isTechnologyUniverseId(asId(railheadUniverse))).toBe(true);
   });
 
   test('the game and the AI use the game: and technology: factories', () => {
@@ -101,6 +106,7 @@ describe('the openttd namespace is registered', () => {
     expect(asId(openTTDGameUniverse)).toBe('game:openttd:openttd:2004');
     expect(asId(transportTycoonDeluxeUniverse)).toBe('game:transport_tycoon:deluxe:1995');
     expect(asId(aaahogexUniverse)).toBe('technology:aaahogex:2022');
+    expect(asId(railheadUniverse)).toBe('technology:railhead:2026');
   });
 
   test('the three series ids are not film ids', () => {
@@ -146,6 +152,7 @@ describe('the openttd namespace is registered', () => {
     expect(openTTDGameUniverse.type).toBe(UniverseType.GAME);
     expect(transportTycoonDeluxeUniverse.type).toBe(UniverseType.GAME);
     expect(aaahogexUniverse.type).toBe(UniverseType.TECHNOLOGY);
+    expect(railheadUniverse.type).toBe(UniverseType.TECHNOLOGY);
   });
 });
 
