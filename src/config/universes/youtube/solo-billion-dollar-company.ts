@@ -609,6 +609,18 @@ export const soloBillionDollarUniverse = {
           'continuous context and rules fed to the agents.',
       },
       {
+        id: 'takes_time',
+        timestamp: at(1029.919),
+        significance: 0.85,
+        certainty: 0.8,
+        precision: TimePrecision.SECOND,
+        tags: ['timeline', 'caveat'],
+        type: KeyframeType.PUBLIC_STATEMENT,
+        description:
+          '"it takes time and it\'s not easy. I don\'t want to sugarcoat it" — the ' +
+          'caveat the speaker places on the one-person-company curve before drawing it.',
+      },
+      {
         id: 'growth_curve',
         timestamp: at(1044.48),
         significance: 0.85,

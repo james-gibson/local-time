@@ -23,7 +23,7 @@ import {
  * Registration is proved repo-wide by `defined-vs-registered.test.ts`. What that
  * guard cannot see is whether the record is coherent: one publication-anchored
  * clock of 3589 s, fourteen explicitly editorial phases (info.json publishes a
- * single empty "Intro" chapter, not a chapter list), and sixty-nine keyframes —
+ * single empty "Intro" chapter, not a chapter list), and seventy keyframes —
  * the metadata zero-point plus sixty-eight exact cue starts. Both requested
  * English renderings were byte-identical, so this test also pins the 0.8
  * single-source confidence, the recommended second attempt and the ten context
@@ -73,7 +73,7 @@ const offsetSeconds = (timestamp: bigint): number =>
 const measuredCueStarts = [
   4.24, 18.0, 41.36, 42.879, 112.399, 131.599, 160.319, 265.759, 276.56, 342.24,
   399.28, 486.56, 513.44, 554.959, 689.12, 710.079, 736.639, 818.72, 881.199, 898.24,
-  954.639, 962.48, 1024.24, 1210.16, 1258.08, 1290.48, 1329.28, 1436.08, 1514.72,
+  954.639, 962.48, 1024.24, 1171.679, 1210.16, 1258.08, 1290.48, 1329.28, 1436.08, 1514.72,
   1547.76, 1573.039, 1703.279, 1801.84, 1831.039, 1867.36, 2014.24, 2075.839,
   2121.52, 2155.76, 2221.599, 2369.599, 2383.52, 2425.92, 2486.4, 2546.72, 2571.92,
   2592.0, 2671.839, 2725.2, 2807.599, 2876.56, 2960.64, 3030.319, 3082.079,
@@ -151,7 +151,7 @@ describe('the fundamentalist-homeschooler testimony is a publication-anchored wo
   test('every keyframe sits inside the epoch and offsets strictly increase', () => {
     const { keyframes } = universe.temporalStructure;
 
-    expect(keyframes).toHaveLength(69);
+    expect(keyframes).toHaveLength(70);
     const ids = keyframes.map((keyframe) => keyframe.id);
     expect(new Set(ids).size).toBe(ids.length);
 

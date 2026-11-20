@@ -23,7 +23,7 @@ import {
  * Registration is proved repo-wide by `defined-vs-registered.test.ts`. What that
  * guard cannot see is whether the record is coherent: one publication-anchored
  * clock of 1473 s, the ten *published* chapters from info.json (not invented
- * phases), and forty-eight keyframes whose offsets are exact cue starts from
+ * phases), and forty-nine keyframes whose offsets are exact cue starts from
  * the automatic track. Both requested English renderings were byte-identical,
  * so this test also pins the single-source 0.8 confidence, the recommended
  * second attempt and the nine context repairs recorded with enUs:null.
@@ -73,7 +73,7 @@ const measuredCueStarts = [
   68.799, 75.68, 87.759, 96.32, 174.319, 186.319, 229.28, 242.64, 258.959, 291.199,
   317.36, 346.0, 421.12, 460.319, 465.759, 512.8, 528.399, 553.76, 578.08, 605.68,
   663.839, 679.04, 687.279, 727.44, 779.2, 786.32, 818.48, 856.48, 874.56, 910.959,
-  944.32, 1044.48, 1053.52, 1084.72, 1119.28, 1166.72, 1193.6, 1202.799, 1212.08,
+  944.32, 1029.919, 1044.48, 1053.52, 1084.72, 1119.28, 1166.72, 1193.6, 1202.799, 1212.08,
   1228.88, 1287.039, 1302.48, 1322.48, 1334.96, 1341.12, 1370.08, 1432.08,
 ];
 
@@ -156,7 +156,7 @@ describe('the Sam Altman solopreneurship episode is a publication-anchored work 
   test('every keyframe sits inside the epoch and offsets strictly increase', () => {
     const { keyframes } = universe.temporalStructure;
 
-    expect(keyframes).toHaveLength(48);
+    expect(keyframes).toHaveLength(49);
     const ids = keyframes.map((keyframe) => keyframe.id);
     expect(new Set(ids).size).toBe(ids.length);
 
