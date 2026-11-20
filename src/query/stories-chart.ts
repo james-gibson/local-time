@@ -446,7 +446,19 @@ function originOf(universe: Universe): { year: number; source: ChartEntry['sourc
  */
 export function entriesFromRegistry(universes: Universe[]): ChartEntry[] {
   const out: ChartEntry[] = [];
-  const known = new Set(universes.map((u) => String(u.universeId)));
+  // A reference edge can only land on a universe that itself produces a row.
+  // "Registered" is too wide: `system:` fixtures and origin-less universes such as
+  // `organization:…:founded` are registered but never plotted, so an edge to one has
+  // nowhere to point. Compute the plotted set up front and filter against it.
+  const plotted = new Set(
+    universes
+      .filter((u) => !isFixture(u))
+      .filter((u) => {
+        const origin = originOf(u);
+        return origin !== null && Number.isFinite(origin.year);
+      })
+      .map((u) => String(u.universeId)),
+  );
   for (const universe of universes) {
     if (isFixture(universe)) continue;
     const origin = originOf(universe);
@@ -488,7 +500,7 @@ export function entriesFromRegistry(universes: Universe[]): ChartEntry[] {
       // corpus already counts elsewhere (#27, #67).
       references: (universe.connections?.references ?? [])
         .map((r) => String(r.targetUniverseId))
-        .filter((id) => known.has(id) && id !== String(universe.universeId)),
+        .filter((id) => plotted.has(id) && id !== String(universe.universeId)),
       source: 'registry',
     });
   }
