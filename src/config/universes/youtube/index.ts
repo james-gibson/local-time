@@ -13,6 +13,9 @@ import { digitalCoupUniverse } from './digital-coup';
 import { whiteBoomersUniverse } from './white-boomers';
 import { manipulatorMathUniverse } from './manipulator-math';
 import { talaricoNationalismUniverse } from './talarico-christian-nationalism';
+import { soloBillionDollarUniverse } from './solo-billion-dollar-company';
+import { fundamentalistConspiraciesUniverse } from './fundamentalist-conspiracies';
+import { startYourOwnBusinessUniverse } from './start-your-own-business';
 import { anchorWatchSeriesUniverse } from './anchor-watch';
 import { anchorWatchHegseth20261026Universe } from './anchor-watch-2026-10-26';
 
@@ -23,11 +26,15 @@ import { anchorWatchHegseth20261026Universe } from './anchor-watch-2026-10-26';
  * the drift between their runtimes — plus the transcription record for the passage the
  * response replays, a reading-order map of the pamphlet that passage reads aloud, the
  * doublespeak cut of that passage, one publication-anchored video
- * essay whose keyframes are absolute instants inside its own runtime, and five more works
+ * essay whose keyframes are absolute instants inside its own runtime, and seven more works
  * whose chapters and keyframes are measured offsets on their own clocks: a ten-chapter TED
  * talk, an interview clip with eight editorial phases, a market-manipulation explainer
- * with six published chapters and a two-track cross-check, and a sermon with eight editorial
- * phases whose only caption rendering is byte-identical under both requested track names.
+ * with six published chapters and a two-track cross-check, a sermon with eight editorial
+ * phases whose only caption rendering is byte-identical under both requested track names,
+ * a solopreneurship episode with ten published chapters whose two requested tracks are
+ * again byte-identical, a fundamentalist-upbringing testimony with fourteen editorial
+ * phases whose single rendering is likewise byte-identical, and a 79-minute developer-to-owner
+ * playbook whose 25 published chapters and 94 cue-aligned beats ride the same single rendering.
  * The drift is not a universe either: it is the *relation* between the two clocks, so it
  * lives with them (see `beck-responder-clocks.ts` and `src/utils/clock-drift.ts`), and the
  * transcript hangs off the pair because every line of it is addressed on one or both of
@@ -50,6 +57,9 @@ export const youtubeUniverses: Universe[] = [
   whiteBoomersUniverse,
   manipulatorMathUniverse,
   talaricoNationalismUniverse,
+  soloBillionDollarUniverse,
+  fundamentalistConspiraciesUniverse,
+  startYourOwnBusinessUniverse,
   anchorWatchSeriesUniverse,
   anchorWatchHegseth20261026Universe,
 ];
@@ -173,6 +183,33 @@ export {
   TALARICO_NATIONALISM_PUBLISHED,
   TALARICO_NATIONALISM_RUNTIME_SECONDS,
 } from './talarico-christian-nationalism';
+
+export {
+  soloBillionDollarUniverse,
+  soloBillionDollarChapters,
+  soloBillionDollarCaptionArtifacts,
+  SOLO_BILLION_DOLLAR_UNIVERSE_ID,
+  SOLO_BILLION_DOLLAR_PUBLISHED,
+  SOLO_BILLION_DOLLAR_RUNTIME_SECONDS,
+} from './solo-billion-dollar-company';
+
+export {
+  fundamentalistConspiraciesUniverse,
+  fundamentalistConspiraciesPhases,
+  fundamentalistConspiraciesCaptionArtifacts,
+  FUNDAMENTALIST_CONSPIRACIES_UNIVERSE_ID,
+  FUNDAMENTALIST_CONSPIRACIES_PUBLISHED,
+  FUNDAMENTALIST_CONSPIRACIES_RUNTIME_SECONDS,
+} from './fundamentalist-conspiracies';
+
+export {
+  startYourOwnBusinessUniverse,
+  startYourOwnBusinessChapters,
+  startYourOwnBusinessCaptionArtifacts,
+  START_YOUR_OWN_BUSINESS_UNIVERSE_ID,
+  START_YOUR_OWN_BUSINESS_PUBLISHED,
+  START_YOUR_OWN_BUSINESS_RUNTIME_SECONDS,
+} from './start-your-own-business';
 
 export {
   anchorWatchSeriesUniverse,
