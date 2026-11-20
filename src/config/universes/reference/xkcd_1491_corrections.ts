@@ -49,17 +49,16 @@ export const xkcd1491CorrectionsUniverse: Universe = {
   realityRelation: {
     type: 'documentary',
     fictionalizationDegree: 0,
-    realityAnchors: [
-      {
-        realEventId: 'xkcd:1491',
-        relationshipType: 'documents',
-        confidence: 0.9,
-        evidence: [
-          'explainxkcd.com/wiki/index.php/1491 § Errors — the three misplacements and two misspellings',
-          'the works named in each correction, as cited in the entry note',
-        ],
-      },
-    ],
+    /**
+     * Empty, because an anchor is an *event* id (`RealityAnchor.realEventId`) and
+     * `xkcd:1491` is neither an event nor an id: it is a display label for the
+     * external comic, so no resolver could ever resolve it (local-time#184, #232).
+     *
+     * The comic is still cited — `attribution.sources` names it and its § Errors
+     * listing. That is the right home for a source: an id field is for universes,
+     * a citation is for sources.
+     */
+    realityAnchors: [],
   },
   attribution: {
     public_domain: false,
