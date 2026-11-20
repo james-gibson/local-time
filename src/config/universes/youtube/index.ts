@@ -16,6 +16,7 @@ import { talaricoNationalismUniverse } from './talarico-christian-nationalism';
 import { soloBillionDollarUniverse } from './solo-billion-dollar-company';
 import { fundamentalistConspiraciesUniverse } from './fundamentalist-conspiracies';
 import { startYourOwnBusinessUniverse } from './start-your-own-business';
+import { everyWayEvangelicalChristianityUniverse } from './every-way-evangelical-christianity';
 import { anchorWatchSeriesUniverse } from './anchor-watch';
 import { anchorWatchHegseth20261026Universe } from './anchor-watch-2026-10-26';
 
@@ -60,6 +61,7 @@ export const youtubeUniverses: Universe[] = [
   soloBillionDollarUniverse,
   fundamentalistConspiraciesUniverse,
   startYourOwnBusinessUniverse,
+  everyWayEvangelicalChristianityUniverse,
   anchorWatchSeriesUniverse,
   anchorWatchHegseth20261026Universe,
 ];
@@ -210,6 +212,15 @@ export {
   START_YOUR_OWN_BUSINESS_PUBLISHED,
   START_YOUR_OWN_BUSINESS_RUNTIME_SECONDS,
 } from './start-your-own-business';
+
+export {
+  everyWayEvangelicalChristianityUniverse,
+  everyWayEvangelicalChristianityPhases,
+  everyWayEvangelicalChristianityCaptionArtifacts,
+  EVERY_WAY_EVANGELICAL_CHRISTIANITY_UNIVERSE_ID,
+  EVERY_WAY_EVANGELICAL_CHRISTIANITY_PUBLISHED,
+  EVERY_WAY_EVANGELICAL_CHRISTIANITY_RUNTIME_SECONDS,
+} from './every-way-evangelical-christianity';
 
 export {
   anchorWatchSeriesUniverse,
