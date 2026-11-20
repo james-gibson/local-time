@@ -17,6 +17,7 @@ import { soloBillionDollarUniverse } from './solo-billion-dollar-company';
 import { fundamentalistConspiraciesUniverse } from './fundamentalist-conspiracies';
 import { startYourOwnBusinessUniverse } from './start-your-own-business';
 import { everyWayEvangelicalChristianityUniverse } from './every-way-evangelical-christianity';
+import { plcProgramming10LessonsUniverse } from './plc-programming-10-lessons';
 import { anchorWatchSeriesUniverse } from './anchor-watch';
 import { anchorWatchHegseth20261026Universe } from './anchor-watch-2026-10-26';
 
@@ -62,6 +63,7 @@ export const youtubeUniverses: Universe[] = [
   fundamentalistConspiraciesUniverse,
   startYourOwnBusinessUniverse,
   everyWayEvangelicalChristianityUniverse,
+  plcProgramming10LessonsUniverse,
   anchorWatchSeriesUniverse,
   anchorWatchHegseth20261026Universe,
 ];
@@ -221,6 +223,15 @@ export {
   EVERY_WAY_EVANGELICAL_CHRISTIANITY_PUBLISHED,
   EVERY_WAY_EVANGELICAL_CHRISTIANITY_RUNTIME_SECONDS,
 } from './every-way-evangelical-christianity';
+
+export {
+  plcProgramming10LessonsUniverse,
+  plcProgramming10LessonsChapters,
+  plcProgramming10LessonsCaptionArtifacts,
+  PLC_PROGRAMMING_10_LESSONS_UNIVERSE_ID,
+  PLC_PROGRAMMING_10_LESSONS_PUBLISHED,
+  PLC_PROGRAMMING_10_LESSONS_RUNTIME_SECONDS,
+} from './plc-programming-10-lessons';
 
 export {
   anchorWatchSeriesUniverse,
