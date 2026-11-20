@@ -514,6 +514,19 @@ export const fundamentalistConspiraciesUniverse = {
           'abominable church" teaching.',
       },
       {
+        id: 'condescension',
+        timestamp: at(1171.679),
+        significance: 0.85,
+        certainty: 0.8,
+        precision: TimePrecision.SECOND,
+        tags: ['conspiracy', 'catholic_church', 'testimony'],
+        type: KeyframeType.PUBLIC_STATEMENT,
+        description:
+          '"very... condescending" — at another church he stood with "you guys have ' +
+          'some of the truth but let me tell you the real program"; "it wasn\'t like I ' +
+          'was scared as much as I was like, I feel sorry for you".',
+      },
+      {
         id: 'qanon_parallel',
         timestamp: at(1210.16),
         significance: 0.8,

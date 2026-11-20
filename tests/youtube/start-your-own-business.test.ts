@@ -23,7 +23,7 @@ import {
  * Registration is proved repo-wide by `defined-vs-registered.test.ts`. What that
  * guard cannot see is whether the record is coherent: one publication-anchored
  * clock of 4750 s, the 25 *published* chapters from info.json (not invented
- * phases), and ninety-five keyframes — the metadata zero-point plus ninety-four
+ * phases), and ninety-eight keyframes — the metadata zero-point plus ninety-seven
  * exact cue starts from the automatic track. Both requested English renderings
  * were byte-identical, so this test also pins the 0.8 single-source confidence,
  * the recommended second attempt and the eight context repairs recorded with
@@ -72,7 +72,8 @@ const offsetSeconds = (timestamp: bigint): number =>
 /** Exact `tStartMs / 1000` values from the automatic track, read 2026-11-19. */
 const measuredCueStarts = [
   0.080, 14.000, 33.040, 44.320, 149.040, 151.200, 204.879, 276.560, 301.600, 324.320,
-  354.320, 365.840, 427.919, 442.720, 660.800, 699.760, 791.440, 830.000, 877.040, 1118.799,
+  354.320, 365.840, 427.919, 442.720, 526.880, 616.480, 660.800, 699.760, 791.440, 830.000,
+  877.040, 922.959, 1118.799,
   1127.440, 1152.960, 1204.640, 1220.559, 1233.760, 1246.159, 1284.559, 1305.440, 1391.039, 1428.080,
   1461.760, 1524.480, 1562.799, 1631.360, 1676.240, 1710.240, 1727.919, 1796.080, 1830.240, 1850.960,
   1892.320, 1975.039, 2110.079, 2122.880, 2143.040, 2194.800, 2291.920, 2301.040, 2356.880, 2431.680,
@@ -179,7 +180,7 @@ describe('the developer-to-owner playbook is a publication-anchored work (youtub
   test('every keyframe sits inside the epoch and offsets strictly increase', () => {
     const { keyframes } = universe.temporalStructure;
 
-    expect(keyframes).toHaveLength(95);
+    expect(keyframes).toHaveLength(98);
     const ids = keyframes.map((keyframe) => keyframe.id);
     expect(new Set(ids).size).toBe(ids.length);
 
