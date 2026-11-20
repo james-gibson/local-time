@@ -12,6 +12,7 @@ import { cartoonPhysicsUniverse } from './cartoon-physics';
 import { digitalCoupUniverse } from './digital-coup';
 import { whiteBoomersUniverse } from './white-boomers';
 import { manipulatorMathUniverse } from './manipulator-math';
+import { talaricoNationalismUniverse } from './talarico-christian-nationalism';
 import { anchorWatchSeriesUniverse } from './anchor-watch';
 import { anchorWatchHegseth20261026Universe } from './anchor-watch-2026-10-26';
 
@@ -22,10 +23,11 @@ import { anchorWatchHegseth20261026Universe } from './anchor-watch-2026-10-26';
  * the drift between their runtimes — plus the transcription record for the passage the
  * response replays, a reading-order map of the pamphlet that passage reads aloud, the
  * doublespeak cut of that passage, one publication-anchored video
- * essay whose keyframes are absolute instants inside its own runtime, and four more works
+ * essay whose keyframes are absolute instants inside its own runtime, and five more works
  * whose chapters and keyframes are measured offsets on their own clocks: a ten-chapter TED
- * talk, an interview clip with eight editorial phases, and a market-manipulation explainer
- * with six published chapters and a two-track cross-check.
+ * talk, an interview clip with eight editorial phases, a market-manipulation explainer
+ * with six published chapters and a two-track cross-check, and a sermon with eight editorial
+ * phases whose only caption rendering is byte-identical under both requested track names.
  * The drift is not a universe either: it is the *relation* between the two clocks, so it
  * lives with them (see `beck-responder-clocks.ts` and `src/utils/clock-drift.ts`), and the
  * transcript hangs off the pair because every line of it is addressed on one or both of
@@ -47,6 +49,7 @@ export const youtubeUniverses: Universe[] = [
   digitalCoupUniverse,
   whiteBoomersUniverse,
   manipulatorMathUniverse,
+  talaricoNationalismUniverse,
   anchorWatchSeriesUniverse,
   anchorWatchHegseth20261026Universe,
 ];
@@ -161,6 +164,15 @@ export {
   MANIPULATOR_MATH_PUBLISHED,
   MANIPULATOR_MATH_RUNTIME_SECONDS,
 } from './manipulator-math';
+
+export {
+  talaricoNationalismUniverse,
+  talaricoNationalismPhases,
+  talaricoNationalismCaptionArtifacts,
+  TALARICO_NATIONALISM_UNIVERSE_ID,
+  TALARICO_NATIONALISM_PUBLISHED,
+  TALARICO_NATIONALISM_RUNTIME_SECONDS,
+} from './talarico-christian-nationalism';
 
 export {
   anchorWatchSeriesUniverse,
