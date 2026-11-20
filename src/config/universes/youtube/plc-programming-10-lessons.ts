@@ -992,6 +992,7 @@ export const plcProgramming10LessonsUniverse = {
         description: "The final spoken words after pointing viewers to the companion PLC-basics video — \"click the video here and I'll see you over there.\"",
       },
     ],
+    windows: { strategy: 'time_based' },
   },
 
   metadata: {

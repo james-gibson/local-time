@@ -2572,6 +2572,7 @@ export const everyWayEvangelicalChristianityUniverse = {
         description: "Closing beat: 'Thanks for watching, y'all,' after thanking viewers and telling those who relate 'you're not alone. You're not crazy. and things can definitely get better.'",
       },
     ],
+    windows: { strategy: 'time_based' },
   },
 
   metadata: {
