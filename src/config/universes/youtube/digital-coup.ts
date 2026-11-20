@@ -49,8 +49,6 @@ export const DIGITAL_COUP_PUBLISHED = dateToNanoseconds(
 /** YouTube `videoDetails.lengthSeconds`. 1062 s = 17:42. */
 export const DIGITAL_COUP_RUNTIME_SECONDS = 1062;
 
-const NS_PER_SECOND = 1_000_000_000n;
-
 /** A runtime offset on the video's own clock: publication instant + seconds. */
 const at = (seconds: number): bigint =>
   DIGITAL_COUP_PUBLISHED + BigInt(Math.round(seconds * 1000)) * 1_000_000n;
