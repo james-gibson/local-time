@@ -973,6 +973,14 @@ export const manipulatorMathUniverse = {
       '"Money temperature" is the speaker\'s loose analogy to ideal-gas equilibrium, not a physical claim made by this record.',
       'The human track names the speaker Torsten in the description sign-off; that is a published attribution, not a reconstruction.',
       'Significance and cultural-significance values are editorial weights for retrieval, not measurements of influence.',
+      'The I-4 detection claim (a pattern is not proof; a careful manipulation is ' +
+      'undetectable from shape alone) is the same verification posture as le.critic\'s ' +
+      'postulate that a verdict is a spectrum, not a flag: a baseline prices evasion ' +
+      'rather than proving detection (le_critic:fm_carrier_run:2026, ' +
+      'https://james-gibson.github.io/le.critic/). This compares postures only — it is ' +
+      'not evidence that order-curve statistics detect real manipulation. Cross-linked in ' +
+      'kb/lore as claims/detection-is-a-spectrum-not-a-flag and ' +
+      'claims/statistical-signatures-of-manipulation.',
     ],
   },
 
