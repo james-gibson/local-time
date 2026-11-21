@@ -25,6 +25,7 @@ import {historicalUniverses} from './historical/jfk';
 import {texasTtsuMailersUniverses} from './historical/texas-ttsu-mailers';
 // The 2026 Texas mailer analysis family (#200). Spread, never nested (#45, #68).
 import {texasMailerUniverses} from './historical/texas-mailer';
+import { unitedStatesUniverses } from './historical/united-states';
 import {
   usMilitaryOperationsUniverse,
   usNativeAmericanPolicyUniverse,
@@ -103,6 +104,7 @@ export const allUniverses = [
   ...watergateScandalUniverses,
   ...lucasIndictmentUniverses,
   ...dojWatergateReviewUniverses,
+  ...unitedStatesUniverses,
   ...allCybersecurityUniverses,
   usMilitaryOperationsUniverse,
   usNativeAmericanPolicyUniverse,
