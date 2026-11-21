@@ -34,7 +34,12 @@ echo "=== 1/3  KB markdown -> JSON  ($LORE_DIR) ==="
 
 echo
 echo "=== 2/3  JSON -> local-time TypeScript  ($OUTPUT_DIR) ==="
-"$NODE_BIN" scripts/import-lore-json.js "$LORE_DIR" "$OUTPUT_DIR"
+# The import exits non-zero when a document was skipped — a segment bound that resolves to
+# nothing (#35). It still writes every document that does resolve (#243), so the failure is
+# remembered rather than allowed to abort the run: the KB -> Qdrant step below is
+# independent of the TypeScript tree, and it used to be skipped by the same refusal.
+IMPORT_RC=0
+"$NODE_BIN" scripts/import-lore-json.js "$LORE_DIR" "$OUTPUT_DIR" || IMPORT_RC=$?
 
 echo
 KB_ROOT="$(cd "$CONTENT_ROOT" && pwd)"
@@ -57,4 +62,8 @@ else
 fi
 
 echo
+if [[ "$IMPORT_RC" -ne 0 ]]; then
+  echo "! the import skipped at least one document — see its output above." >&2
+  exit "$IMPORT_RC"
+fi
 echo "=== done ==="

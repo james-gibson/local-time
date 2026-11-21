@@ -606,10 +606,16 @@ const notEnrolled = [];
  */
 const isEnrolled = (value) => value === true || value === 'true' || value === 'yes';
 
-// Rendered modules are held back until every document has been checked: one
-// unresolved segment bound fails the whole run instead of emitting a tree where
-// some segments silently collapsed onto their first/last keyframe.
-const rendered = [];
+// Every document is checked before anything is written, and the run is planned as a
+// whole. A document whose bound does not resolve is skipped rather than trusted; the
+// documents that do resolve are still emitted, because one broken compendium used to
+// cost the entire tree — a new universe could not be imported while four unrelated
+// documents were broken (james-gibson/local-time#243).
+//
+// The guard itself is unchanged: segments are never emitted with a bound that would
+// silently collapse onto the first/last keyframe (#35). The run still fails; it just
+// fails per document.
+const plan = [];
 const problems = [];
 
 for (const jsonPath of jsonPaths) {
@@ -628,19 +634,22 @@ for (const jsonPath of jsonPaths) {
   const rel = relative(jsonDir, jsonPath);
   const { code, unresolved } = emitUniverse(json);
   const moduleName = String(json.universeId).replace(/[^a-zA-Z0-9]+/g, '_');
-  if (unresolved.length) {
-    for (const u of unresolved) {
-      problems.push({ doc: rel, universeId: json.universeId, ...u });
-    }
-    continue;
-  }
-  rendered.push({
+  const entry = {
     rel,
+    universeId: json.universeId,
     moduleName,
     id: toIdentifier(json.universeId),
     tsPath: join(outputDir, `${moduleName}.ts`),
     code,
-  });
+  };
+  if (unresolved.length) {
+    for (const u of unresolved) {
+      problems.push({ doc: rel, universeId: json.universeId, ...u });
+    }
+    plan.push({ ...entry, skipped: true });
+    continue;
+  }
+  plan.push(entry);
 }
 
 if (problems.length) {
@@ -659,15 +668,29 @@ if (problems.length) {
     '\nEvery bound must resolve to a declared keyframe (declare one with that `address`) or to\n' +
       'an absolute ISO timestamp. Do NOT compute `T±` offsets from the zero point: the addresses\n' +
       'are ordinal labels, not a clock (zero-reference skill → "Presumed keyframes").\n' +
-      'Refusing to emit segments that would silently collapse (james-gibson/local-time#35).',
+      'Those segments are not emitted (james-gibson/local-time#35), but the documents that\n' +
+      'resolve still are: a broken compendium costs one universe, not the run\n' +
+      '(james-gibson/local-time#243). Exiting non-zero.',
   );
-  process.exit(1);
 }
 
-for (const r of rendered) {
-  writeFileSync(r.tsPath, r.code);
-  exports.push({ moduleName: r.moduleName, id: r.id });
-  console.log(`  ${r.rel} -> ${basename(r.tsPath)}`);
+// A skipped document's previously generated module is left on disk. Dropping it from the
+// barrel would silently unregister a universe that still works, and would fail
+// `generated-registration.test.ts` on an orphan module — so it is carried over unchanged.
+// The run says so, rather than letting a stale build look current.
+for (const entry of plan) {
+  if (!entry.skipped) {
+    writeFileSync(entry.tsPath, entry.code);
+    exports.push({ moduleName: entry.moduleName, id: entry.id });
+    console.log(`  ${entry.rel} -> ${basename(entry.tsPath)}`);
+    continue;
+  }
+  if (existsSync(entry.tsPath)) {
+    exports.push({ moduleName: entry.moduleName, id: entry.id });
+    console.log(`  ! ${entry.rel} -> ${basename(entry.tsPath)} (carried over unchanged)`);
+  } else {
+    console.log(`  ! ${entry.rel} -> no module to carry over; ${entry.id} stays out of the barrel`);
+  }
 }
 
 if (notEnrolled.length) {
@@ -694,3 +717,7 @@ writeFileSync(join(outputDir, 'index.ts'), barrelLines.join('\n') + '\n');
 console.log(`  index.ts -> ${exports.length} export(s)`);
 
 console.log('Done.');
+
+// The written tree is partial whenever a document was skipped: say so in the exit code,
+// so a caller cannot mistake "wrote what it could" for "wrote everything".
+if (problems.length) process.exitCode = 1;
