@@ -11,8 +11,11 @@ import { createHistoricalUniverseId } from '../../../../core/universe-ids';
  *   a lot of money because it's, you know, it's a full color heavy paper mailer.
  *   I mean, this was not cheap." [^1]
  *   He said FULL COLOR and HEAVY PAPER. He did not say the ink was nice. He did
- *   not identify a printer. The transcript is unlabelled, so the remark is
- *   attributed to the program, not pinned to Beck personally.
+ *   not identify a printer. The first record of the remark had no speaker labels
+ *   and attributed it to the program; the 2026-10-26 pass re-checked the line
+ *   against the audio and pinned it to Beck. The measurement and the credence live
+ *   in `series:beck_pamphlet_transcript:2026` — this module carries the outcome,
+ *   not a second copy of the number (james-gibson/local-time#220).
  *
  * P1  A novice who picked the most expensive options would only have been saved
  *     from the UV-smearing mistake if the printer handled it.
@@ -90,6 +93,8 @@ const PREF_ID = 'history:texas_mailer_preference_vector:2026';
 const DOM_ID = 'history:texas_mailer_dominated_choice:2026';
 const SOLO_ID = 'history:texas_mailer_solo_limit:2026';
 const DISCOVERY_ID = 'history:texas_mailer_discovery_reach:2026';
+/** The record that re-checks this module's cost-line attribution (#220). */
+const BECK_TRANSCRIPT_ID = 'series:beck_pamphlet_transcript:2026';
 
 const D = (y: number, m: number, d: number): bigint =>
   BigInt(Date.UTC(y, m - 1, d)) * 1_000_000n;
@@ -179,7 +184,7 @@ export const texasMailerProductionValueUniverse = {
     sources: ['The Glenn Beck Program transcript, 21 October 2026', 'Texas Tribune, Houston Chronicle, CBS News Texas, LGBTQ Nation reporting', 'USPS tabbing standards', 'Prior modules'],
     citations_required: true,
     usage_restrictions: [
-      'The transcript is machine-generated and unlabelled by speaker. Attributing the remark to Beck personally is not supported; attribute it to the program.',
+      'The remark is Beck\'s. The 2026-10-26 pass measured the line against the audio with two speaker-embedding models and retired the earlier "attribute it to the program" hedge; the measurement and its credence are recorded in series:beck_pamphlet_transcript:2026, not restated here.',
       'No spec has been read off the piece. The coating and stock remain unobserved.',
       'SnailWorks is a tracking intermediary; its involvement does not establish who printed the mailers.',
       'Credences are judgements, not frequencies.',
@@ -377,7 +382,7 @@ export const texasMailerProductionValueUniverse = {
       'api_and_price: the "coming to every mailbox" claim is consistent with a saturation buy and inconsistent with a small named-list buy',
     ],
     uncertaintyNotes: [
-      'The transcript is unlabelled by speaker and machine-generated. The remark is attributed to the program, not to Beck.',
+      'The remark was first attributed to the program because the only record was an unlabelled machine transcript. That record is superseded, not contradicted: the audio pass measured the speaker and the line is Beck\'s (series:beck_pamphlet_transcript:2026).',
       'No spec has been observed. Coating, stock and addressing method are all still unread.',
       'The "addressed to students" reading may describe the salutation inside a named-addressed piece; if so the structural floor stands. This is the largest open uncertainty in the series.',
       'SnailWorks is a tracking intermediary. Its involvement places a firm in the chain; it does not identify the printer, the payer, or the file source.',
@@ -392,6 +397,15 @@ export const texasMailerProductionValueUniverse = {
       ],
     },
     references: [
+      {
+        type: 'SUPERSEDED_BY',
+        targetUniverseId: BECK_TRANSCRIPT_ID,
+        confidence: 0.95,
+        description:
+          'The transcript record re-checked the cost line against the audio on 2026-10-26 and ' +
+          'pinned it to Beck. Its finding outranks the earlier "attribute it to the program" ' +
+          'reading; this module carries the later one.',
+      },
       {
         type: 'CORRECTS',
         targetUniverseId: DOM_ID,
