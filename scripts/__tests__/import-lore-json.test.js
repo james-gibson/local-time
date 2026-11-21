@@ -22,12 +22,24 @@ const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), '..', 'import-lore-
 
 /** Build a throwaway lore dir: `<name>.md` beside `<name>.json` (collectLoreJson needs both). */
 function withLoreDir(name, json) {
+  return withLoreDirMany({ [name]: json });
+}
+
+/** Same, for a run that has to see several documents at once (james-gibson/local-time#243). */
+function withLoreDirMany(docs) {
   const loreDir = mkdtempSync(join(tmpdir(), 'lore-in-'));
   const outDir = mkdtempSync(join(tmpdir(), 'lore-out-'));
   mkdirSync(loreDir, { recursive: true });
+  for (const [name, json] of Object.entries(docs)) {
+    writeDoc(loreDir, name, json);
+  }
+  return { loreDir, outDir };
+}
+
+/** Rewrite one document's JSON in place — the second run of a carry-over test. */
+function writeDoc(loreDir, name, json) {
   writeFileSync(join(loreDir, `${name}.md`), `# ${name}\n`);
   writeFileSync(join(loreDir, `${name}.json`), JSON.stringify(json, null, 2));
-  return { loreDir, outDir };
 }
 
 function baseDoc(segmentEnd) {
@@ -68,14 +80,105 @@ test('a bound given as an absolute ISO timestamp resolves', () => {
   assert.match(code, /BigInt\(Date\.UTC\(2000, 1, 1/);
 });
 
-test('an unresolved epoch-relative bound fails loudly and writes nothing', () => {
+test('an unresolved epoch-relative bound fails loudly and emits no module for that doc', () => {
   const { res, outDir } = run(baseDoc('test:T+30:00:00'));
   assert.equal(res.status, 1);
   assert.match(res.stderr, /unresolved segment bound/);
   assert.match(res.stderr, /segment "run" \(end\)/);
   assert.match(res.stderr, /test:T\+30:00:00/);
+  // Both the refused-emission rule and the per-document one are named.
   assert.match(res.stderr, /local-time#35/);
-  assert.deepEqual(readdirSync(outDir), []);
+  assert.match(res.stderr, /local-time#243/);
+  // The barrel is still written so the registry has a module to load (#98), and the
+  // document itself contributes nothing to it.
+  assert.deepEqual(readdirSync(outDir), ['index.ts']);
+  assert.match(readFileSync(join(outDir, 'index.ts'), 'utf-8'), /importedUniverses: Universe\[\] = \[\n\];/);
+});
+
+/**
+ * james-gibson/local-time#243 — the refusal was per-run, not per-document.
+ *
+ * Four unrelated broken compendia in the vault stopped a new universe from being
+ * imported at all: step 1 wrote the JSON, step 2 refused, and the only workaround was
+ * running this script by hand against a directory holding one document.
+ */
+test('one broken document does not cost the documents that resolve (#243)', () => {
+  const { loreDir, outDir } = withLoreDirMany({
+    'good-film': baseDoc('test:T+00:00:00'),
+    'broken-film': {
+      ...baseDoc('test:T+30:00:00'),
+      universeId: 'test:broken:2000',
+      title: 'Broken Film',
+    },
+  });
+
+  const res = spawnSync(process.execPath, [SCRIPT, loreDir, outDir], { encoding: 'utf-8' });
+
+  // Still a failed run: the caller must not read the tree as complete.
+  assert.equal(res.status, 1);
+
+  // ... but the document that resolves is emitted, and the barrel carries it.
+  const files = readdirSync(outDir);
+  assert.ok(files.includes('test_film_2000.ts'), `missing emitted module: ${files}`);
+  assert.ok(!files.includes('test_broken_2000.ts'), 'the broken document must emit nothing');
+
+  const barrel = readFileSync(join(outDir, 'index.ts'), 'utf-8');
+  assert.match(barrel, /importedUniverses: Universe\[\] = \[\n  testFilm2000Universe,\n\];/);
+
+  // The error names the broken document, and only the broken document.
+  assert.match(res.stderr, /broken-film\.json/);
+  assert.doesNotMatch(res.stderr, /good-film\.json/);
+});
+
+test('a skipped document keeps its last good module registered (#243)', () => {
+  // First run: both documents resolve, so both are built.
+  const { loreDir, outDir } = withLoreDirMany({
+    'good-film': baseDoc('test:T+00:00:00'),
+    'later-broken': {
+      ...baseDoc('test:T+00:00:00'),
+      universeId: 'test:later:2000',
+      title: 'Later Broken',
+    },
+  });
+
+  const first = spawnSync(process.execPath, [SCRIPT, loreDir, outDir], { encoding: 'utf-8' });
+  assert.equal(first.status, 0, first.stderr);
+  const modulePath = join(outDir, 'test_later_2000.ts');
+  const before = readFileSync(modulePath, 'utf-8');
+
+  // Second run: the same document now has a bound that cannot resolve.
+  writeDoc(loreDir, 'later-broken', {
+    ...baseDoc('test:T+30:00:00'),
+    universeId: 'test:later:2000',
+    title: 'Later Broken',
+  });
+  const second = spawnSync(process.execPath, [SCRIPT, loreDir, outDir], { encoding: 'utf-8' });
+
+  assert.equal(second.status, 1);
+  // The module on disk is untouched — dropping it from the barrel would unregister a
+  // universe that still works and leave `generated-registration` an orphan to fail on.
+  assert.equal(readFileSync(modulePath, 'utf-8'), before);
+  assert.match(
+    readFileSync(join(outDir, 'index.ts'), 'utf-8'),
+    /importedUniverses: Universe\[\] = \[\n  testFilm2000Universe,\n  testLater2000Universe,\n\];/,
+  );
+  // And it is reported as carried, not as rebuilt.
+  assert.match(second.stdout, /later-broken\.json -> test_later_2000\.ts \(carried over unchanged\)/);
+});
+
+test('a skipped document with no earlier module says its universe left the barrel (#243)', () => {
+  const { loreDir, outDir } = withLoreDirMany({
+    'never-built': {
+      ...baseDoc('test:T+30:00:00'),
+      universeId: 'test:never:2000',
+      title: 'Never Built',
+    },
+  });
+
+  const res = spawnSync(process.execPath, [SCRIPT, loreDir, outDir], { encoding: 'utf-8' });
+  assert.equal(res.status, 1);
+  assert.match(res.stdout, /no module to carry over; testNever2000Universe stays out of the barrel/);
+  assert.doesNotMatch(readFileSync(join(outDir, 'index.ts'), 'utf-8'), /testNever2000Universe,/);
 });
 
 test('the barrel exposes importedUniverses so the registry can load the tree', () => {
