@@ -37,19 +37,14 @@ import { createHistoricalUniverseId } from '../../../../core/universe-ids';
  * - Case reporting carried forward from the payer-ledger module [^f081b0][^a5a51b]
  *
  * Hierarchical Context: US_HISTORY -> US_GOVERNMENT. Drawn against the payer-ledger
- * module of the same thread (not landed; see `metadata.threadSiblings`) and against the
+ * module of the same thread, `payer_ledger`, and against the
  * on-air segment that made the mailing public, whose transcription record it documents
  * as one reachable-but-shielded channel, not as a target.
  *
- * LANDED WITH THE FAMILY (james-gibson/local-time#200). This is one of seven sibling
- * universes committed together: production_value, dominated_choice, preference_vector,
- * solo_limit, discovery_reach, ambiguity_tolerant_form and this one. The rest of the
- * #200 thread — payer_ledger, shell_hypothesis, operator_profile, stationarity_domicile,
- * five_postulates, automation_stack, residue_and_reach, beck_plane, proper_timelines,
- * kpi_and_signature, trace_and_vendor, api_and_price, expertise_axis, mcp_threshold —
- * is not landed, so edges to it are recorded in `metadata.threadSiblings` instead of
- * being declared as references: a target no module owns is a link the graph cannot
- * resolve, and a dangling edge looks like evidence of a module that does not exist.
+ * LANDED WITH THE FAMILY (james-gibson/local-time#200). The family closed at twenty
+ * sibling universes, so every edge this module declares points at a module that exists:
+ * a target no module owns would be a link the graph cannot resolve, and a dangling edge
+ * reads as evidence of a module that is not there.
 
  */
 
@@ -179,7 +174,7 @@ export const texasMailerDiscoveryReachUniverse = {
     {
       /* The reach map itself: prospective, mechanism-keyed. */
       layerId: 'reach_map',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:texas_mailer_discovery_channel_model:2026',
         accuracy: 0.55,
@@ -204,7 +199,7 @@ export const texasMailerDiscoveryReachUniverse = {
     {
       /* OBBBA frame: statute-anchored, mostly negative findings. */
       layerId: 'obbba_frame',
-      type: 'documented_reference',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:obbba_statute:2026',
         accuracy: 1.0,

@@ -192,7 +192,7 @@ export const texasMailerAmbiguityTolerantFormUniverse = {
   layers: [
     {
       layerId: 'delivery',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:vocal_register:2026',
         accuracy: 0.15,
@@ -212,7 +212,7 @@ export const texasMailerAmbiguityTolerantFormUniverse = {
     },
     {
       layerId: 'function',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:mailer_speech_act:2026',
         accuracy: 0.45,

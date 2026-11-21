@@ -375,12 +375,6 @@ export const texasMailerKpiAndSignatureUniverse = {
       'discovery_reach: replace the death-dating method with the newest-registration floor and schema fingerprinting',
       'operator_profile: add R5 as the disclaimer-direction test, superseding the effort-based reading of R4',
     ],
-    threadSiblings: [
-      {
-        id: BECK_PLANE_ID,
-        note: 'the single-pass Beck reading this lattice corrects; still unlanded',
-      },
-    ],
     uncertaintyNotes: [
       'No KPI artifact has been produced. The entire K1 line is inference from postal rule plus industry practice.',
       'The 48-month NCOA window is a product property of the move-update service, not a statutory rule, and mailers may process on a different cadence.',
@@ -412,6 +406,13 @@ export const texasMailerKpiAndSignatureUniverse = {
         targetUniverseId: AUTOMATION_ID,
         confidence: 0.9,
         description: 'The production reading the KPI and forensic requests extend.',
+      },
+      {
+        type: 'CORRECTS',
+        targetUniverseId: BECK_PLANE_ID,
+        confidence: 0.85,
+        description:
+          'Replaces the single-pass Beck reading with the paired-timeline lattice.',
       },
     ],
   },

@@ -70,15 +70,10 @@ import { createHistoricalUniverseId } from '../../../../core/universe-ids';
  * pricing and the MERLIN threshold are documentary; the dominance argument, the
  * reconciliation signature and the credences are the compiler's.
  *
- * LANDED WITH THE FAMILY (james-gibson/local-time#200). This is one of seven sibling
- * universes committed together: production_value, dominated_choice, preference_vector,
- * solo_limit, discovery_reach, ambiguity_tolerant_form and this one. The rest of the
- * #200 thread — payer_ledger, shell_hypothesis, operator_profile, stationarity_domicile,
- * five_postulates, automation_stack, residue_and_reach, beck_plane, proper_timelines,
- * kpi_and_signature, trace_and_vendor, api_and_price, expertise_axis, mcp_threshold —
- * is not landed, so edges to it are recorded in `metadata.threadSiblings` instead of
- * being declared as references: a target no module owns is a link the graph cannot
- * resolve, and a dangling edge looks like evidence of a module that does not exist.
+ * LANDED WITH THE FAMILY (james-gibson/local-time#200). The family closed at twenty
+ * sibling universes, so every edge this module declares points at a module that exists:
+ * a target no module owns would be a link the graph cannot resolve, and a dangling edge
+ * reads as evidence of a module that is not there.
 
  */
 
@@ -176,7 +171,7 @@ export const texasMailerDominatedChoiceUniverse = {
   layers: [
     {
       layerId: 'finish_economics',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:coating_cost_compliance:2026',
         accuracy: 0.6,
@@ -197,7 +192,7 @@ export const texasMailerDominatedChoiceUniverse = {
     },
     {
       layerId: 'tacit_knowledge',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:unarticulated_beliefs:2026',
         accuracy: 0.35,
@@ -320,24 +315,6 @@ export const texasMailerDominatedChoiceUniverse = {
       'The 90% IMB threshold is current, but penalty implementation has shifted between MERLIN and seamless acceptance [^8], so the dollar size of the risk is uncertain.',
       'The folklore class is unfalsifiable from the artifact by construction; it is listed to be honest about the limit, not as a testable category.',
     ],
-    threadSiblings: [
-      {
-        id: 'history:texas_mailer_mcp_threshold:2026',
-        note: 'the integration-barrier module this one corrects; not landed',
-      },
-      {
-        id: 'history:texas_mailer_expertise_axis:2026',
-        note: 'the two-axis expertise module this one documents; not landed',
-      },
-      {
-        id: 'history:texas_mailer_api_and_price:2026',
-        note: 'the vendor-population module this one derives from; not landed',
-      },
-      {
-        id: 'history:texas_mailer_trace_and_vendor:2026',
-        note: 'the physical-evidence module this one supersedes; not landed',
-      },
-    ],
   },
 
   connections: {
@@ -362,6 +339,34 @@ export const texasMailerDominatedChoiceUniverse = {
         description:
           'A dominated option is rejected by everyone, so its rejection carries no information ' +
           'about who chose it.',
+      },
+      {
+        type: 'CORRECTS',
+        targetUniverseId: 'history:texas_mailer_mcp_threshold:2026',
+        confidence: 0.8,
+        description:
+          'Collapses the integration-barrier reading the anti-preference mechanism assumed.',
+      },
+      {
+        type: 'DOCUMENTS',
+        targetUniverseId: 'history:texas_mailer_expertise_axis:2026',
+        confidence: 0.8,
+        description:
+          'The two-axis model the rejection test is scored against.',
+      },
+      {
+        type: 'DERIVES_FROM',
+        targetUniverseId: 'history:texas_mailer_api_and_price:2026',
+        confidence: 0.85,
+        description:
+          'The vendor populations the coating market argument is read from.',
+      },
+      {
+        type: 'SUPERSEDES',
+        targetUniverseId: 'history:texas_mailer_trace_and_vendor:2026',
+        confidence: 0.75,
+        description:
+          'Replaces the physical-evidence route with the vendor-population read.',
       },
     ],
   },

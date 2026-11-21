@@ -18,6 +18,12 @@ import {
   texasMailerAutomationStackUniverse,
   texasMailerProperTimelinesUniverse,
   texasMailerKpiAndSignatureUniverse,
+  texasMailerResidueAndReachUniverse,
+  texasMailerBeckPlaneUniverse,
+  texasMailerTraceAndVendorUniverse,
+  texasMailerApiAndPriceUniverse,
+  texasMailerExpertiseAxisUniverse,
+  texasMailerMcpThresholdUniverse,
 } from './index';
 import { beckDoublespeakUniverse } from '../../youtube/beck-doublespeak';
 
@@ -25,10 +31,11 @@ import { beckDoublespeakUniverse } from '../../youtube/beck-doublespeak';
  * james-gibson/local-time#200 — the 2026 Texas mailer analysis family.
  *
  * The family is landed as a set, so the invariants that make it a set are pinned here:
- * no dangling reference, no duplicated owner, and the correction chain the six modules
- * claim to form actually pointing where they say it points. The unlanded siblings named
- * in `metadata.threadSiblings` are asserted to be *unregistered* — if one is landed
- * later, this test fails and the note has to become a real edge.
+ * no dangling reference, no duplicated owner, and the correction chain the modules claim
+ * to form actually pointing where they say it points. The family closed at twenty in the
+ * final tranche, so `metadata.threadSiblings` should now be empty; the guard still runs,
+ * because a note that names a landed id, or that survives as an edge, is the failure the
+ * earlier tranches were written to make impossible.
  */
 
 const universes = texasMailerUniverses as unknown as Universe[];
@@ -65,10 +72,16 @@ const EXPECTED_IDS = [
   'history:texas_mailer_automation_stack:2026',
   'history:texas_mailer_proper_timelines:2026',
   'history:texas_mailer_kpi_and_signature:2026',
+  'history:texas_mailer_residue_and_reach:2026',
+  'history:texas_mailer_beck_plane:2026',
+  'history:texas_mailer_trace_and_vendor:2026',
+  'history:texas_mailer_api_and_price:2026',
+  'history:texas_mailer_expertise_axis:2026',
+  'history:texas_mailer_mcp_threshold:2026',
 ];
 
 describe('the Texas mailer analysis family (#200)', () => {
-  test('lands fourteen history universes, each owned exactly once', () => {
+  test('lands twenty history universes, each owned exactly once', () => {
     expect(universes).toHaveLength(EXPECTED_IDS.length);
     expect(universes.map(idOf).sort()).toEqual([...EXPECTED_IDS].sort());
     for (const id of EXPECTED_IDS) {
@@ -131,8 +144,9 @@ describe('the Texas mailer analysis family (#200)', () => {
       }
     }
 
-    // Every unlanded sibling is named, is a valid id, and is not a registered universe.
-    expect(noted.size).toBeGreaterThan(0);
+    // Every remaining note names a valid id that is not a registered universe. The final
+    // tranche landed the last six, so the set is expected to be empty — but a note that
+    // reappears must satisfy the invariant rather than be asserted away.
     for (const id of noted) {
       expect(isValidUniverseId(id)).toBe(true);
       expect(registered.has(id)).toBe(false);
@@ -141,6 +155,95 @@ describe('the Texas mailer analysis family (#200)', () => {
     // And no module smuggles one in as a reference anyway.
     const referenced = new Set(universes.flatMap((u) => references(u).map((r) => r.targetUniverseId)));
     expect([...noted].filter((id) => referenced.has(id))).toEqual([]);
+  });
+
+  test('the final tranche points at the sixteen modules it was fitted to', () => {
+    const edges = (u: Universe): string[] =>
+      references(u).map((r) => `${r.type}:${r.targetUniverseId}`);
+
+    expect(edges(texasMailerResidueAndReachUniverse)).toEqual(
+      expect.arrayContaining([
+        'DERIVES_FROM:history:texas_mailer_automation_stack:2026',
+        'DERIVES_FROM:history:texas_mailer_stationarity_domicile:2026',
+        'SUPERSEDES:history:texas_mailer_discovery_reach:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerBeckPlaneUniverse)).toEqual(
+      expect.arrayContaining([
+        'DERIVES_FROM:history:texas_mailer_operator_profile:2026',
+        'DERIVES_FROM:history:texas_mailer_five_postulates:2026',
+        'DOCUMENTS:history:texas_mailer_automation_stack:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerTraceAndVendorUniverse)).toEqual(
+      expect.arrayContaining([
+        'DERIVES_FROM:history:texas_mailer_solo_limit:2026',
+        'DOCUMENTS:history:texas_mailer_kpi_and_signature:2026',
+        'CORRECTS:history:texas_mailer_automation_stack:2026',
+        'SUPERSEDES:history:texas_mailer_discovery_reach:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerApiAndPriceUniverse)).toEqual(
+      expect.arrayContaining([
+        'DERIVES_FROM:history:texas_mailer_trace_and_vendor:2026',
+        'CORRECTS:history:texas_mailer_solo_limit:2026',
+        'DOCUMENTS:history:texas_mailer_kpi_and_signature:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerExpertiseAxisUniverse)).toEqual(
+      expect.arrayContaining([
+        'DERIVES_FROM:history:texas_mailer_api_and_price:2026',
+        'CORRECTS:history:texas_mailer_solo_limit:2026',
+        'DOCUMENTS:history:texas_mailer_trace_and_vendor:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerMcpThresholdUniverse)).toEqual(
+      expect.arrayContaining([
+        'CORRECTS:history:texas_mailer_expertise_axis:2026',
+        'CORRECTS:history:texas_mailer_api_and_price:2026',
+        'DOCUMENTS:history:texas_mailer_solo_limit:2026',
+        'DERIVES_FROM:history:texas_mailer_trace_and_vendor:2026',
+      ]),
+    );
+
+    // And the notes the earlier tranches carried are now real edges, on both sides.
+    expect(edges(texasMailerDominatedChoiceUniverse)).toEqual(
+      expect.arrayContaining([
+        'CORRECTS:history:texas_mailer_mcp_threshold:2026',
+        'DOCUMENTS:history:texas_mailer_expertise_axis:2026',
+        'DERIVES_FROM:history:texas_mailer_api_and_price:2026',
+        'SUPERSEDES:history:texas_mailer_trace_and_vendor:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerPreferenceVectorUniverse)).toEqual(
+      expect.arrayContaining([
+        'CORRECTS:history:texas_mailer_mcp_threshold:2026',
+        'CORRECTS:history:texas_mailer_expertise_axis:2026',
+        'DOCUMENTS:history:texas_mailer_api_and_price:2026',
+        'DERIVES_FROM:history:texas_mailer_trace_and_vendor:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerProductionValueUniverse)).toEqual(
+      expect.arrayContaining([
+        'DOCUMENTS:history:texas_mailer_mcp_threshold:2026',
+        'DERIVES_FROM:history:texas_mailer_api_and_price:2026',
+      ]),
+    );
+
+    expect(edges(texasMailerKpiAndSignatureUniverse)).toEqual(
+      expect.arrayContaining(['CORRECTS:history:texas_mailer_beck_plane:2026']),
+    );
+
+    expect(edges(texasMailerProperTimelinesUniverse)).toEqual(
+      expect.arrayContaining(['SUPERSEDES:history:texas_mailer_beck_plane:2026']),
+    );
   });
 
   test('the correction chain points where the modules say it points', () => {
@@ -242,6 +345,22 @@ describe('the Texas mailer analysis family (#200)', () => {
       for (const kf of keyframes(u)) {
         if (kf.type !== undefined && !members.has(kf.type)) {
           offenders.push(`${idOf(u)}#${kf.id}: ${String(kf.type)}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  test('every layer type is a member of the union the drafts invented values for', () => {
+    // The drafts declared `reconstruction` and `documented_reference`, neither of which is
+    // in `TemporalLayer.type`. The tranches that ported modules by hand normalised their
+    // own; the first tranche's six kept the draft values until this guard existed.
+    const members = new Set(['primary', 'meta', 'recreation', 'subjective']);
+    const offenders: string[] = [];
+    for (const u of universes) {
+      for (const layer of (u.layers ?? []) as Array<{ layerId: string; type: string }>) {
+        if (!members.has(layer.type)) {
+          offenders.push(`${idOf(u)}#${layer.layerId}: ${String(layer.type)}`);
         }
       }
     }
@@ -400,6 +519,47 @@ describe('the Texas mailer analysis family (#200)', () => {
         const kind = (anchor as { relationshipType?: string }).relationshipType;
         if (!kind || !allowed.has(kind)) {
           offenders.push(`${idOf(u)}#${anchor.realEventId}: ${String(kind)}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  test('the final tranche uses only relationship types the type defines', () => {
+    const allowed = new Set([
+      'depicts',
+      'inspired_by',
+      'reinterprets',
+      'contradicts',
+      'reimagines',
+      'documents',
+      'experienced',
+    ]);
+
+    // The drafts used `spec:` / `report:` anchor ids and `interprets` / `derives_from`
+    // relationship types; neither is in the union, so the anchors were renamed
+    // `analysis:<slug>:2026` and the relations moved to `references` or reworded.
+    const tranche = [
+      texasMailerResidueAndReachUniverse,
+      texasMailerBeckPlaneUniverse,
+      texasMailerTraceAndVendorUniverse,
+      texasMailerApiAndPriceUniverse,
+      texasMailerExpertiseAxisUniverse,
+      texasMailerMcpThresholdUniverse,
+    ];
+
+    const offenders: string[] = [];
+    for (const u of tranche) {
+      for (const anchor of u.realityRelation.realityAnchors ?? []) {
+        const kind = (anchor as { relationshipType?: string }).relationshipType;
+        if (!kind || !allowed.has(kind)) {
+          offenders.push(`${idOf(u)}#${anchor.realEventId}: ${String(kind)}`);
+        }
+      }
+      // No draft-only anchor prefix survives either.
+      for (const anchor of u.realityRelation.realityAnchors ?? []) {
+        if (/^(spec|report):/.test(anchor.realEventId)) {
+          offenders.push(`${idOf(u)}#${anchor.realEventId}: draft-only anchor namespace`);
         }
       }
     }

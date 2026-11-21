@@ -77,15 +77,10 @@ import { createHistoricalUniverseId } from '../../../../core/universe-ids';
  * entities and dates are documentary; the three-path model, the register-versus-
  * function argument and the credences are the compiler's.
  *
- * LANDED WITH THE FAMILY (james-gibson/local-time#200). This is one of seven sibling
- * universes committed together: production_value, dominated_choice, preference_vector,
- * solo_limit, discovery_reach, ambiguity_tolerant_form and this one. The rest of the
- * #200 thread — payer_ledger, shell_hypothesis, operator_profile, stationarity_domicile,
- * five_postulates, automation_stack, residue_and_reach, beck_plane, proper_timelines,
- * kpi_and_signature, trace_and_vendor, api_and_price, expertise_axis, mcp_threshold —
- * is not landed, so edges to it are recorded in `metadata.threadSiblings` instead of
- * being declared as references: a target no module owns is a link the graph cannot
- * resolve, and a dangling edge looks like evidence of a module that does not exist.
+ * LANDED WITH THE FAMILY (james-gibson/local-time#200). The family closed at twenty
+ * sibling universes, so every edge this module declares points at a module that exists:
+ * a target no module owns would be a link the graph cannot resolve, and a dangling edge
+ * reads as evidence of a module that is not there.
 
  */
 
@@ -194,7 +189,7 @@ export const texasMailerProductionValueUniverse = {
   layers: [
     {
       layerId: 'specification',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:spec_decision_path:2026',
         accuracy: 0.3,
@@ -215,7 +210,7 @@ export const texasMailerProductionValueUniverse = {
     },
     {
       layerId: 'broadcast_read',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:on_air_description:2026',
         accuracy: 0.55,
@@ -388,16 +383,6 @@ export const texasMailerProductionValueUniverse = {
       'SnailWorks is a tracking intermediary. Its involvement places a firm in the chain; it does not identify the printer, the payer, or the file source.',
       'The audience-reception claim — that listeners heard "they have money" — is inferred from the segment\'s framing, not measured.',
     ],
-    threadSiblings: [
-      {
-        id: 'history:texas_mailer_mcp_threshold:2026',
-        note: 'the integration-barrier module this one documents; not landed',
-      },
-      {
-        id: 'history:texas_mailer_api_and_price:2026',
-        note: 'the vendor-population module this one derives from; not landed',
-      },
-    ],
   },
 
   connections: {
@@ -437,6 +422,20 @@ export const texasMailerProductionValueUniverse = {
         confidence: 0.7,
         description:
           'What the segment establishes is reception of the mailer, not who paid for it.',
+      },
+      {
+        type: 'DOCUMENTS',
+        targetUniverseId: 'history:texas_mailer_mcp_threshold:2026',
+        confidence: 0.8,
+        description:
+          'The tooling that makes a legible premium cheap to produce.',
+      },
+      {
+        type: 'DERIVES_FROM',
+        targetUniverseId: 'history:texas_mailer_api_and_price:2026',
+        confidence: 0.85,
+        description:
+          'The advertised per-piece prices the production floor is taken from.',
       },
     ],
   },

@@ -13,11 +13,17 @@ import { texasMailerShellHypothesisUniverses } from './texas-mailer-shell-hypoth
 import { texasMailerAutomationStackUniverses } from './texas-mailer-automation-stack';
 import { texasMailerProperTimelinesUniverses } from './texas-mailer-proper-timelines';
 import { texasMailerKpiAndSignatureUniverses } from './texas-mailer-kpi-and-signature';
+import { texasMailerResidueAndReachUniverses } from './texas-mailer-residue-and-reach';
+import { texasMailerBeckPlaneUniverses } from './texas-mailer-beck-plane';
+import { texasMailerTraceAndVendorUniverses } from './texas-mailer-trace-and-vendor';
+import { texasMailerApiAndPriceUniverses } from './texas-mailer-api-and-price';
+import { texasMailerExpertiseAxisUniverses } from './texas-mailer-expertise-axis';
+import { texasMailerMcpThresholdUniverses } from './texas-mailer-mcp-threshold';
 
 /**
  * The 2026 Texas mailer analysis family — james-gibson/local-time#200.
  *
- * Fourteen `history:` universes landed as one set because each one's edges point at
+ * Twenty `history:` universes landed as one set because each one's edges point at
  * another's ids: production_value corrects dominated_choice and preference_vector;
  * ambiguity_tolerant_form corrects both production_value and dominated_choice;
  * solo_limit and discovery_reach are superseded by the modules downstream of them. Land
@@ -36,11 +42,12 @@ import { texasMailerKpiAndSignatureUniverses } from './texas-mailer-kpi-and-sign
  * lives in the `youtube/` namespace with the two works it is cut from; it is registered
  * by `youtubeUniverses`, not here, so it is not spread twice (#45, #68).
  *
- * What the family does *not* contain is the rest of the #200 thread (residue_and_reach,
- * beck_plane, trace_and_vendor, api_and_price, expertise_axis, mcp_threshold). None of
- * those is committed, so each module that would have referenced one records it in
- * `metadata.threadSiblings` instead — a reference to an id no module owns is not a link
- * the registry can resolve, and it would read as evidence of a module that is not there.
+ * The last tranche lands the six modules the thread weighted most heavily and left
+ * unwritten — residue_and_reach, beck_plane, trace_and_vendor, api_and_price,
+ * expertise_axis, mcp_threshold — which closes the set at twenty. They arrive as real
+ * edges rather than notes: every `threadSiblings` entry the earlier fourteen carried is
+ * now a `references` edge to a module that exists, which is the whole reason the family
+ * waits for a tranche instead of landing a module at a time.
  */
 export const texasMailerUniverses: Universe[] = [
   ...texasMailerDiscoveryReachUniverses,
@@ -57,6 +64,12 @@ export const texasMailerUniverses: Universe[] = [
   ...texasMailerAutomationStackUniverses,
   ...texasMailerProperTimelinesUniverses,
   ...texasMailerKpiAndSignatureUniverses,
+  ...texasMailerResidueAndReachUniverses,
+  ...texasMailerBeckPlaneUniverses,
+  ...texasMailerTraceAndVendorUniverses,
+  ...texasMailerApiAndPriceUniverses,
+  ...texasMailerExpertiseAxisUniverses,
+  ...texasMailerMcpThresholdUniverses,
 ];
 
 export {
@@ -116,3 +129,28 @@ export {
   texasMailerKpiAndSignatureUniverse,
   texasMailerKpiAndSignatureUniverses,
 } from './texas-mailer-kpi-and-signature';
+
+export {
+  texasMailerResidueAndReachUniverse,
+  texasMailerResidueAndReachUniverses,
+} from './texas-mailer-residue-and-reach';
+export {
+  texasMailerBeckPlaneUniverse,
+  texasMailerBeckPlaneUniverses,
+} from './texas-mailer-beck-plane';
+export {
+  texasMailerTraceAndVendorUniverse,
+  texasMailerTraceAndVendorUniverses,
+} from './texas-mailer-trace-and-vendor';
+export {
+  texasMailerApiAndPriceUniverse,
+  texasMailerApiAndPriceUniverses,
+} from './texas-mailer-api-and-price';
+export {
+  texasMailerExpertiseAxisUniverse,
+  texasMailerExpertiseAxisUniverses,
+} from './texas-mailer-expertise-axis';
+export {
+  texasMailerMcpThresholdUniverse,
+  texasMailerMcpThresholdUniverses,
+} from './texas-mailer-mcp-threshold';
