@@ -9,6 +9,7 @@ import { texasPaulTtsuMailersUniverse } from './texas-paul-ttsu-mailers';
 import { beckDoublespeakUniverse } from './beck-doublespeak';
 import { dreyTheranosUniverse } from './drey-theranos';
 import { cartoonPhysicsUniverse } from './cartoon-physics';
+import { lizOyerShortsUniverses } from './liz-oyer-shorts';
 import { digitalCoupUniverse } from './digital-coup';
 import { whiteBoomersUniverse } from './white-boomers';
 import { manipulatorMathUniverse } from './manipulator-math';
@@ -66,6 +67,7 @@ export const youtubeUniverses: Universe[] = [
   plcProgramming10LessonsUniverse,
   anchorWatchSeriesUniverse,
   anchorWatchHegseth20261026Universe,
+  ...lizOyerShortsUniverses,
 ];
 
 export {
@@ -252,3 +254,10 @@ export {
 } from './anchor-watch-2026-10-26';
 
 export type { PresumedAnchor } from './anchor-watch-2026-10-26';
+export {
+  lizOyerLucasUniverse,
+  lizOyerWatergateUniverse,
+  lizOyerShortsUniverses,
+  LIZ_OYER_LUCAS_UNIVERSE_ID,
+  LIZ_OYER_WATERGATE_UNIVERSE_ID,
+} from './liz-oyer-shorts';

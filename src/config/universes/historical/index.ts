@@ -12,4 +12,6 @@ export * from "./skyscrapers";
 export * from "./pagerank-history";
 export * from "./texas-ttsu-mailers";
 export * from "./texas-mailer";
-
+export * from "./watergate-scandal";
+export * from "./lucas-indictment";
+export * from "./doj-watergate-review";
