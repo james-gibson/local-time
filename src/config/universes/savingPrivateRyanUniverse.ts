@@ -57,6 +57,7 @@ export const savingPrivateRyanUniverse: Universe = {
             type: 'meta',
             epochs: {
                 filming: {
+                    epochId: "saving_private_ryan:filming",
                     start: BigInt(Date.UTC(1997, 5, 27)) * 1000000n,
                     end: BigInt(Date.UTC(1997, 8, 13)) * 1000000n,
                     precision: TimePrecision.DAY
@@ -69,6 +70,7 @@ export const savingPrivateRyanUniverse: Universe = {
             type: 'primary',
             epochs: {
                 story: {
+                    epochId: "saving_private_ryan:story",
                     start: BigInt(Date.UTC(1944, 5, 6)) * 1000000n, // D-Day
                     end: BigInt(Date.UTC(1944, 5, 13)) * 1000000n,
                     precision: TimePrecision.HOUR
@@ -80,6 +82,7 @@ export const savingPrivateRyanUniverse: Universe = {
             type: 'recreation',
             epochs: {
                 depicted_event: {
+                    epochId: "saving_private_ryan:depicted_event",
                     start: BigInt(Date.UTC(1944, 5, 6, 6, 30)) * 1000000n,
                     end: BigInt(Date.UTC(1944, 5, 6, 12, 0)) * 1000000n,
                     precision: TimePrecision.MINUTE

@@ -284,12 +284,35 @@ export class UniverseBuilder {
   }
 
   withZeroReferenceEpoch(config: any): this {
+    // This epoch is declared here rather than through `addEpoch`, so nothing stamped an
+    // id onto it: the registry substituted the layer key (`zero_ref`) and warned on every
+    // `initialize()` (james-gibson/local-time#234). Name it after the universe the fluent
+    // chain has already identified — `mission(...)`, `withId(...)` and friends run first —
+    // so the id is stable across the corpus, and unique if a universe ever gains a second
+    // zero-reference layer.
+    const epoch = config?.epochId
+      ? config
+      : { ...config, epochId: this.zeroReferenceEpochId() };
     this.addLayer({
       layerId: 'zero_reference',
       type: 'primary',
-      epochs: { zero_ref: config }
+      epochs: { zero_ref: epoch }
     });
     return this;
+  }
+
+  /**
+   * `<namespace>:<slug>:zero_ref` for the universe built so far:
+   * `pixar:toy_story_2_recovery:1998` -> `pixar:toy_story_2_recovery:zero_ref`.
+   *
+   * The trailing year — or span, or `present`/`founded` — is the id's naming anchor, not
+   * part of the token. An unidentified universe keeps the layer key it would have fallen
+   * back to, which is no worse than the registry's substitution.
+   */
+  private zeroReferenceEpochId(): string {
+    const id = this.universe.universeId;
+    if (!id) return 'zero_ref';
+    return `${id.replace(/:(?:\d{4}|\d{4}-\d{4}|present|founded)$/, '')}:zero_ref`;
   }
 
   withEpisodeInfo(title: string, season: number, episode: number): this {
