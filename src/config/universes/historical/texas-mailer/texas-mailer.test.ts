@@ -379,9 +379,16 @@ describe('the Texas mailer analysis family (#200)', () => {
       .toBe(0.25);
   });
 
-  test('the ambiguity module keeps the verification failure it declares', () => {
+  test('the ambiguity module keeps the verification history it declares', () => {
+    // It used to assert the permanent failure ("could not be re-verified"). #220 retires
+    // that: the second pass succeeded, so the note has to record both attempts and the
+    // ordering between them, while keeping the limit that actually survives.
     const note = (metadata(texasMailerAmbiguityTolerantFormUniverse).uncertaintyNotes ?? []).join(' ');
-    expect(note).toContain('could not be re-verified');
+    expect(note).toContain('first verification attempt failed and the second succeeded');
+    expect(note).toMatch(/superseded/i);
+    expect(note).not.toMatch(/could not be re-verified/i);
+    // The narrower limit is not a casualty of the correction: register is still unscored.
+    expect(note).toMatch(/Register claims remain unscored/);
     expect(idOf(texasMailerAmbiguityTolerantFormUniverse)).toBe(
       'history:texas_mailer_ambiguity_tolerant_form:2026',
     );
@@ -597,6 +604,91 @@ describe('the Texas mailer analysis family (#200)', () => {
       }
     }
     expect(offenders).toEqual([]);
+  });
+});
+
+/**
+ * james-gibson/local-time#220 — a superseded record is superseded, not a peer.
+ *
+ * The cost line's speaker was first "the program" because the only record was an
+ * unlabelled machine transcript. The 2026-10-26 pass re-checked it against the audio
+ * with two speaker-embedding models and resolved it: the line is Beck's, and the
+ * producer's own reporting reverses. Two modules carried the retired hedge as if it
+ * still stood.
+ *
+ * The rule these pin: the later record outranks the earlier one, the earlier module
+ * says so with an edge, and the credence is not copied into a second place.
+ */
+describe('the superseded attribution (#220)', () => {
+  const TRANSCRIPT_ID = 'series:beck_pamphlet_transcript:2026';
+
+  const supersededBy = (u: Universe): string[] =>
+    references(u)
+      .filter((ref) => ref.type === 'SUPERSEDED_BY')
+      .map((ref) => ref.targetUniverseId);
+
+  test('both affected modules declare the typed precedence edge', () => {
+    for (const u of [texasMailerProductionValueUniverse, texasMailerAmbiguityTolerantFormUniverse]) {
+      expect(supersededBy(u)).toEqual([TRANSCRIPT_ID]);
+      // The target is the verifying record, and it is registered — an ordering that
+      // points at nothing orders nothing.
+      expect(registered.has(TRANSCRIPT_ID)).toBe(true);
+    }
+  });
+
+  test('the retired transcript cap is gone, and nothing re-imposes it', () => {
+    const notes = [
+      ...(metadata(texasMailerAmbiguityTolerantFormUniverse).uncertaintyNotes ?? []),
+      ...(metadata(texasMailerAmbiguityTolerantFormUniverse).usageRestrictions ?? []),
+      ...((texasMailerAmbiguityTolerantFormUniverse.attribution as any).usage_restrictions ?? []),
+      ...(metadata(texasMailerProductionValueUniverse).uncertaintyNotes ?? []),
+      ...((texasMailerProductionValueUniverse.attribution as any).usage_restrictions ?? []),
+    ].join(' ');
+
+    expect(notes).not.toMatch(/could not be re-verified/i);
+    expect(notes).not.toMatch(/inherits a 0\.55 confidence cap/i);
+    expect(notes).not.toMatch(/attribute it to the program\./i);
+  });
+
+  test('the audio request is recorded as discharged, not as outstanding', () => {
+    const deltas = (metadata(texasMailerAmbiguityTolerantFormUniverse).ticketDeltas ?? []).join(' ');
+    expect(deltas).toMatch(/OBTAINED|discharged/i);
+  });
+
+  test('the credence lives in the verifying record, not in a second copy', () => {
+    // Restating 0.95 here would make two places to disagree; the modules point instead.
+    for (const u of [texasMailerProductionValueUniverse, texasMailerAmbiguityTolerantFormUniverse]) {
+      expect(metadata(u).credences?.cost_line_spoken_by_beck).toBeUndefined();
+    }
+  });
+
+  test('every reference type in the family is a declared UPPER_SNAKE value', () => {
+    // `UniverseReference.type` is a string, so a typo or a draft-only lowercase value
+    // reaches the graph unnoticed (#143). The taxonomy lives in the KB; this is the
+    // family-local echo of it, and it is what makes SUPERSEDED_BY a typed edge rather
+    // than a label.
+    const declared = new Set([
+      'CORRECTS',
+      'DERIVES_FROM',
+      'DOCUMENTS',
+      'SUPERSEDED_BY',
+      'SUPERSEDES',
+    ]);
+    const offenders: string[] = [];
+    for (const u of universes) {
+      for (const ref of references(u)) {
+        if (!/^[A-Z][A-Z_]*$/.test(ref.type) || !declared.has(ref.type)) {
+          offenders.push(`${idOf(u)} -[${ref.type}]-> ${ref.targetUniverseId}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  test('the untouched 0.55 is a different 0.55 and stays', () => {
+    // The payload reading's credence, not the transcript discount (#220 says to leave it).
+    expect(metadata(texasMailerAmbiguityTolerantFormUniverse).credences
+      .production_value_was_the_message_not_the_overhead).toBe(0.55);
   });
 });
 

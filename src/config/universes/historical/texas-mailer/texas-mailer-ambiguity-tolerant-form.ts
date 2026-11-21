@@ -8,11 +8,19 @@ import { createHistoricalUniverseId } from '../../../../core/universe-ids';
  * trolling via a meme mailer, gesture at the printer's good work, or highlight
  * that this was content creation for someone. And: Beck isn't speaking honestly.
  *
- * VERIFICATION FAILURE, DECLARED UP FRONT. The transcript is no longer in the
- * sandbox and "full color heavy paper mailer" does not surface in the index. The
- * segment rests on ONE machine transcript with NO speaker labels. A claim about
- * DELIVERY cannot be scored from a record that strips delivery. Flagged, not
- * papered over.
+ * VERIFICATION: FIRST ATTEMPT FAILED, SECOND PASS RESOLVED IT. The transcript left
+ * the sandbox and "full color heavy paper mailer" did not surface in the index, so
+ * the first record of this module rested on ONE machine transcript with no speaker
+ * labels, at a 0.55 cap. On 2026-10-26 the passage was re-checked against the audio:
+ * the cost line is Beck's (two embedding models, six host anchors and five producer
+ * anchors; the producer's own reporting reverses), the "attribute it to the program"
+ * hedge is retired, and the cap comes off. The measurement and its credence live in
+ * `series:beck_pamphlet_transcript:2026`, which supersedes this module's earlier
+ * verification note — a later pass that checks an uncertain earlier claim is ordered
+ * against it, not a peer of it (james-gibson/local-time#220).
+ *
+ * What the audio does NOT settle is this module's own subject: whether the delivery
+ * was ironic. The instrument now exists; the register has not been scored from it.
  *
  * A1  "SPEAKS BACKWARDS" FORKS; ONLY ONE BRANCH IS USABLE.
  *       literal reverse speech — pseudoscientific, no mechanism, no evidence
@@ -80,19 +88,14 @@ import { createHistoricalUniverseId } from '../../../../core/universe-ids';
  *     actually matters. Not a demotion — a change of subject.
  *
  * Reality Relation: interpretation, fictionalizationDegree 0.3 — the wording and
- * its modal, the unlabelled transcript and the failed re-verification are
+ * its modal, the transcript and the re-verification that resolved it are
  * documentary; the convergence table, the payload argument and the credences are
  * the compiler's.
  *
- * LANDED WITH THE FAMILY (james-gibson/local-time#200). This is one of seven sibling
- * universes committed together: production_value, dominated_choice, preference_vector,
- * solo_limit, discovery_reach, ambiguity_tolerant_form and this one. The rest of the
- * #200 thread (payer_ledger, shell_hypothesis, operator_profile, stationarity_domicile,
- * five_postulates, automation_stack, residue_and_reach, beck_plane, proper_timelines,
- * kpi_and_signature, trace_and_vendor, api_and_price, expertise_axis, mcp_threshold)
- * was not landed. This module's draft pointed only at modules that *were* landed, so
- * every edge it declares resolves; where a sibling draft pointed at one that was not,
- * the edge was dropped rather than dangled (see the family barrel for the list).
+ * LANDED WITH THE FAMILY (james-gibson/local-time#200). The family closed at twenty
+ * sibling universes, so every edge this module declares points at a module that
+ * exists: a target no module owns would be a link the graph cannot resolve, and a
+ * dangling edge reads as evidence of a module that is not there.
  */
 
 const UNIVERSE_ID = createHistoricalUniverseId('texas_mailer_ambiguity_tolerant_form', '2026');
@@ -101,6 +104,8 @@ const PROD_ID = 'history:texas_mailer_production_value:2026';
 const DOM_ID = 'history:texas_mailer_dominated_choice:2026';
 const PREF_ID = 'history:texas_mailer_preference_vector:2026';
 const SOLO_ID = 'history:texas_mailer_solo_limit:2026';
+/** The record that re-checked the cost line against the audio (#220). */
+const BECK_TRANSCRIPT_ID = 'series:beck_pamphlet_transcript:2026';
 
 const D = (y: number, m: number, d: number): bigint =>
   BigInt(Date.UTC(y, m - 1, d)) * 1_000_000n;
@@ -179,12 +184,12 @@ export const texasMailerAmbiguityTolerantFormUniverse = {
 
   attribution: {
     public_domain: false,
-    sources: ['The Glenn Beck Program transcript, 21 October 2026 (single machine transcript, unlabelled)', 'Prior modules'],
+    sources: ['The Glenn Beck Program, 21 October 2026 (audio + machine transcript; speaker attribution measured 2026-10-26)', 'Prior modules'],
     citations_required: true,
     usage_restrictions: [
-      'The supporting transcript could not be re-verified on the date of this module. The segment is cited at reduced confidence (0.55) and every reading built on it inherits that discount.',
-      'No audio or video was examined. Any claim about register, tone or delivery is unverifiable from the material held here.',
-      'Attributing the remark to Beck personally is not supported by an unlabelled machine transcript; attribute it to the program.',
+      'The earlier record of this module rested on one unlabelled machine transcript at a 0.55 cap. The 2026-10-26 audio pass re-checked it and retired both the cap and the hedge; the measurement and its credence are recorded in series:beck_pamphlet_transcript:2026, not restated here.',
+      'The audio was obtained on 2026-10-26, so the material now exists; what this module does not do is score register from it. Every claim here about tone or delivery is unscoreable from the record this module was built on, and is stated as a limit rather than as a reading.',
+      'The remark is Beck\'s: the audio pass measured the line and the producer\'s own reporting reverses. The earlier instruction to attribute it to the program is superseded by series:beck_pamphlet_transcript:2026.',
       'Credences are judgements, not frequencies.',
     ],
   },
@@ -198,7 +203,7 @@ export const texasMailerAmbiguityTolerantFormUniverse = {
         accuracy: 0.15,
         deviations: [
           'No audio examined. Register is inferred from wording alone, which is close to no evidence at all.',
-          'The transcript is unlabelled, so the speaker of the remark is presumed rather than known — a host, a guest, or a producer reading a note would all render identically.',
+          'The speaker is measured (the line is Beck\'s), but the layer scores a claim about DELIVERY, and no register has been read off the audio: a dry, ironic and sincere reading remain indistinguishable from this record.',
         ],
       },
       epochs: {
@@ -247,7 +252,7 @@ export const texasMailerAmbiguityTolerantFormUniverse = {
         tags: ['evidence', 'limitation', 'key_finding'],
         type: KeyframeType.MILESTONE,
         description:
-          'The transcript could not be re-verified: absent from the sandbox, exact phrase unindexed. The segment therefore rests on one machine transcript with no speaker labels, at reduced confidence. A claim about DELIVERY cannot be scored from a record that strips delivery — this is stated rather than papered over, because every reading in this module inherits the discount.',
+          'The first attempt failed: the transcript had left the sandbox and the exact phrase was unindexed, so the segment rested on one machine transcript with no speaker labels at a 0.55 cap. The 2026-10-26 pass obtained the audio and re-checked the passage, which retires the hedge and the cap (series:beck_pamphlet_transcript:2026). What survives is the narrower limit: DELIVERY is still unscoreable from the record this module was built on.',
       },
       {
         id: 'speaks_backwards_forks',
@@ -358,12 +363,12 @@ export const texasMailerAmbiguityTolerantFormUniverse = {
       'production_value: expense should be treated as possible PAYLOAD rather than overhead; re-derive the "per-piece to total" inversion under that frame',
       'dominated_choice: if expense is the message, an inefficient or dominated spec choice stops being an error and becomes a signal — the triage grid needs a costly-signalling row',
       'preference_vector: the "paid reconciliation" signal weakens if visible expense is itself the objective',
-      'discovery_reach: add the audio of the 21 October segment as a request; it is cheap and it scores the one thing this module cannot',
+      'discovery_reach: the audio of the 21 October segment was requested and OBTAINED on 2026-10-26 — request discharged. It scores the speaker (Beck, measured); it does not yet score the register, which is this module\'s question.',
     ],
     uncertaintyNotes: [
-      'The transcript could not be re-verified on 2026-10-26. Every reading here inherits a 0.55 confidence cap from that failure.',
-      'No audio or video was examined. Register claims are unverifiable from the material held.',
-      'The transcript is unlabelled, so the speaker is presumed. A host, a guest, or a producer reading a note render identically.',
+      'The first verification attempt failed and the second succeeded. The 2026-10-26 audio pass re-checked the passage, retired the 0.55 transcript cap and measured the speaker; the earlier note is superseded, not contradicted (series:beck_pamphlet_transcript:2026).',
+      'The audio exists now. Register claims remain unscored: the instrument arrived after this module was written, and nothing here has been re-read from it.',
+      'The speaker was presumed while the record was an unlabelled transcript. It is now measured: the cost line is Beck\'s, and the producer\'s own reporting reverses.',
       'The payload reading assumes circulation was a design objective. Opportunistic design is equally consistent with the observed outcome, which is why it is held at 0.55 rather than higher.',
       '"Beck isn\'t speaking honestly" is scored low not because he is credible but because the form is built to make the question unanswerable — undecidability is not evidence of dishonesty.',
     ],
@@ -376,6 +381,15 @@ export const texasMailerAmbiguityTolerantFormUniverse = {
       ],
     },
     references: [
+      {
+        type: 'SUPERSEDED_BY',
+        targetUniverseId: BECK_TRANSCRIPT_ID,
+        confidence: 0.95,
+        description:
+          'The transcript record re-checked this module\'s evidence on 2026-10-26 against the ' +
+          'audio: the speaker is measured, the "could not be re-verified" note and the 0.55 cap ' +
+          'are retired. A later pass that checks an uncertain earlier claim outranks it.',
+      },
       {
         type: 'CORRECTS',
         targetUniverseId: PROD_ID,
