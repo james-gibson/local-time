@@ -181,6 +181,52 @@ test('a skipped document with no earlier module says its universe left the barre
   assert.doesNotMatch(readFileSync(join(outDir, 'index.ts'), 'utf-8'), /testNever2000Universe,/);
 });
 
+/**
+ * james-gibson/local-time#198 — the directory, not the run.
+ *
+ * The barrel is rebuilt from this run's documents. Before this, the directory kept every
+ * module an earlier run had written, so a run over one document rewrote the barrel from one
+ * document and orphaned the rest — the state `generated-registration.test.ts` reported as
+ * `orphanModules`. The writer now deletes what it does not export.
+ */
+test('a module the barrel does not export is removed from the directory (#198)', () => {
+  const { loreDir, outDir } = withLoreDirMany({ 'good-film': baseDoc('test:T+00:00:00') });
+  // What an earlier, wider run left behind.
+  writeFileSync(join(outDir, 'stale_compendium_1999.ts'), 'export const stale = 1;\n');
+
+  const res = spawnSync(process.execPath, [SCRIPT, loreDir, outDir], { encoding: 'utf-8' });
+
+  assert.equal(res.status, 0, res.stderr);
+  assert.ok(!readdirSync(outDir).includes('stale_compendium_1999.ts'), 'stale module must be removed');
+  assert.deepEqual(readdirSync(outDir).sort(), ['index.ts', 'test_film_2000.ts']);
+  assert.match(res.stdout, /removed 1 module\(s\) this run does not export/);
+  assert.match(res.stdout, /stale_compendium_1999\.ts/);
+  // The barrel is still the whole truth about the directory.
+  const barrel = readFileSync(join(outDir, 'index.ts'), 'utf-8');
+  assert.doesNotMatch(barrel, /stale_compendium_1999/);
+});
+
+test('the escape hatch leaves the rest of the tree alone (#198)', () => {
+  const { loreDir, outDir } = withLoreDirMany({ 'good-film': baseDoc('test:T+00:00:00') });
+  writeFileSync(join(outDir, 'stale_compendium_1999.ts'), 'export const stale = 1;\n');
+
+  const res = spawnSync(process.execPath, [SCRIPT, loreDir, outDir], {
+    encoding: 'utf-8',
+    env: { ...process.env, LORE_KEEP_UNEXPORTED: '1' },
+  });
+
+  assert.equal(res.status, 0, res.stderr);
+  assert.ok(readdirSync(outDir).includes('stale_compendium_1999.ts'));
+  assert.match(res.stdout, /LORE_KEEP_UNEXPORTED=1/);
+});
+
+test('index.ts is rewritten, never pruned (#198)', () => {
+  // Nothing enrolled: the barrel is still the stable module the registry loads (#98).
+  const { res, outDir } = run({ universeId: 'test:film:2000', title: 'skip', type: 'film' });
+  assert.equal(res.status, 0, res.stderr);
+  assert.deepEqual(readdirSync(outDir), ['index.ts']);
+});
+
 test('the barrel exposes importedUniverses so the registry can load the tree', () => {
   // james-gibson/local-time#98: the registry imports the barrel's `importedUniverses`
   // at runtime. Without that array the generated universes can never be registered.

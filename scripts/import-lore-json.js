@@ -17,7 +17,7 @@
  * (e.g. keyframe descriptions) survive without fighting excess-property checks.
  */
 
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
 import { join, basename, relative } from 'node:path';
 
 // --- config maps -----------------------------------------------------------
@@ -715,6 +715,38 @@ for (const e of exports) {
 barrelLines.push('];');
 writeFileSync(join(outputDir, 'index.ts'), barrelLines.join('\n') + '\n');
 console.log(`  index.ts -> ${exports.length} export(s)`);
+
+// The tree is the directory, not the run (james-gibson/local-time#198).
+//
+// The barrel is rebuilt from *this run's* documents, while the directory keeps whatever
+// earlier runs left in it. A run over one document — the workaround #243 documented —
+// therefore rewrote the barrel from that document and orphaned every other module on
+// disk, which is how `generated-registration.test.ts` came to fail locally with
+// `orphanModules: ['history_costco_1983', 'technology_cvs_1986']`: the audit was right,
+// the writer was inconsistent with itself.
+//
+// So the directory is made to match the barrel: a module this run does not export is
+// removed. `LORE_KEEP_UNEXPORTED=1` opts out, for a deliberately partial run that must
+// leave the rest of the tree alone — but then the barrel it writes is still partial, and
+// the audit will still say so, because that is the truth.
+const keepUnexported = process.env.LORE_KEEP_UNEXPORTED === '1';
+if (!keepUnexported) {
+  const exportedModules = new Set(exports.map((entry) => `${entry.moduleName}.ts`));
+  const removed = [];
+  for (const entry of readdirSync(outputDir)) {
+    if (!entry.endsWith('.ts') || entry === 'index.ts' || exportedModules.has(entry)) continue;
+    rmSync(join(outputDir, entry));
+    removed.push(entry);
+  }
+  if (removed.length) {
+    console.log(
+      `  removed ${removed.length} module(s) this run does not export ` +
+        `(LORE_KEEP_UNEXPORTED=1 keeps them): ${removed.join(', ')}`,
+    );
+  }
+} else {
+  console.log('  LORE_KEEP_UNEXPORTED=1 — stale modules left on disk; the barrel is partial.');
+}
 
 console.log('Done.');
 
