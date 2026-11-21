@@ -49,7 +49,9 @@ import { ClockDrift, totalDrift } from '../../../utils/clock-drift';
  * Cultural Significance: 0.35 — a recording of a broadcast reaction, notable as a
  * worked example of one recording containing another, not as a work in its own right.
  *
- * Sourcing: caption tracks and metadata of both videos, retrieved 2026-10-26.
+ * Sourcing: caption tracks and metadata of both videos, retrieved 2026-10-26. The response
+ * video has since been removed from YouTube; `metadata.availability` on it records when it was
+ * last seen, what the check found, and which records survive (james-gibson/local-time#191).
  */
 
 const CLIP_ID = 'series:glenn_beck_you_wont_believe_what_i_got_in_the_mail:2026';
@@ -483,6 +485,9 @@ export const timWhitakerResponseUniverse = {
     sources: [
       'YouTube video 7g2IoTMGfPs — "Why Christians Lie About Transgender Kids", Tim Whitaker Speaks, published 2026-10-23T20:15:30Z, 1:02:48',
       'Caption track and chapter metadata, retrieved 2026-10-26',
+      'Whole-work account of the same video, Kagi Assistant export 2026-10-24 ' +
+        '(lore/external-sources/youtube-why-christians-lie-about-transgender-kids-account.md), ' +
+        'preserved after the video became unavailable',
     ],
     usage_restrictions: [
       'Contains a replayed third-party programme; re-use needs both rights holders cleared.',
@@ -605,6 +610,38 @@ export const timWhitakerResponseUniverse = {
       notRecorded: [
         'Whether the clip audio was altered between upload and re-use',
         'The responder\'s editing decisions: a pause is measured, not explained',
+      ],
+    },
+
+    /**
+     * The work is gone (james-gibson/local-time#191).
+     *
+     * Re-checked 2026-11-21: the watch page returns `"status": "ERROR"` and no playable
+     * formats, oEmbed returns HTTP 404, and yt-dlp refuses the id for the `web`, `ios`,
+     * `mweb`, `tv` and `android_vr` clients. The caption track this record was built from
+     * was captured on 2026-10-26, while the video was still up — so the measurement stands
+     * on a source that no longer exists to re-check it.
+     *
+     * What survives is named rather than gestured at. The whole-work account is a secondary
+     * rendering exported from a Kagi Assistant conversation on 2026-10-24: its block
+     * timings are reported, not cue-verified, so it grounds the narrative and no keyframe.
+     */
+    availability: {
+      state: 'unavailable',
+      lastRecordedAvailable: new Date('2026-10-26T00:00:00Z'),
+      checkedAt: new Date('2026-11-21T00:00:00Z'),
+      evidence: [
+        'oEmbed (youtube.com/oembed?url=…) returns HTTP 404',
+        'The watch page returns "status": "ERROR" with no playable formats',
+        'yt-dlp refuses the id for the web, ios, mweb, tv and android_vr clients',
+      ],
+      survivingRecords: [
+        'series:beck_pamphlet_transcript:2026 — the measured 44:21-59:09 passage, captured while the video was up',
+        'lore/external-sources/youtube-why-christians-lie-about-transgender-kids-account.md — the whole-work account, 2026-10-24',
+      ],
+      lost: [
+        'the caption track itself: other works have an extract in the KB, this one does not',
+        'the description and chapter list as served, beyond what the metadata above records',
       ],
     },
   },

@@ -40,6 +40,52 @@ const zeroEpochOf = (universe: typeof beckMailClipUniverse): ZeroReferenceEpoch 
   return layer.epochs.runtime_zero as ZeroReferenceEpoch;
 };
 
+/**
+ * james-gibson/local-time#191 — the response video is no longer retrievable.
+ *
+ * Re-checked 2026-11-21: oEmbed 404s, the watch page returns `"status": "ERROR"`, and every
+ * player client refuses the id. The captions this record was built from were captured on
+ * 2026-10-26, so the measurement stands on a source that cannot be re-checked — which the
+ * record has to say, or the next reader will try to verify it and conclude the corpus
+ * fabricated it.
+ */
+describe('the response video is recorded as unavailable (#191)', () => {
+  const availability = (): any =>
+    ((timWhitakerResponseUniverse.metadata ?? {}) as any).availability;
+
+  it('states the work is gone, with evidence and the date it was checked', () => {
+    const record = availability();
+    expect(record.state).toBe('unavailable');
+    expect(record.checkedAt).toBeInstanceOf(Date);
+    expect(record.evidence.join(' ')).toMatch(/oEmbed.*404/);
+    expect(record.evidence.join(' ')).toMatch(/watch page/i);
+  });
+
+  it('separates the last recorded sighting from the check that found it gone', () => {
+    const record = availability();
+    expect(record.lastRecordedAvailable).toBeInstanceOf(Date);
+    expect(record.lastRecordedAvailable.getTime()).toBeLessThan(record.checkedAt.getTime());
+  });
+
+  it('names the surviving records rather than gesturing at them', () => {
+    const record = availability();
+    const surviving = record.survivingRecords.join(' ');
+    expect(surviving).toContain('series:beck_pamphlet_transcript:2026');
+    expect(surviving).toContain('lore/external-sources/');
+    // The passage transcript is the record the note leans on, so it has to exist.
+    expect(allUniverses.some((u) => String(u.universeId) === 'series:beck_pamphlet_transcript:2026'))
+      .toBe(true);
+  });
+
+  it('keeps the account out of the keyframes', () => {
+    // The account is a secondary rendering with reported timings. Every keyframe here is
+    // measured; a keyframe sourced from an assistant's account would not be.
+    const keyframes = keyframesOf(timWhitakerResponseUniverse);
+    expect(keyframes.length).toBe(beckResponderAlignedEvents.length);
+    expect(keyframes.every((kf) => kf.targetKeyframeId)).toBe(true);
+  });
+});
+
 describe('the clip and the response as two clocks', () => {
   describe('registration', () => {
     it('registers both works in the corpus', () => {

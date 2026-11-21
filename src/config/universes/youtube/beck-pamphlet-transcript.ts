@@ -831,6 +831,7 @@ export const beckPamphletTranscriptUniverse = {
       'The second address reading is quoted at 05:11 by the transcript audit and placed at 05:16 by the aligned keyframe. Boundary convention; unresolved without the audio in hand.',
       'Beck\'s "Meadow Place" / "Meadows Place" toponym was recorded in an earlier round and was not re-audited in the final pass.',
       'The 13-block reading map in the #200 draft is not carried: caption-derived, out of printed order, and never checked against audio. The audited passage is the part that was.',
+      'The parent video is no longer retrievable (james-gibson/local-time#191). The track this record was audited from was captured on 2026-10-26 while the video existed; see the availability note on series:tim_whitaker_why_christians_lie_about_transgender_kids:2026.',
     ],
 
     sourcing: {
@@ -844,6 +845,7 @@ export const beckPamphletTranscriptUniverse = {
         'The broadcast hour: the episode date is known, the airtime is not',
         'Whether the YouTube cut is the broadcast cut or an edit',
         'The Podscripts line anchors used in earlier rounds; they no longer resolve (the passage now sits near line 3226, not 3462)',
+        'The video itself: it returns HTTP 404 as of 2026-11-21, so the capture cannot be repeated or extended',
       ],
     },
   },
