@@ -17,6 +17,9 @@ import {
   usCopyrightLawChangesUniverse
 } from './us-gov';
 import {gamesUniverses, pokemonUniverses} from './games';
+import { watergateScandalUniverses } from './historical/watergate-scandal';
+import { lucasIndictmentUniverses } from './historical/lucas-indictment';
+import { dojWatergateReviewUniverses } from './historical/doj-watergate-review';
 import {historicalUniverses} from './historical/jfk';
 // The Texas TTSU/"student union" mailer controversy (#207).
 import {texasTtsuMailersUniverses} from './historical/texas-ttsu-mailers';
@@ -97,6 +100,9 @@ export const allUniverses = [
   ...legalUniverses,
   ...gamesUniverses,
   ...historicalUniverses,
+  ...watergateScandalUniverses,
+  ...lucasIndictmentUniverses,
+  ...dojWatergateReviewUniverses,
   ...allCybersecurityUniverses,
   usMilitaryOperationsUniverse,
   usNativeAmericanPolicyUniverse,
