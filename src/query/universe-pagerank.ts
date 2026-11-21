@@ -103,7 +103,15 @@ export interface RankExplanation {
 }
 
 const DEFAULT_DAMPING = 0.85;
-const DEFAULT_MAX_ITERATIONS = 100;
+/**
+ * 200, not 100. The default has to converge on the corpus it ships with, and the corpus's
+ * mixing time grew past 100 when `history:united_states:founded` was registered
+ * (james-gibson/local-time#122): the container is the parent of 93 universes, so one node
+ * gained 93 incoming edges and the stationary walk needed 110 iterations to reach the 1e-10
+ * tolerance. Measured on the full corpus: 110 iterations, 4 ms. The cap is a safety net,
+ * not the intended stopping condition — `converged: false` still reports the achieved delta.
+ */
+const DEFAULT_MAX_ITERATIONS = 200;
 const DEFAULT_TOLERANCE = 1e-10;
 
 interface Transition {
