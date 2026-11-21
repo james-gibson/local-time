@@ -60,15 +60,10 @@ import { createHistoricalUniverseId } from '../../../../core/universe-ids';
  * Reality Relation: interpretation, fictionalizationDegree 0.3 — postal rules and
  * product behaviour are documentary; S0's formalisation and S5 are the compiler's.
  *
- * LANDED WITH THE FAMILY (james-gibson/local-time#200). This is one of seven sibling
- * universes committed together: production_value, dominated_choice, preference_vector,
- * solo_limit, discovery_reach, ambiguity_tolerant_form and this one. The rest of the
- * #200 thread — payer_ledger, shell_hypothesis, operator_profile, stationarity_domicile,
- * five_postulates, automation_stack, residue_and_reach, beck_plane, proper_timelines,
- * kpi_and_signature, trace_and_vendor, api_and_price, expertise_axis, mcp_threshold —
- * is not landed, so edges to it are recorded in `metadata.threadSiblings` instead of
- * being declared as references: a target no module owns is a link the graph cannot
- * resolve, and a dangling edge looks like evidence of a module that does not exist.
+ * LANDED WITH THE FAMILY (james-gibson/local-time#200). The family closed at twenty
+ * sibling universes, so every edge this module declares points at a module that exists:
+ * a target no module owns would be a link the graph cannot resolve, and a dangling edge
+ * reads as evidence of a module that is not there.
 
  */
 
@@ -162,7 +157,7 @@ export const texasMailerSoloLimitUniverse = {
   layers: [
     {
       layerId: 'postal_structure',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:structural_floor:2026',
         accuracy: 0.75,
@@ -184,7 +179,7 @@ export const texasMailerSoloLimitUniverse = {
     },
     {
       layerId: 'headcount_evidence',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:headcount_proxy:2026',
         accuracy: 0.25,

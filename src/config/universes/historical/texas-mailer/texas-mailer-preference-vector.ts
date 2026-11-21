@@ -76,15 +76,10 @@ import { createHistoricalUniverseId } from '../../../../core/universe-ids';
  * literature and the print guidance are documentary; the four-signature model,
  * the coherence test and the credences are the compiler's.
  *
- * LANDED WITH THE FAMILY (james-gibson/local-time#200). This is one of seven sibling
- * universes committed together: production_value, dominated_choice, preference_vector,
- * solo_limit, discovery_reach, ambiguity_tolerant_form and this one. The rest of the
- * #200 thread — payer_ledger, shell_hypothesis, operator_profile, stationarity_domicile,
- * five_postulates, automation_stack, residue_and_reach, beck_plane, proper_timelines,
- * kpi_and_signature, trace_and_vendor, api_and_price, expertise_axis, mcp_threshold —
- * is not landed, so edges to it are recorded in `metadata.threadSiblings` instead of
- * being declared as references: a target no module owns is a link the graph cannot
- * resolve, and a dangling edge looks like evidence of a module that does not exist.
+ * LANDED WITH THE FAMILY (james-gibson/local-time#200). The family closed at twenty
+ * sibling universes, so every edge this module declares points at a module that exists:
+ * a target no module owns would be a link the graph cannot resolve, and a dangling edge
+ * reads as evidence of a module that is not there.
 
  */
 
@@ -183,7 +178,7 @@ export const texasMailerPreferenceVectorUniverse = {
   layers: [
     {
       layerId: 'spec_vector',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:artifact_specs:2026',
         accuracy: 0.3,
@@ -204,7 +199,7 @@ export const texasMailerPreferenceVectorUniverse = {
     },
     {
       layerId: 'stance_reconstruction',
-      type: 'reconstruction',
+      type: 'recreation',
       reality_correspondence: {
         to: 'analysis:operator_stance:2026',
         accuracy: 0.4,
@@ -336,24 +331,6 @@ export const texasMailerPreferenceVectorUniverse = {
       'A novice who inherited a vendor-authored spec is indistinguishable from an expert without the job ticket, and that is the most likely false positive here.',
       'The copy test fails if the impersonation deliberately suppressed the voice, or if the piece is too short for register to register.',
     ],
-    threadSiblings: [
-      {
-        id: 'history:texas_mailer_mcp_threshold:2026',
-        note: 'the integration-barrier module this one corrects; not landed',
-      },
-      {
-        id: 'history:texas_mailer_expertise_axis:2026',
-        note: 'the two-axis expertise module this one corrects; not landed',
-      },
-      {
-        id: 'history:texas_mailer_api_and_price:2026',
-        note: 'the vendor-population module this one documents; not landed',
-      },
-      {
-        id: 'history:texas_mailer_trace_and_vendor:2026',
-        note: 'the physical-evidence module this one derives from; not landed',
-      },
-    ],
   },
 
   connections: {
@@ -378,6 +355,34 @@ export const texasMailerPreferenceVectorUniverse = {
         description:
           'The reach map is scope, not authorship; this module answers the authorship question ' +
           'the reach map cannot.',
+      },
+      {
+        type: 'CORRECTS',
+        targetUniverseId: 'history:texas_mailer_mcp_threshold:2026',
+        confidence: 0.8,
+        description:
+          'Corrects the claim that an integration barrier selects one population.',
+      },
+      {
+        type: 'CORRECTS',
+        targetUniverseId: 'history:texas_mailer_expertise_axis:2026',
+        confidence: 0.85,
+        description:
+          'Replaces headcount with two orthogonal competence axes.',
+      },
+      {
+        type: 'DOCUMENTS',
+        targetUniverseId: 'history:texas_mailer_api_and_price:2026',
+        confidence: 0.8,
+        description:
+          'The per-piece price data the preference vector is fitted to.',
+      },
+      {
+        type: 'DERIVES_FROM',
+        targetUniverseId: 'history:texas_mailer_trace_and_vendor:2026',
+        confidence: 0.8,
+        description:
+          'The vendor-side evidence that an agent signature is modal.',
       },
     ],
   },

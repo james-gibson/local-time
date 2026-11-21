@@ -316,12 +316,6 @@ export const texasMailerProperTimelinesUniverse = {
       'operator_profile: add H8 liability transfer, at 0.6, with the Target precedent as structural analogue',
       'discovery_reach: add the vendor-universe test — a past-GOP-voter file has few possible suppliers, and the select was partisan-plus-geography',
     ],
-    threadSiblings: [
-      {
-        id: BECK_PLANE_ID,
-        note: 'the single-pass Beck reading this paired-timeline method supersedes; still unlanded',
-      },
-    ],
     uncertaintyNotes: [
       'Seven resamplings are not a distribution; the function census is a judgement about these utterances, not a rate.',
       'Every proper line is invented. Two of them (T6, T3) are supported by sources; the rest are not claims about fact, only about form.',
@@ -347,6 +341,13 @@ export const texasMailerProperTimelinesUniverse = {
         targetUniverseId: DISCOVERY_ID,
         confidence: 0.9,
         description: 'Adds the vendor-universe test the reach map lacked.',
+      },
+      {
+        type: 'SUPERSEDES',
+        targetUniverseId: BECK_PLANE_ID,
+        confidence: 0.85,
+        description:
+          'The paired-timeline method supersedes the single-pass plane reading.',
       },
     ],
   },
