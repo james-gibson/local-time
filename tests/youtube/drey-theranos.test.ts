@@ -69,8 +69,9 @@ const keys = (id: string): string => String(id);
 
 describe('the Drey Dossier essay — identity (#203)', () => {
   test('the id is a series id, produced by the factory, and not a film id', () => {
-    // `isValidUniverseId` is not proof: ANY_YEAR_TERMINATED accepts nearly any
-    // year-terminated shape, including ones no declared namespace owns (#50, #57).
+    // `isValidUniverseId` is not proof: ANY_YEAR_TERMINATED accepts any
+    // three-segment year-terminated shape, including ones no declared namespace
+    // owns (#50, #57).
     expect(
       createSeriesUniverseId(
         'series',

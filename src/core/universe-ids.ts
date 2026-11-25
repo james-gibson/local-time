@@ -290,22 +290,35 @@ const RESERVED_STUDIO_ALTERNATION = [...RESERVED_STUDIO_TOKENS]
  * period genuinely runs belongs in its timeline, never in its id.
  *
  * `SYSTEM`, `US`, `BOOK`, `HISTORICAL` and `PERSONAL` declare the optional segment. `FILM`
- * deliberately does not — see its comment.
+ * deliberately does not — see its comment; a four-segment film is `FILM_SERIES`, which is a
+ * closed series list rather than a widened `FILM`.
  */
 export const UNIVERSE_ID_PATTERNS = {
   /**
-   * A film id. **Deliberately not given the optional middle segment**, although
-   * `film:star_wars:a_new_hope:1977` in the corpus is the general form.
+   * A film id. **Deliberately not given the optional middle segment.**
    *
    * This is the one pattern that doubles as the generic fallback: it is `[a-z0-9_]+` on both
    * sides of the colon, so a third segment would make *any* undeclared four-segment id read as a
    * film — which is the #57 trap (`hearing:rogers_commission:1986` validating as a film) widened,
-   * not fixed. Until a film id has a declared studio or series component instead of a generic
-   * token, the film namespace stays three-segment and that one id stays on the catch-all.
+   * not fixed. The corpus's one four-segment film id is declared by `FILM_SERIES` below instead,
+   * so this pattern stays three-segment and does not become a second catch-all (#50).
    */
   FILM: new RegExp(
     `^(?!${RESERVED_STUDIO_ALTERNATION}:)[a-z0-9_]+:[a-z0-9_]+:\\d{4}$`,
   ),
+
+  /**
+   * A film named by its series rather than its distributor: `film:<series>:<title>:<year>`.
+   *
+   * `film` is `GENERIC_FILM_STUDIO_TOKEN` — "no distributor named" — so the four-segment form is
+   * declared only for a **closed** series list. A generic series token would make this a second
+   * catch-all, which is exactly what FILM refuses to become. The list grows by decision: a token
+   * is added here in the same change that registers its first film.
+   *
+   * One member today: `film:star_wars:a_new_hope:1977`, the last id in the corpus that used to
+   * validate only through `ANY_YEAR_TERMINATED` (james-gibson/local-time#50).
+   */
+  FILM_SERIES: /^film:(star_wars):[a-z0-9_]+:\d{4}$/,
   FILM_STUDIO: /^film_studio:[a-z0-9_]+:(\*|founded|\d{4}|\d{4}-\d{4}|\d{4}-present)$/,
   SERIES: /^(series|tv|netflix|hbo|disney_plus|amazon):[a-z0-9_]+:\d{4}$/,
   BOOK: /^(book|literature|publisher):[a-z0-9_]+(?::[a-z0-9_]+)?:\d{4}$/,
@@ -402,31 +415,28 @@ export const UNIVERSE_ID_PATTERNS = {
   /**
    * The permissive escape hatch, renamed from `FALLBACK` in #50.
    *
-   * The old name implied a shape it does not enforce. The first character class includes
-   * the colon, so this is **not** a three-segment pattern — it matches any id whose final
-   * segment is a four-digit year and whose other segments contain no disallowed character:
+   * The permissive escape hatch, renamed from `FALLBACK` in #50. It is now **three segments**:
+   * the colon came out of the first character class when #50's inventory fell to one id and
+   * that id (a four-segment film) got a declared pattern (`FILM_SERIES`).
    *
-   *   a:b:1999                  -> true
-   *   a:b:c:1999                -> true
-   *   this:is:not:a:real:id:1999 -> true
+   *   a:b:1999                  -> true   (an undeclared three-segment domain)
+   *   a:b:c:1999                -> false  (declared multi-segment shapes only)
+   *   this:is:not:a:real:id:1999 -> false
    *
-   * `ANY_YEAR_TERMINATED` says what it actually does: it constrains the *suffix*, and
-   * nothing else. `isValidUniverseId` is `Object.values(UNIVERSE_ID_PATTERNS).some(...)`,
-   * so this pattern is a universal pass-through and the validator it feeds has almost no
-   * discriminating power left. That is a known cost, not a bug:
+   * `ANY_YEAR_TERMINATED` still constrains only the *suffix* within three segments, so it
+   * remains a catch-all for an *undeclared* three-segment domain — a recorder may not know
+   * the domain yet, but the id's arity and year are checkable. The cost that remains:
    *
    *   - `hearing:rogers_commission:1986` validates as **FILM**, because FILM's pattern is
    *     the same generic three-segment shape. #57 hit this: the id for a congressional
    *     hearing would have been accepted as a film.
-   *   - four-segment ids built by the three-argument `createQualifiedId` are
-   *     accepted although no declared pattern covers them (#51).
+   *   - `log:x_y:2026` still reads as a film for the same reason (#51's dead namespace).
    *
-   * Tightening this to a real three-segment shape is the better fix and is still open; it
-   * needs an inventory of every id that currently validates only here. Until then the
-   * permissive behaviour is deliberately unchanged — **the rename must not alter which ids
-   * pass**, and `universe-id-fallback.test.ts` pins that.
+   * What it no longer does is accept `a:b:c:d:1999` or deeper. A four-segment id now has to
+   * be declared (`SYSTEM`, `US`, `BOOK`, `HISTORICAL`, `PERSONAL`, `FILM_SERIES`, …), which is
+   * what makes a deferred reference to a future id structurally checkable (#50, #38).
    */
-  ANY_YEAR_TERMINATED: /^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/
+  ANY_YEAR_TERMINATED: /^[a-z0-9_]+:[a-z0-9_]+:\d{4}$/
 } as const;
 
 /**
@@ -445,7 +455,7 @@ export function isValidUniverseId(id: string): id is UniverseId {
 //   return UNIVERSE_ID_PATTERNS.FASHION.test(id);
 // }
 export function isFilmUniverseId(id: string): id is FilmUniverseId {
-  return UNIVERSE_ID_PATTERNS.FILM.test(id);
+  return UNIVERSE_ID_PATTERNS.FILM.test(id) || UNIVERSE_ID_PATTERNS.FILM_SERIES.test(id);
 }
 
 export function isFilmStudioUniverseId(id: string): id is FilmStudioUniverseId {
@@ -652,6 +662,27 @@ export function createFilmUniverseId(studio: string, title: string, year: number
     // console.error('the system didnt like that id');
     // return `film:${id}` as FilmUniverseId;
     throw new Error(`Invalid film universe ID format: ${id}`);
+  }
+  return id as FilmUniverseId;
+}
+
+/**
+ * A film named by its series rather than its distributor:
+ * `film:<series>:<title>:<year>`.
+ *
+ * Only a series token declared in `FILM_SERIES` is accepted, so this factory cannot be used
+ * to mint a second catch-all: an undeclared series throws. It exists so the corpus id is
+ * reproducible through a factory rather than a literal
+ * (`film:star_wars:a_new_hope:1977`); see james-gibson/local-time#50.
+ */
+export function createFilmSeriesUniverseId(
+  series: string,
+  title: string,
+  year: number,
+): FilmUniverseId {
+  const id = `film:${toIdFragment(series)}:${toIdFragment(title)}:${year}`;
+  if (!isFilmUniverseId(id)) {
+    throw new Error(`Invalid film-series universe ID format: ${id}`);
   }
   return id as FilmUniverseId;
 }
@@ -975,7 +1006,7 @@ export const WELL_KNOWN_UNIVERSES = {
   // Films
   MARY_POPPINS: createFilmUniverseId('disney', 'mary_poppins', 1964),
   BACK_TO_THE_FUTURE: createFilmUniverseId('universal', 'back_to_the_future', 1985),
-  // STAR_WARS_ANH: createFilmUniverseId('film', 'star_wars:a_new_hope', 1977),
+  STAR_WARS_ANH: createFilmSeriesUniverseId('star_wars', 'a_new_hope', 1977),
   
   // Historical Events
   JFK_ASSASSINATION: createHistoricalUniverseId('jfk_assassination', 1963),

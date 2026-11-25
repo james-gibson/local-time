@@ -9,8 +9,8 @@ import { createTechnologyEventId } from '../../../core/universe-ids';
  * from the first file-based revision systems to the distributed systems that
  * dominate modern software development. Each system is a `TECHNOLOGY` universe
  * with the canonical `technology:<slug>:<year>` id (matching the technology
- * universes in `historical/stem.ts`), so they resolve through the registry's
- * `ANY_YEAR_TERMINATED` id pattern.
+ * universes in `historical/stem.ts`), so they resolve through the declared
+ * `TECHNOLOGY` id pattern.
  *
  * The systems form a single inheritance chain plus a distributed fork:
  *

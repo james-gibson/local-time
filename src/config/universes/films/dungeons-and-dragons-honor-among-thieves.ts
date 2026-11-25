@@ -13,8 +13,8 @@ import { FilmSpec, createFilmUniverse } from './film-universe';
  *
  * The title carries a colon and an ampersand, and the ticket's proposed
  * `film:paramount:…` id has **four** segments — no declared pattern accepts that
- * shape, so it passes only via the `ANY_YEAR_TERMINATED` catch-all (#50) and the
- * permissive `isValidUniverseId`. (`film` is also the *generic* studio token,
+ * shape, and since #50 the catch-all rejects four segments, so `isValidUniverseId`
+ * is `false` for it. (`film` is also the *generic* studio token,
  * "no studio named", not a namespace.) The film vocabulary is
  * `<studio-token>:<title>:<year>`, and the distributor is Paramount, a
  * registered studio token.

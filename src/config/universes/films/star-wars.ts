@@ -1,12 +1,20 @@
 import { Universe, UniverseType, TimePrecision } from '../../../core/types';
 import { creatorRefs } from '../../../core/creators';
+import { createFilmSeriesUniverseId } from '../../../core/universe-ids';
+
+/**
+ * The four-segment film form: `film` names no distributor, `star_wars` the series.
+ * Declared as `FILM_SERIES` (a closed series list), which is what let #50 tighten
+ * `ANY_YEAR_TERMINATED` to three segments without widening FILM.
+ */
+const STAR_WARS_ANEW_HOPE = createFilmSeriesUniverseId('star_wars', 'a_new_hope', 1977);
 
 export const starWarsANewHopeUniverse: Universe = {
-  universeId: "film:star_wars:a_new_hope:1977",
+  universeId: STAR_WARS_ANEW_HOPE,
   type: UniverseType.FILM,
   epochs: undefined,
   identifiers: {
-    primary: "film:star_wars:a_new_hope:1977",
+    primary: STAR_WARS_ANEW_HOPE,
     aliases: ["star_wars", "episode_iv", "a_new_hope"],
     imdb: "tt0076759"
   },

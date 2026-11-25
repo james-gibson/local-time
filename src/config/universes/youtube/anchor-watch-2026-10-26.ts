@@ -32,8 +32,8 @@ import { ANCHOR_WATCH_SERIES_ID } from './anchor-watch';
  *
  * ID. `series:bobby_jones_erupts_over_hegseth:2026`, produced by
  * `createSeriesUniverseId('series', SLUG, 2026)`. The ticket proposed
- * `series:anchor_watch:bobby_jones_erupts_over_hegseth:2026` — four segments, which only
- * the `ANY_YEAR_TERMINATED` catch-all accepts (#57). The hierarchy is expressed with
+ * `series:anchor_watch:bobby_jones_erupts_over_hegseth:2026` — four segments, which no
+ * declared pattern accepts and which #50's tightened catch-all rejects (#57). The hierarchy is expressed with
  * more ids, not more segments: the program is `series:anchor_watch:2026` and this
  * episode is a member of it (`parentUniverses`).
  *

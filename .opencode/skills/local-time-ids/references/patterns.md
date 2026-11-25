@@ -48,15 +48,16 @@ period genuinely runs belongs in its timeline, never in its id.
 
 `SYSTEM`, `US`, `BOOK`, `HISTORICAL` and `PERSONAL` take the optional segment. **`FILM` does not,
 deliberately** — it is the pattern that doubles as the generic fallback, so a third segment would
-make any undeclared four-segment id read as a film (the #57 trap, widened). That is why
-`film:star_wars:a_new_hope:1977` is not a film id, and it is the one remaining id of the form that
-still relies on the catch-all.
+make any undeclared four-segment id read as a film (the #57 trap, widened). The one four-segment
+film shape, `film:star_wars:a_new_hope:1977`, is declared by `FILM_SERIES` with a **closed** series
+list (`star_wars` today): add a token there in the change that registers its first film.
 
 ## The shape families
 
 | Family | Namespaces | Arity | Trailing segment |
 | --- | --- | --- | --- |
 | Film | any token not reserved (see below) | 3 | 4-digit year |
+| Film series | `film` + a closed series token (`star_wars`) | 4 | 4-digit year |
 | Film studio | `film_studio` | 3 | `*` \| `founded` \| `YYYY` \| `YYYY-YYYY` \| `YYYY-present` |
 | Film-studio *container* | `film_studio` | 3 | same span vocabulary |
 | Series | `series` \| `tv` \| `netflix` \| `hbo` \| `disney_plus` \| `amazon` | 3 | 4-digit year |
@@ -145,17 +146,21 @@ output equals it.
 ## The permissive last word
 
 ```ts
-ANY_YEAR_TERMINATED: /^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/
+ANY_YEAR_TERMINATED: /^[a-z0-9_]+:[a-z0-9_]+:\d{4}$/
 ```
 
-(read it verbatim from the source; it is quoted here only to make the point.) The
-colon inside the first class means **arity-blind**. `isValidUniverseId` is
-`Object.values(UNIVERSE_ID_PATTERNS).some(...)`, so this one pattern makes the
-validator a near-universal pass-through for anything ending in a four-digit year.
+A **three-segment** catch-all for an *undeclared domain* — and nothing more. Before
+#50 the colon was inside the first character class, so it was arity-blind; the
+inventory that let it be tightened was one id (`film:star_wars:a_new_hope:1977`, now
+`FILM_SERIES`). A four-or-more-segment id needs a declared pattern.
 
-`src/core/__tests__/universe-id-fallback.test.ts` pins exactly which ids pass
-*only* through it, and asserts no other pattern is a second catch-all. Run it
-before and after any change to the table.
+`isValidUniverseId` is still `Object.values(...).some(...)`, so a declared-domain trap
+remains: FILM accepts any three-segment shape, including
+`hearing:rogers_commission:1986` (#57).
+
+`src/core/__tests__/universe-id-fallback.test.ts` pins the arity, the closed series
+list, and that no other pattern is an arity-blind catch-all. Run it before and after
+any change to the table.
 
 ## Guards, and which tests already exist
 

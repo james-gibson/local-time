@@ -41,9 +41,9 @@ const segments = (u: Universe): Array<{ id: string; start: bigint; end: bigint; 
 
 describe('Dungeons & Dragons: Honor Among Thieves (2023) universe (james-gibson/local-time#116)', () => {
   test('uses a pinned, valid film id — the punctuation cannot produce one', () => {
-    // The ticket's `film:paramount:…:2023` is four segments, so it passes only via
-    // the ANY_YEAR_TERMINATED catch-all (#50) — assert the *domain* guard, not the
-    // permissive one.
+    // The ticket's `film:paramount:…:2023` is four segments: no declared pattern
+    // accepts it and #50's catch-all rejects it — assert the *domain* guard, not
+    // the permissive one.
     expect(isFilmUniverseId(String(dungeonsAndDragonsHonorAmongThievesUniverse.universeId))).toBe(
       true,
     );
