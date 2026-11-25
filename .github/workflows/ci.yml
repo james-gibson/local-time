@@ -61,6 +61,16 @@ jobs:
       - name: Test the lore pipeline scripts
         run: npm run test:scripts
 
+      # The authority module is generated from `xkcd-1491-table.json`, and a
+      # hand-edit looks like a normal diff. The #184/#232 anchor fix was applied
+      # that way, so the generator still emitted the old `xkcd:1491` anchor and
+      # `--check` failed on `main` (local-time#229). The staleness is now checked
+      # on every build instead of being noticed the next time someone regenerated.
+      # `npm run chart:check` runs the generator with `--check` and fails on any
+      # byte difference.
+      - name: Check the generated xkcd #1491 authority
+        run: npm run chart:check
+
       # `docs/site/` is a build artefact from a sibling project, so no other step
       # reads it. This is what notices a half-written Hugo build, a nav entry for
       # a section that was not generated, or a subpath applied twice
