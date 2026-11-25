@@ -1,4 +1,4 @@
-import { createUniverseId } from '../../../core/universe-ids';
+import { createTechnologyEventId } from '../../../core/universe-ids';
 import { KeyframeType, TimePrecision, Universe, UniverseType } from '../../../core/types';
 import { dateToNanoseconds } from '../../../utils/temporal-conversion';
 
@@ -13,8 +13,8 @@ import { dateToNanoseconds } from '../../../utils/temporal-conversion';
  * ID: `technology:aaahogex:2022`. The slug is the AI's declared name lowercased
  * (`GetName()` returns "AAAhogEx"); the year is the first public record of the
  * project (the GitHub repository, 2022-01-04), not a guessed founding date.
- * `createTechnologyUniverseId` cannot express a dated id (it only emits
- * `technology:<name>:*`), so the id is routed through `createUniverseId`.
+ * The id is built with `createTechnologyEventId` (#121): the undated
+ * `createTechnologyUniverseId` only emits `technology:<name>:*`.
  *
  * Reality Relation: `documentary` at 0.0. The project, its author, its releases
  * and its declared capabilities are real. What the script *does inside a game*
@@ -51,7 +51,7 @@ const LAST_TAGGED_RELEASE = ns('2024-06-16T12:56:47Z');
 const CURRENT_VERSION = ns('2026-03-18T00:00:00Z');
 
 export const aaahogexUniverse = {
-  universeId: createUniverseId('technology:aaahogex:2022'),
+  universeId: createTechnologyEventId('aaahogex', 2022),
   type: UniverseType.TECHNOLOGY,
 
   identifiers: {

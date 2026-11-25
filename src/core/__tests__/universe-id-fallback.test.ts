@@ -75,9 +75,9 @@ describe('ANY_YEAR_TERMINATED (#50)', () => {
         });
 
         /**
-         * #51 flagged that the four-segment ids from `createTechnicalUniverseId` —
-         * `system:secure_ledger:authentication_v1:2026` among them — were accepted although
-         * no declared pattern covered them.
+         * #51 flagged that the four-segment ids from `createQualifiedId` (then
+         * `createTechnicalUniverseId`) — `system:secure_ledger:authentication_v1:2026`
+         * among them — were accepted although no declared pattern covered them.
          *
          * That is no longer true, and the fix arrived by accident rather than design: the
          * `SYSTEM` pattern added in #47 is `/^system:[a-z0-9_]+(?::[a-z0-9_]+)?:(\*|v\d+|\d{4}|\d{4}-\d{4})$/`,

@@ -985,8 +985,8 @@ export enum CopyrightStatus {
   PRIVATE = 'private'
 }
 
-// Universe-id factories used to be re-exported here, and `createTechnicalUniverseId`
-// was additionally *defined* here — byte-identically to a second copy in
+// Universe-id factories used to be re-exported here, and `createQualifiedId` (then
+// `createTechnicalUniverseId`) was additionally *defined* here — byte-identically to a second copy in
 // `core/ids/id-creators.ts` (local-time#51). Both are gone: the factories live in
 // `core/universe-ids.ts` and are imported from there, which is the one path that now
 // exists for them.
