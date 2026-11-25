@@ -204,16 +204,23 @@ The vocabulary to express composition exists, and **containment** is now wired (
 | `addConnection({ type: 'member_of', … })` | the builder containment edge — lands in `metadata.connections` |
 | `UniverseRegistry.getOwner` / `getMemberships` / `contains` | the read surface; the registry folds *both* edges into `CommonUniverseIds` |
 | `TemporalLayer.subuniverses` | **retired** — it had zero producers (#74) |
-| `TemporalLayer.reality_correspondence` | used once, `savingPrivateRyanUniverse.ts` (#75) |
+| `TemporalLayer.reality_correspondence` | written by `composeUniverse()`; `savingPrivateRyanUniverse.ts` is the first hand-authored producer (#75) |
 | `UniverseNetwork.sharedEpochs` / `eras` | `sharedEpochs` inherited by every member at registration (the member's own epoch wins); `eras` validated against the membership (#168) |
 | `TemporalKeyframe.targetUniverseId` | the only cross-universe keyframe link (#3) |
 
 `allUniverses` is **flat with unique ids** — one owner per id — but a universe may be a *member*
 of any number of containers. The registry derives those membership edges from the declared
 parents (literal or builder), so `contains` / `getParentChain` / `getChildren` /
-`getAllDescendants` answer membership without the id ever being registered twice. The
-designed-vs-in-code ledger is `explorations/README.md`; the unfinished work is #75 (composition)
-and #82 (shared windows).
+`getAllDescendants` answer membership without the id ever being registered twice. **Overlaying
+universes is now an operator** (`composeUniverse`, #75): `composeUniverse(base, overlays)`
+returns a derived `Universe` whose overlay layers are `recreation`/`subjective`/`meta` with
+`reality_correspondence.to` set, resolves collisions by a total precedence (explicit override →
+layer type → accuracy → declaration order), and records every loser in `composition.collisions`.
+`groundTruth(composed)` returns the base object unchanged and `viewOf(composed, 'ground-truth')`
+selects it. A composed universe is **not registered** — its id is derived
+(`composeUniverseId`) and the default chart excludes `system:`, so a composition cannot appear
+as a corpus row. The designed-vs-in-code ledger is `explorations/README.md`; the unresolved
+primitive is #82 (shared windows).
 
 **The cheapest universe is a derived one.** Before authoring anything, look for a **lever**: an
 existing universe that already holds the facts — a shared context from `CommonUniverseIds`
