@@ -32,7 +32,7 @@ written down here.
 | `Attribution` incl. `historical_advisors` | `types.md:66-81` | `src/core/types.ts` | — |
 | `TemporalLayer.type` (`primary \| meta \| recreation \| subjective`) | `types.md:83-85` | `src/core/types.ts` | — |
 | `TemporalLayer.contains` | `types.md:87` | declared, unused | — |
-| `TemporalLayer.reality_correspondence` | `types.md:88-92`, `example.ts.md:152-167` | used **once**, `savingPrivateRyanUniverse.ts:88` | **#75** |
+| `TemporalLayer.reality_correspondence` | `types.md:88-92`, `example.ts.md:152-167` | written by the composition operator (`src/core/universe-composition.ts`); `savingPrivateRyanUniverse.ts:88` was the first hand-authored producer | **#75** |
 | `TemporalLayer.subuniverses` | `types.md:93`, `example.ts.md:198-217` | **retired** — containment is now `Universe.connections.natural.parentUniverses`, resolved by `CommonUniverseIds` | **#74** |
 | `TemporalStructure` / `Segment` / `Keyframe` / `WindowingStrategy` | `types.md:106-138` | `src/core/types.ts` | — |
 | `TemporalWindow` / `WindowAlias` | `types.md:147-161`, `proposal.md:15-59` | declared; `window-search.ts` reads `universe.temporalWindows` but **no universe fills it**; `WindowAlias` unused | **#82** |
