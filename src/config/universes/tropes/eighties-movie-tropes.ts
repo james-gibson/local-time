@@ -38,9 +38,9 @@ import {
  *   is not a valid universe id at all (see the next section).
  * - Every anchor id it proposed, e.g.
  *   `film:universal:back_to_the_future:1985`, has **four** segments. No declared
- *   pattern accepts that shape — only the `ANY_YEAR_TERMINATED` catch-all (#50),
- *   which is why `isValidUniverseId` returns `true` for it and why the catch-all is
- *   not the guard to trust. The film vocabulary is `<studio-token>:<title>:<year>`,
+ *   pattern accepts that shape, and since #50 the catch-all rejects four segments
+ *   too — which is why the anchor ids below are three-segment and why the catch-all
+ *   is not the guard to trust. The film vocabulary is `<studio-token>:<title>:<year>`,
  *   so the anchors below are `columbia:…`, `universal:…` and `paramount:…`; *Back
  *   to the Future* is `universal:back_to_the_future:1985`, renamed in #182 from the
  *   legacy `film:bttf:1985` the film namespace used to own.

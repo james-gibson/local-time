@@ -36,7 +36,7 @@ import {
  * `allUniverses` is not proof of a lookup.
  *
  * The ids are also guarded *by domain*, not by `isValidUniverseId` alone: the
- * permissive ANY_YEAR_TERMINATED pattern accepts almost anything ending in a
+ * permissive ANY_YEAR_TERMINATED pattern accepts any three-segment id ending in a
  * year, and the previous draft's `gaming:`/`youtube:` prefixes are not declared
  * namespaces at all — both would have been dropped or mis-validated.
  */

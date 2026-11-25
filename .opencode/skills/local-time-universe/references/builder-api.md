@@ -168,6 +168,7 @@ Never overwrites a value the caller set.
 | Factory | Shape | Validates? |
 | --- | --- | --- |
 | `createUniverseId(id)` | any declared pattern | yes |
+| `createFilmSeriesUniverseId(series, title, year)` | `film:<series>:<title>:YYYY` (closed series list) | yes |
 | `createFilmUniverseId(studio, title, year)` | `<studio>:<title>:YYYY` | yes |
 | `createFilmStudioUniverseId(slug, span)` | `film_studio:<slug>:<span>` | yes |
 | `createSeriesUniverseId(network, title, year)` | `<network>:<title>:YYYY` | yes |
@@ -187,8 +188,10 @@ Never overwrites a value the caller set.
 
 Guards: `isValidUniverseId` = any declared pattern; per-domain guards
 `isFilmUniverseId`, `isHistoricalUniverseId`, … `isValidUniverseId` is broad because
-`ANY_YEAR_TERMINATED` (`/^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/`) matches any year-terminated id,
-including four-segment ones. It only constrains the suffix.
+`ANY_YEAR_TERMINATED` (`/^[a-z0-9_]+:[a-z0-9_]+:\d{4}$/`) matches any **three-segment**
+year-terminated id. It constrains the suffix, not the domain, and since #50 a
+four-segment id needs a declared pattern (`FILM_SERIES` is declared only for a closed
+series list).
 
 ## Closed unions (from `types.ts`)
 

@@ -13,10 +13,10 @@ import { FilmSpec, createFilmUniverse } from './film-universe';
  * The ticket proposed `film:legendary:warcraft:2016`. Two things are wrong with
  * it, and both are measurable rather than stylistic:
  *
- * - It has **four** segments, and no declared pattern accepts that shape — only
- *   the `ANY_YEAR_TERMINATED` catch-all (#50). `isValidUniverseId` therefore
- *   returns `true` for it, which is exactly why the permissive validator is not
- *   the guard to trust: assert the *domain* guard (`isFilmUniverseId`) instead.
+ * - It has **four** segments, no declared pattern accepts that shape, and since
+ *   #50 the `ANY_YEAR_TERMINATED` catch-all rejects four-segment ids too — so
+ *   `isValidUniverseId` is `false` for it. Assert the *domain* guard
+ *   (`isFilmUniverseId`) and the factory, not the permissive validator.
  * - `film` is the **generic studio token** (`GENERIC_FILM_STUDIO_TOKEN`), meaning
  *   "no studio named" — not a namespace prefix, and not a distributor. Even as the
  *   three-segment `film:warcraft:2016` it would have dropped the distributor.

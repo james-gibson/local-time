@@ -49,24 +49,23 @@ isValidUniverseId = (id) => Object.values(UNIVERSE_ID_PATTERNS).some((re) => re.
 ```
 
 The last pattern in that table is `ANY_YEAR_TERMINATED =
-/^[a-z0-9_:]+:[a-z0-9_]+:\d{4}$/` — the colon is inside the first character
-class, so it is **arity-blind**. It accepts `a:b:1999`, `a:b:c:1999`,
-`a:b:c:d:e:f:1999`, and `this:is:not:a:real:id:at:all:1999` (james-gibson/local-time#50,
-pinned in `src/core/__tests__/universe-id-fallback.test.ts`).
+/^[a-z0-9_]+:[a-z0-9_]+:\d{4}$/`. It used to be arity-blind — the colon sat inside
+the first character class, so `a:b:c:1999` and `this:is:not:a:real:id:at:all:1999`
+validated. Since #50 it is a genuine **three-segment** shape: an *undeclared
+three-segment domain* still passes (`a:b:1999`), while a four-or-more-segment id
+needs a declared pattern (`SYSTEM`, `US`, `BOOK`, `HISTORICAL`, `PERSONAL`,
+`FILM_SERIES`, …).
 
-So a four-segment id passes `isValidUniverseId` while matching **no declared
-domain**. Measured, 2026-10:
+The inventory that made the tightening safe was one id,
+`film:star_wars:a_new_hope:1977`. It now has a declared shape — `FILM_SERIES`, a
+**closed** series list — rather than a widened FILM.
+`src/core/__tests__/universe-id-fallback.test.ts` pins the arity and the closed list.
 
-```text
-film:legendary:warcraft:2016   matches: ['ANY_YEAR_TERMINATED']   isValidUniverseId: true
-```
-
-That is the exact shape two film tickets shipped. It is not a film id.
-
-The mirror-image trap: `isValidUniverseId` also says `true` for an id in a
+The mirror-image trap survives: `isValidUniverseId` also says `true` for an id in a
 *declared but wrong* domain, because FILM's pattern is the generic three-segment
 shape. `hearing:rogers_commission:1986` validates as a **film** — which is why the
-real id is `history:rogers_commission:1986` (#57).
+real id is `history:rogers_commission:1986` (#57). Tightening the arity did not fix
+that; use the domain guard.
 
 ## 2. The proof procedure — run this before you write the module
 

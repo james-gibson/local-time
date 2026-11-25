@@ -1,5 +1,6 @@
 import {
     createBookUniverseId,
+    createFilmSeriesUniverseId,
     createPersonalUniverseId,
     isBookUniverseId,
     isFilmUniverseId,
@@ -105,11 +106,22 @@ describe('the general id form `<ns>:<subject>[:<sub>]:<year>`', () => {
      * both sides of the colon, so giving it a third segment would make *any* undeclared
      * four-segment id read as a film — the #57 trap (`hearing:rogers_commission:1986`) widened
      * rather than fixed.
+     *
+     * The corpus's one four-segment film id is declared by `FILM_SERIES` instead, with a closed
+     * series list. That is what let #50 tighten `ANY_YEAR_TERMINATED` to three segments.
      */
-    describe('FILM is deliberately not widened', () => {
-        test('the corpus film id of the general form is not a film id', () => {
+    describe('FILM stays three segments; the series form is its own closed pattern', () => {
+        test('the corpus film id is declared by FILM_SERIES, not by FILM', () => {
             expect(UNIVERSE_ID_PATTERNS.FILM.test('film:star_wars:a_new_hope:1977')).toBe(false);
-            expect(isFilmUniverseId('film:star_wars:a_new_hope:1977')).toBe(false);
+            expect(UNIVERSE_ID_PATTERNS.FILM_SERIES.test('film:star_wars:a_new_hope:1977')).toBe(true);
+            expect(isFilmUniverseId('film:star_wars:a_new_hope:1977')).toBe(true);
+        });
+
+        test('the factory reproduces it, and refuses an undeclared series', () => {
+            expect(createFilmSeriesUniverseId('star_wars', 'a_new_hope', 1977))
+                .toBe('film:star_wars:a_new_hope:1977');
+            expect(() => createFilmSeriesUniverseId('star_trek', 'the_motion_picture', 1979))
+                .toThrow(/Invalid film-series universe ID format/);
         });
 
         test('no undeclared four-segment id reads as a film', () => {
