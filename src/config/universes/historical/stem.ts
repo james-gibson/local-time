@@ -1,4 +1,5 @@
 import { Universe, UniverseType } from '../../../core/types';
+import { createTechnologyEventId } from '../../../core/universe-ids';
 
 /**
  * Invention of the Electric Telegraph - Revolution in Communication
@@ -24,8 +25,7 @@ import { Universe, UniverseType } from '../../../core/types';
  * Hierarchical Context: INDUSTRIAL_REVOLUTION -> US_HISTORY -> WORLD_HISTORY
  */
 export const electricTelegraphUniverse: Universe = {
-    universeId: "technology:electric_telegraph:1837", //createTechnologyUniverseId('communication',
-    // 'electric_telegraph', '1837'),
+    universeId: createTechnologyEventId('electric_telegraph', 1837),
     type: UniverseType.TECHNOLOGY,
     identifiers: {
         primary: 'tech:communication:telegraph:1837',
@@ -130,7 +130,7 @@ export const electricTelegraphUniverse: Universe = {
  * Hierarchical Context: WORLD_WAR_II -> WORLD_HISTORY
  */
 export const penicillinDiscoveryUniverse: Universe = {
-    universeId: "technology:penicillin:1928", //createHistoricalUniverseId('medicine', 'penicillin_discovery', '1928'),
+    universeId: createTechnologyEventId('penicillin', 1928),
     type: UniverseType.HISTORICAL_EVENT,
     identifiers: {
         primary: 'history:medicine:penicillin:1928',
@@ -253,8 +253,7 @@ export const penicillinDiscoveryUniverse: Universe = {
  * Hierarchical Context: BELL_LABS -> AT&T_CORPORATE -> US_HISTORY
  */
 export const transistorInventionUniverse: Universe = {
-    universeId: "technology:transistor:1947", // createTechnologyUniverseId('electronics', 'transistor_invention',
-    // '1947'),
+    universeId: createTechnologyEventId('transistor', 1947),
     type: UniverseType.TECHNOLOGY,
     identifiers: {
         primary: 'tech:electronics:transistor:1947',
@@ -371,7 +370,7 @@ export const transistorInventionUniverse: Universe = {
  * Hierarchical Context: CERN -> WORLD_HISTORY
  */
 export const worldWideWebUniverse: Universe = {
-    universeId:"technology:world_wide_web:1989", // createTechnologyUniverseId('internet', 'world_wide_web', '1989')
+    universeId: createTechnologyEventId('world_wide_web', 1989),
     type: UniverseType.TECHNOLOGY,
     identifiers: {
         primary: 'tech:internet:www:1989',

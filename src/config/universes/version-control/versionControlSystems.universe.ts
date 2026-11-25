@@ -1,5 +1,6 @@
 import { Universe, UniverseType } from '../../../core/types';
 import { CommonUniverseIds } from '../../../core/common-universe-ids';
+import { createTechnologyEventId } from '../../../core/universe-ids';
 
 /**
  * Version control systems — james-gibson/local-time#7.
@@ -79,7 +80,7 @@ const VCS_CONTEXT = [
  * Hierarchical Context: VERSION_CONTROL -> SOFTWARE_ENGINEERING -> WORLD_HISTORY
  */
 export const sccsUniverse: Universe = {
-  universeId: 'technology:sccs:1972',
+  universeId: createTechnologyEventId('sccs', 1972),
   type: UniverseType.TECHNOLOGY,
   identifiers: {
     primary: 'tech:vcs:sccs:1972',
@@ -193,7 +194,7 @@ export const sccsUniverse: Universe = {
  * Hierarchical Context: VERSION_CONTROL -> SOFTWARE_ENGINEERING -> WORLD_HISTORY
  */
 export const rcsUniverse: Universe = {
-  universeId: 'technology:rcs:1982',
+  universeId: createTechnologyEventId('rcs', 1982),
   type: UniverseType.TECHNOLOGY,
   identifiers: {
     primary: 'tech:vcs:rcs:1982',
@@ -311,7 +312,7 @@ export const rcsUniverse: Universe = {
  * Hierarchical Context: VERSION_CONTROL -> SOFTWARE_ENGINEERING -> WORLD_HISTORY
  */
 export const cvsUniverse: Universe = {
-  universeId: 'technology:cvs:1986',
+  universeId: createTechnologyEventId('cvs', 1986),
   type: UniverseType.TECHNOLOGY,
   identifiers: {
     primary: 'tech:vcs:cvs:1986',
@@ -446,7 +447,7 @@ export const cvsUniverse: Universe = {
  * Hierarchical Context: VERSION_CONTROL -> SOFTWARE_ENGINEERING -> WORLD_HISTORY
  */
 export const subversionUniverse: Universe = {
-  universeId: 'technology:subversion:2000',
+  universeId: createTechnologyEventId('subversion', 2000),
   type: UniverseType.TECHNOLOGY,
   identifiers: {
     primary: 'tech:vcs:subversion:2000',
@@ -572,7 +573,7 @@ export const subversionUniverse: Universe = {
  * Hierarchical Context: VERSION_CONTROL -> SOFTWARE_ENGINEERING -> WORLD_HISTORY
  */
 export const bitKeeperUniverse: Universe = {
-  universeId: 'technology:bitkeeper:2000',
+  universeId: createTechnologyEventId('bitkeeper', 2000),
   type: UniverseType.TECHNOLOGY,
   identifiers: {
     primary: 'tech:vcs:bitkeeper:2000',
@@ -715,7 +716,7 @@ export const bitKeeperUniverse: Universe = {
  * Hierarchical Context: VERSION_CONTROL -> SOFTWARE_ENGINEERING -> WORLD_HISTORY
  */
 export const gitUniverse: Universe = {
-  universeId: 'technology:git:2005',
+  universeId: createTechnologyEventId('git', 2005),
   type: UniverseType.TECHNOLOGY,
   identifiers: {
     primary: 'tech:vcs:git:2005',
@@ -863,7 +864,7 @@ export const gitUniverse: Universe = {
  * Hierarchical Context: VERSION_CONTROL -> SOFTWARE_ENGINEERING -> WORLD_HISTORY
  */
 export const mercurialUniverse: Universe = {
-  universeId: 'technology:mercurial:2005',
+  universeId: createTechnologyEventId('mercurial', 2005),
   type: UniverseType.TECHNOLOGY,
   identifiers: {
     primary: 'tech:vcs:mercurial:2005',

@@ -418,7 +418,7 @@ export const UNIVERSE_ID_PATTERNS = {
    *   - `hearing:rogers_commission:1986` validates as **FILM**, because FILM's pattern is
    *     the same generic three-segment shape. #57 hit this: the id for a congressional
    *     hearing would have been accepted as a film.
-   *   - four-segment ids built by the three-argument `createTechnicalUniverseId` are
+   *   - four-segment ids built by the three-argument `createQualifiedId` are
    *     accepted although no declared pattern covers them (#51).
    *
    * Tightening this to a real three-segment shape is the better fix and is still open; it
@@ -737,9 +737,8 @@ function normaliseIdSegment(value: string): string {
  * argument. There were no callers, which is why it went unnoticed — the bug was latent,
  * not exercised.
  *
- * Note the name collision this sat next to: `createTechnicalUniverseId` in
- * `core/ids/id-creators.ts` and again in `core/types.ts` is a *different*, three-argument
- * function with a different id shape. See the linked issue.
+ * For a *dated* technology record use {@link createTechnologyEventId}, one function
+ * below: this one cannot express `technology:<name>:<year>`.
  */
 export function createTechnologyUniverseId(name: string): TechnologyUniverseId {
   const id = `technology:${normaliseIdSegment(name)}:*`;
@@ -750,16 +749,41 @@ export function createTechnologyUniverseId(name: string): TechnologyUniverseId {
 }
 
 /**
+ * A dated technology universe id: `technology:<name>:<year>`.
+ *
+ * This is the shape the corpus actually uses for a technology *event* — an invention or
+ * a first release pinned to a year: `technology:electric_telegraph:1837`,
+ * `technology:transistor:1947`, `technology:git:2005`, `technology:sccs:1972`.
+ * {@link createTechnologyUniverseId} emits the undated `technology:<name>:*` form, so
+ * it cannot express them. Before this factory existed every such record was a hardcoded
+ * literal (with a dead three-argument `createTechnologyUniverseId` call beside it in
+ * `historical/stem.ts`), or routed through the generic `createUniverseId`
+ * (james-gibson/local-time#121, #51).
+ *
+ * `name` is normalised through {@link normaliseIdSegment} first, so `'World-Wide Web'`
+ * becomes `world_wide_web`. The trailing year is what makes a technology id sortable and
+ * groupable by decade without a lookup.
+ */
+export function createTechnologyEventId(name: string, year: number): TechnologyUniverseId {
+  const id = `technology:${normaliseIdSegment(name)}:${year}`;
+  if (!isTechnologyUniverseId(id)) {
+    throw new Error(`Invalid technology event universe ID format: ${id}`);
+  }
+  return id as TechnologyUniverseId;
+}
+
+/**
  * A qualified, versioned, dated id: `<category>:<identifier>[:<version>]:<currentYear>`.
  *
- * **Not to be confused with {@link createTechnologyUniverseId}**, one line above. The
- * names differ by four characters and mean unrelated things:
+ * A generic, machine-facing namespace record — `category` is free-form (`system`, `log`,
+ * `home_energy_monitoring`, …), and the id claims nothing about a domain. Example:
+ * `system:secure_ledger:authentication_v1:2026`.
  *
- * - `createTechnologyUniverseId(name)` — a *technology universe*, `technology:<name>:*`.
- * - `createTechnicalUniverseId(category, identifier, version?)` — a generic namespaced
- *   identifier, e.g. `system:secure_ledger:authentication_v1:2026`. Not a technology at
- *   all; "technical" here means "machine-facing", and `category` is free-form
- *   (`system`, `log`, …).
+ * It was called `createTechnicalUniverseId` until local-time#121: four characters from
+ * {@link createTechnologyUniverseId} above while meaning something unrelated. The
+ * collision is what produced #21 and the dead three-argument calls in
+ * `historical/stem.ts`, so the name now says what the function is — a *qualified* id,
+ * not a technical or technology one.
  *
  * This function was previously defined **twice, byte-identically**, in
  * `core/ids/id-creators.ts` and `core/types.ts` (local-time#51). Two copies meant the
@@ -778,7 +802,7 @@ export function createTechnologyUniverseId(name: string): TechnologyUniverseId {
  *   `id as UniverseId` without checking against any pattern, so a four-segment id like
  *   `system:secure_ledger:authentication_v1:2026` is returned unchecked.
  */
-export function createTechnicalUniverseId(
+export function createQualifiedId(
   category: string,
   identifier: string,
   version?: string,

@@ -1,4 +1,4 @@
-import { createTechnicalUniverseId } from '../../../core/universe-ids';
+import { createQualifiedId } from '../../../core/universe-ids';
 import {
     Universe,
     UniverseType,
@@ -110,7 +110,7 @@ const mdtToUtcBigInt = (dateString: string): bigint => {
  *   is declared here; a real container should be created first if one is wanted.
  */
 export const homeEnergyLogSept2025Universe: Universe = {
-    universeId: createTechnicalUniverseId('home_energy_monitoring', 'user_redacted_202509'),
+    universeId: createQualifiedId('home_energy_monitoring', 'user_redacted_202509'),
     type: UniverseType.TECHNICAL_LOG,
     canonicalName: 'Home Energy Monitoring Log - September 2025',
     description:

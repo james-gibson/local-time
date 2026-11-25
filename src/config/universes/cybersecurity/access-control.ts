@@ -1,4 +1,4 @@
-import { createTechnicalUniverseId } from '../../../core/universe-ids';
+import { createQualifiedId } from '../../../core/universe-ids';
 import { Universe, UniverseType, RelationshipType } from '../../../core/types';
 
 /**
@@ -56,7 +56,7 @@ export enum SystemComponent {
  * Reality Relation: inspired_by real-world cryptographic systems with 0.1 fictionalization (as a specific, unimplemented system).
  */
 export const ledgerAuthenticationSystemUniverse: Universe = {
-    universeId: createTechnicalUniverseId('system', 'secure_ledger', 'authentication_v1'),
+    universeId: createQualifiedId('system', 'secure_ledger', 'authentication_v1'),
     type: UniverseType.TECHNICAL_SPECIFICATION,
     identifiers: {
         primary: 'ledger:auth:v1',
@@ -136,7 +136,7 @@ export const ledgerAuthenticationSystemUniverse: Universe = {
  * Reality Relation: inspired_by real-world hybrid encryption schemes like PGP/GPG.
  */
 export const perRecordEncryptionUniverse: Universe = {
-    universeId: createTechnicalUniverseId('system', 'secure_ledger', 'per_record_encryption_v1'),
+    universeId: createQualifiedId('system', 'secure_ledger', 'per_record_encryption_v1'),
     type: UniverseType.TECHNICAL_SPECIFICATION,
     identifiers: {
         primary: 'ledger:encryption:v1',
@@ -214,7 +214,7 @@ export const perRecordEncryptionUniverse: Universe = {
  * Reality Relation: inspired_by confidential computing and distributed storage systems.
  */
 export const distributedCustodianArchitectureUniverse: Universe = {
-    universeId: createTechnicalUniverseId('system', 'secure_ledger', 'distributed_custodian_arch_v1'),
+    universeId: createQualifiedId('system', 'secure_ledger', 'distributed_custodian_arch_v1'),
     type: UniverseType.TECHNICAL_SPECIFICATION,
     identifiers: {
         primary: 'ledger:distribution:v1',
@@ -297,7 +297,7 @@ export const distributedCustodianArchitectureUniverse: Universe = {
  * Reality Relation: inspired_by certificate revocation lists (CRLs) and BFT consensus.
  */
 export const custodianBreachResponseUniverse: Universe = {
-    universeId: createTechnicalUniverseId('system', 'secure_ledger', 'custodian_breach_response_v1'),
+    universeId: createQualifiedId('system', 'secure_ledger', 'custodian_breach_response_v1'),
     type: UniverseType.TECHNICAL_SPECIFICATION,
     identifiers: {
         primary: 'ledger:recovery:v1',

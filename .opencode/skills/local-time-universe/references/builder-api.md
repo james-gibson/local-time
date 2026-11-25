@@ -180,9 +180,10 @@ Never overwrites a value the caller set.
 | `createBiographyUniverseId(person, birth, death?)` | `biography:<person>:YYYY-YYYY\|present` | yes |
 | `createHistoricalUniverseId(event, year\|'*', timeRange?)` | `history:<event>:<span>` | yes |
 | `createTechnologyUniverseId(name)` | `technology:<name>:*` | yes |
+| `createTechnologyEventId(name, year)` | `technology:<name>:YYYY` | yes |
 | `createSystemUniverseId(name, version)` | `system:<slug>[:<subsystem>]:<version>` | yes |
 | `createCyberSecurityUniverseId(name, cve)` | `cybersecurity:<name>:<cve>` | yes |
-| `createTechnicalUniverseId(cat, id, version?)` | `<cat>:<id>[:<version>]:<currentYear>` | **no — also non-deterministic** (#51) |
+| `createQualifiedId(cat, id, version?)` | `<cat>:<id>[:<version>]:<currentYear>` | **no — also non-deterministic** (#51); renamed from `createTechnicalUniverseId` (#121) |
 
 Guards: `isValidUniverseId` = any declared pattern; per-domain guards
 `isFilmUniverseId`, `isHistoricalUniverseId`, … `isValidUniverseId` is broad because
