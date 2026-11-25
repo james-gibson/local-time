@@ -21,6 +21,21 @@ marking where the reader's present has overtaken a work's own claim. Chart form 
 xkcd #1491, *Stories of the Past and Future* (Randall Munroe, CC BY-NC 2.5) —
 <https://xkcd.com/1491/>. The form is reused; the artwork is not, and is not vendored.
 
+### The fixture pair: the chart's claims, and the erratum beside them
+
+The port is accepted by reproducing the **rendering authority**,
+`system:chart:xkcd_1491_authority:v1` — a closed dataset generated from
+`src/config/universes/reference/xkcd-1491-table.json` and drawn by `npm run chart:authority`.
+What the chart gets wrong is recorded in a **separate** universe,
+`system:chart:xkcd_1491_corrections:v1`, whose keyframes point at the authority keyframe each
+one corrects; the edge runs one way only, because a fixture that depends on its own erratum
+can no longer be regenerated from a single file — the book does not cite its corrections
+page — and a test asserts the authority module contains no reference to the corrections. The
+corrections overlay is not part of the conformance gate (the `--authority` view renders the
+chart's own claims, errors and all), and a future import should reuse this shape — a closed
+authority for reproduction, a one-way erratum beside it — rather than embedding notes in the
+fixture.
+
 ## Commands
 
 ```sh
